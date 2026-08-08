@@ -1,0 +1,2839 @@
+/* ==========================================================================
+   Mohamed Elhayyany — Portfolio (v2)
+
+   1. Variables      every colour and spacing value, declared once
+   2. Reset and base
+   3. Shared pieces  container, labels, buttons, skip link
+   4. Nav
+   5. Mobile menu
+   6. Hero
+   7. Larger screens
+   8. Reduced motion
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Variables — change a value here and it updates everywhere
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* Colour */
+  /* Barely-perceptible warm tint off pure black, rather than true #000 */
+  --bg:          #0B0A0F;
+  --surface:     #131316;
+  --border:      #232329;
+  --text:        #FFFFFF;
+  --body:        #C7C7CE;
+  --muted:       #86868F;
+  --accent:      #8B5CF6;
+  --accent-soft: #A78BFA;
+  /* A second, warm accent — used only for numbering (section and card
+     indices), tag chips, the hero full stop, and the hero stat values.
+     Every other accent use on the page stays violet. */
+  --accent-2:    #F5A623;
+
+  /* Translucent dark, for the nav once it has a background */
+  --bg-blur: rgba(8, 8, 10, 0.72);
+
+  /* The one violet bloom. Defined once so the page can only ever have
+     a single glow treatment, as the brief requires. */
+  --glow: radial-gradient(circle at 50% 50%,
+          rgba(139, 92, 246, 0.40) 0%,
+          rgba(139, 92, 246, 0.12) 45%,
+          transparent 70%);
+
+  /* The one deliberate exception: a warm amber bloom, used only behind
+     the Contact heading, on the site owner's explicit request. */
+  --glow-warm: radial-gradient(circle at 50% 50%,
+          rgba(245, 166, 35, 0.35) 0%,
+          rgba(245, 166, 35, 0.10) 45%,
+          transparent 70%);
+
+  /* Spacing */
+  --space-2xs: 0.375rem;
+  --space-xs:  0.625rem;
+  --space-sm:  1rem;
+  --space-md:  1.5rem;
+  --space-lg:  2.25rem;
+  --space-xl:  3.5rem;
+  --space-2xl: 5rem;
+
+  /* Type */
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+
+  --text-name:    clamp(3rem, 12vw, 8rem);
+  --text-heading: clamp(2rem, 5vw, 3.5rem);
+  --text-stat:    clamp(2rem, 6vw, 2.75rem);
+  --text-lg:      1.25rem;
+  --text-body:    1.05rem;
+  --text-marquee: 0.875rem;
+  --text-label:   0.75rem;
+
+  --leading-name: 0.9;
+  --leading-body: 1.75;
+
+  --tracking-name:  -0.03em;
+  --tracking-label: 0.16em;
+
+  /* Layout */
+  --wrap-max:   1200px;
+  --measure:    65ch;
+  --nav-height: 4.5rem;
+  --section-padding: clamp(5rem, 12vh, 9rem);
+
+  /* Shape and motion */
+  --radius:    4px;
+  --radius-md: 12px;
+  --radius-lg: 999px;
+
+  --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+  --fast:       200ms;
+  --slow:       400ms;
+  --rise-time:  600ms;
+  /* Shorter and on its own — the hero's load-in stagger, separate from
+     --rise-time above (which the scroll-triggered section reveals keep
+     using unchanged), so cutting the hero's worst-case blank window on
+     a slow device doesn't also touch scroll-reveal timing */
+  --rise-time-hero: 450ms;
+
+  /* The nav sits above the menu on purpose: the burger lives inside it,
+     and it has to stay reachable as the close button while the overlay
+     is open. A child cannot escape its parent's stacking context, so
+     lifting the button alone would not work. */
+  --z-dots:     55;
+  --z-menu:     60;
+  --z-nav:      70;
+  --z-lightbox: 80;
+  --z-noise:    90;
+  --z-cursor:   95;
+  /* The atmosphere layer, behind every normal page element. -1 sits
+     between the two — "above background, beneath content" for the
+     cursor glow specifically. */
+  --z-bg:          -2;
+  --z-cursor-glow: -1;
+}
+
+/* --------------------------------------------------------------------------
+   2. Reset and base
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: var(--bg);
+  scroll-behavior: smooth;
+  /* Stops a linked section landing underneath the fixed nav */
+  scroll-padding-top: calc(var(--nav-height) + var(--space-sm));
+  /* Has to be here as well as on body. On its own, body's overflow-x is
+     unreliable on mobile — the document still scrolls because the
+     viewport takes its overflow from html, not from body. */
+  overflow-x: hidden;
+}
+
+/* Belt and braces alongside html's scroll-padding-top above: this puts
+   the same offset directly on every section, the actual target elements
+   rather than the scroll container. scroll-padding-top alone should be
+   enough in modern browsers, but some scroll paths (a fragment link on
+   first load before scroll-padding is fully honoured, older Safari)
+   respect scroll-margin-top on the target more reliably. */
+section {
+  scroll-margin-top: var(--nav-height);
+}
+
+body {
+  margin: 0;
+  color: var(--body);
+  font-family: var(--font);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  /* Belt and braces: nothing should ever push the page sideways */
+  overflow-x: hidden;
+}
+
+/* Set while the mobile menu is open, so the page behind can't scroll */
+body.is-locked {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd {
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+strong {
+  /* The emphasis pattern used throughout: a phrase lifted out of the
+     sentence around it, brighter and heavier, never a different colour */
+  font-weight: 600;
+  color: var(--text);
+}
+
+em {
+  /* The occasional italic accent word, for rhythm in a heading */
+  font-style: italic;
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--radius);
+}
+
+/* --------------------------------------------------------------------------
+   2b. Atmosphere — the fixed background layer behind every section:
+   one canvas (particles + sparkles, drawn by script.js), two static
+   corner glows, a cursor-following glow, a grain overlay, and the
+   custom cursor. All decorative and aria-hidden; script.js gates all of
+   it behind prefers-reduced-motion and, for the cursor pieces, hover
+   capability.
+   -------------------------------------------------------------------------- */
+
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-bg);
+  pointer-events: none;
+}
+
+.bg-glow {
+  position: fixed;
+  z-index: var(--z-bg);
+  width: min(56vw, 620px);
+  aspect-ratio: 1;
+  filter: blur(90px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.bg-glow--top {
+  top: -12%;
+  right: -12%;
+  background: var(--glow-warm);
+}
+
+.bg-glow--bottom {
+  bottom: -12%;
+  left: -12%;
+  background: var(--glow);
+}
+
+/* Follows the cursor on desktop only — script.js only ever moves this
+   under finePointer, so on touch it just sits at 0,0 with opacity: 0 */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cursor-glow);
+  width: 400px;
+  height: 400px;
+  margin: -200px 0 0 -200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.14) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fast) ease;
+  will-change: transform;
+}
+
+.cursor-glow.is-active {
+  opacity: 1;
+}
+
+/* A tiled feTurbulence SVG, not an external image — stays inside the
+   "no CDN except fonts" rule. 3% opacity is deliberately barely there. */
+.noise {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-noise);
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* ---- Custom cursor — desktop only ---- */
+
+@media (hover: hover) {
+  html {
+    cursor: none;
+  }
+
+  a,
+  button {
+    cursor: none;
+  }
+}
+
+.cursor-dot,
+.cursor-ring {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-cursor);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fast) ease,
+              width var(--fast) ease,
+              height var(--fast) ease,
+              margin var(--fast) ease,
+              border-color var(--fast) ease;
+}
+
+@media (hover: hover) {
+  .cursor-dot,
+  .cursor-ring {
+    display: block;
+  }
+}
+
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  background-color: var(--accent);
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 1px solid var(--accent-soft);
+}
+
+/* Set once JavaScript has a real cursor position to draw, so nothing
+   sits pinned at the top-left corner before the first mousemove */
+.cursor-dot.is-active,
+.cursor-ring.is-active {
+  opacity: 1;
+}
+
+/* Set by script.js while the cursor is over a link, button, video card
+   or work card */
+.cursor-ring.is-hovering {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-color: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   3. Shared pieces — the nav and hero use these, later sections will too
+   -------------------------------------------------------------------------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--wrap-max);
+  margin-inline: auto;
+  padding-inline: var(--space-md);
+}
+
+/* The small uppercase label: eyebrows, stat labels, section markers */
+.label {
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Hidden until a keyboard user tabs to it, then it drops into view */
+.skip-link {
+  position: absolute;
+  top: var(--space-xs);
+  left: var(--space-xs);
+  z-index: 100;
+  padding: var(--space-2xs) var(--space-sm);
+  background-color: var(--accent);
+  color: #FFFFFF;
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  border-radius: var(--radius);
+  transform: translateY(-200%);
+  transition: transform var(--fast) ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xs) var(--space-lg);
+  min-height: 3rem;
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  text-align: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  transition: background-color var(--fast) ease,
+              border-color var(--fast) ease,
+              color var(--fast) ease,
+              transform 200ms ease-out;
+}
+
+.btn--filled {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: #FFFFFF;
+}
+
+.btn--outline {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn--ghost {
+  color: var(--muted);
+}
+
+/* Every hover is gated, so a tap on a phone can never leave a control
+   stuck in its hovered state */
+@media (hover: hover) {
+  .btn--filled:hover {
+    background-color: var(--accent-soft);
+    border-color: var(--accent-soft);
+  }
+
+  .btn--outline:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn--ghost:hover {
+    color: var(--text);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. Nav — fixed, transparent over the hero, blurred once scrolled
+   -------------------------------------------------------------------------- */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-nav);
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color var(--fast) ease,
+              border-color var(--fast) ease;
+}
+
+/* Added by script.js once the page has been scrolled */
+.nav.is-scrolled {
+  background-color: var(--bg-blur);
+  border-bottom-color: var(--border);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* While the menu is open the nav is floating over the overlay, which has
+   a background of its own — a second bar on top of it would only add a
+   seam. Just the brand and the close button are left. */
+body.is-locked .nav.is-scrolled {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+.nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: var(--nav-height);
+}
+
+.nav__brand {
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text);
+  transition: color var(--fast) ease;
+}
+
+/* The inline links are desktop only — the overlay takes over below 900px */
+.nav__links {
+  display: none;
+}
+
+.nav__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.nav__link {
+  position: relative;
+  display: inline-block;
+  padding-block: var(--space-2xs);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color var(--fast) ease;
+}
+
+/* The hover underline — grown from the left, same technique as the
+   Contact email's own hover underline further down */
+.nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background-color: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--fast) ease;
+}
+
+/* "You are here" — script.js keeps this in sync with the section
+   currently centred in the viewport, alongside the reading highlight. */
+.nav__link.is-active {
+  color: var(--accent);
+}
+
+.nav__resume {
+  display: inline-block;
+  padding: var(--space-2xs) var(--space-md);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--fast) ease,
+              color var(--fast) ease;
+}
+
+@media (hover: hover) {
+  .nav__brand:hover {
+    color: var(--accent);
+  }
+
+  .nav__link:hover {
+    color: var(--accent);
+  }
+
+  .nav__link:hover::after {
+    transform: scaleX(1);
+  }
+
+  .nav__resume:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+/* Menu button */
+.burger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding-block: var(--space-2xs);
+}
+
+.burger__label {
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color var(--fast) ease;
+}
+
+/* Three rules that fold into a cross. The middle one is the element's own
+   background, so it can be wiped out while the outer two rotate — one
+   continuous morph rather than two icons swapped over. */
+.burger__icon {
+  position: relative;
+  width: 20px;
+  height: 13px;
+  background-image: linear-gradient(var(--body), var(--body));
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 1px;
+  transition: background-size var(--fast) ease;
+}
+
+.burger__icon::before,
+.burger__icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: var(--body);
+  transition: top 300ms var(--ease),
+              transform 300ms var(--ease);
+}
+
+.burger__icon::before { top: 0; }
+.burger__icon::after  { top: 12px; }
+
+.burger[aria-expanded="true"] .burger__icon {
+  background-size: 0% 1px;
+}
+
+.burger[aria-expanded="true"] .burger__icon::before {
+  top: 6px;
+  transform: rotate(45deg);
+}
+
+.burger[aria-expanded="true"] .burger__icon::after {
+  top: 6px;
+  transform: rotate(-45deg);
+}
+
+/* --------------------------------------------------------------------------
+   5. Mobile menu — wipes in from the right
+
+   visibility rather than the hidden attribute, because display: none
+   cannot be transitioned. It switches instantly, but only once the wipe
+   has finished on the way out.
+   -------------------------------------------------------------------------- */
+
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-menu);
+  display: flex;
+  flex-direction: column;
+  /* Links and the Resume button sit together at the top; the contact
+     block is pushed to the foot by its own auto margin, so there is no
+     dead space between the links and the button */
+  justify-content: flex-start;
+  gap: var(--space-lg);
+  padding: calc(var(--nav-height) + var(--space-lg)) var(--space-md) var(--space-xl);
+  overflow: hidden;
+  background-color: rgba(8, 8, 10, 0.86);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform var(--slow) var(--ease),
+              visibility 0s linear var(--slow);
+}
+
+.menu.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform var(--slow) var(--ease),
+              visibility 0s linear 0s;
+}
+
+/* The one glow permitted on this screen, in the corner the panel
+   arrives from */
+.menu__glow {
+  position: absolute;
+  top: -20%;
+  right: -30%;
+  width: 90%;
+  aspect-ratio: 1;
+  background: var(--glow);
+  filter: blur(70px);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.menu__nav {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+/* Hairline between each, never above the first or below the last */
+.menu__item + .menu__item {
+  border-top: 1px solid var(--border);
+}
+
+/* The closing state lives here: short and undelayed, so the links clear
+   out quickly. The open rules below slow it down and stagger it. */
+.menu__item,
+.menu__resume,
+.menu__foot {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 150ms ease,
+              transform 150ms ease;
+}
+
+.menu.is-open .menu__item,
+.menu.is-open .menu__resume,
+.menu.is-open .menu__foot {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--slow) ease,
+              transform var(--slow) var(--ease);
+}
+
+/* One behind the next, starting once the panel is most of the way in */
+.menu.is-open .menu__item:nth-child(1) { transition-delay: 140ms; }
+.menu.is-open .menu__item:nth-child(2) { transition-delay: 200ms; }
+.menu.is-open .menu__item:nth-child(3) { transition-delay: 260ms; }
+.menu.is-open .menu__item:nth-child(4) { transition-delay: 320ms; }
+.menu.is-open .menu__item:nth-child(5) { transition-delay: 380ms; }
+.menu.is-open .menu__item:nth-child(6) { transition-delay: 440ms; }
+.menu.is-open .menu__resume { transition-delay: 500ms; }
+.menu.is-open .menu__foot { transition-delay: 560ms; }
+
+.menu__link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  padding-block: var(--space-sm);
+  color: var(--text);
+  transition: color var(--fast) ease;
+}
+
+.menu__num {
+  flex-shrink: 0;
+}
+
+.menu__text {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.menu__link.is-active,
+.menu__link.is-active .menu__num {
+  color: var(--accent);
+}
+
+@media (hover: hover) {
+  .menu__link:hover {
+    color: var(--accent);
+  }
+}
+
+/* Pushed to the foot of the panel by its own margin, rather than by
+   spacing the whole column out */
+.menu__foot {
+  position: relative;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.menu__contact {
+  color: var(--muted);
+  transition: color var(--fast) ease;
+}
+
+.menu__place {
+  color: var(--muted);
+}
+
+@media (hover: hover) {
+  .menu__contact:hover {
+    color: var(--text);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. Hero
+   -------------------------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  /* A minimum rather than a fixed height, so a small phone grows instead
+     of clipping. svh tracks the visible viewport, which avoids the mobile
+     browser bug where 100vh tucks content under the address bar. */
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  /* Tight on a phone so the name, pitch, portrait and buttons all clear
+     the first screen. The desktop breakpoint opens both back up. */
+  padding-top: calc(var(--nav-height) + var(--space-md));
+  padding-bottom: var(--space-xl);
+  overflow-x: hidden;
+}
+
+/* Flat on purpose: the portrait sits between the pitch and the buttons on
+   a phone, and it can only do that by being their sibling. The desktop
+   grid further down puts it back beside the copy. */
+.hero__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.hero__intro {
+  display: flex;
+  flex-direction: column;
+  /* stretch, not flex-start: .hero__inner's own align-items: flex-start
+     means a flex item's cross-size defaults to fit-content rather than
+     the container's full width — fine for .hero__media (deliberately
+     narrower), wrong for this column, where it let the pitch paragraph
+     size itself wider than the viewport instead of wrapping within it */
+  align-items: stretch;
+  gap: var(--space-sm);
+  width: 100%;
+  min-width: 0;
+}
+
+.hero__name {
+  font-size: var(--text-name);
+  font-weight: 800;
+  line-height: var(--leading-name);
+  letter-spacing: var(--tracking-name);
+  color: var(--text);
+}
+
+/* The full stop after the name — the second, warm accent */
+.hero__stop {
+  color: var(--accent-2);
+}
+
+.hero__pitch {
+  max-width: var(--measure);
+  color: var(--body);
+}
+
+/* No bottom margins on any of these — the gap on .hero__inner sets the
+   spacing, and a margin on top of it would double up */
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+/* Stats — one per line on a phone, value then label, so a label like
+   "Policy accuracy at scale" reads across instead of wrapping to three
+   lines in a narrow column. They go back to three columns on desktop. */
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  width: 100%;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+.stat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+}
+
+.stat__value {
+  font-size: var(--text-stat);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--accent-2);
+  /* A fixed column for the number, so the labels beside them line up
+     however many digits each value has */
+  flex-shrink: 0;
+  min-width: 3.5ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__label {
+  display: block;
+}
+
+.hero__availability {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.hero__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Portrait */
+.hero__media {
+  position: relative;
+  width: 100%;
+  /* Narrow enough that a 30vh-tall crop stays close to square rather
+     than becoming a wide letterbox band across the face */
+  max-width: 230px;
+  align-self: flex-start;
+}
+
+.hero__glow {
+  position: absolute;
+  inset: -10% -4%;
+  z-index: -1;
+  background: var(--glow);
+  filter: blur(48px);
+  pointer-events: none;
+}
+
+.portrait {
+  width: 100%;
+  /* Height-led on a phone, so the portrait can never grow tall enough to
+     push the buttons off the first screen. svh with a vh fallback for
+     older browsers. */
+  height: 30vh;
+  height: 30svh;
+  /* Weighted well above centre, so the crop always lands on the face */
+  object-fit: cover;
+  object-position: 50% 12%;
+  border-radius: var(--radius);
+  /* The photo was shot on a light backdrop, which reads as a bright slab
+     against a near-black page. Fading the edges to transparent lets it
+     sit into the background instead of ending at a hard rectangle — and
+     the violet .hero__glow behind it shows through the softened edge. */
+  -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
+  mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
+}
+
+/* Greyscale lives entirely inside the hover query, so it only exists on
+   devices that have a hover to undo it with. A phone has none — leaving
+   the filter on the base rule there would strand the photo permanently
+   grey with no way back to colour, so on mobile it simply stays in
+   colour and only the edge mask applies. */
+@media (hover: hover) {
+  .portrait {
+    filter: grayscale(1);
+    transition: filter 400ms ease;
+  }
+
+  .portrait:hover {
+    filter: grayscale(0);
+  }
+}
+
+/* Scroll cue — desktop only. It is absolutely positioned at the foot of
+   the hero, which on a phone is well below the fold and lands on top of
+   the availability line. It also says little to someone who is already
+   holding the page. */
+.scroll-cue {
+  display: none;
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-md);
+  transform: translateX(-50%);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  transition: color var(--fast) ease;
+}
+
+.scroll-cue__line {
+  width: 1px;
+  height: 2.5rem;
+  background: linear-gradient(var(--muted), transparent);
+}
+
+@media (hover: hover) {
+  .scroll-cue:hover .label {
+    color: var(--text);
+  }
+}
+
+/* ---- Hero split on scroll -------------------------------------------------
+   script.js drives transform and opacity on these five blocks straight
+   from scroll position: on desktop the left column slides left and the
+   portrait slides right as the first viewport scrolls away; below 900px
+   there is no room to send anything sideways, so they only fade.
+
+   The transition has to come off first. Every one of these either is, or
+   contains, a [data-rise] element carrying a 450ms transform/opacity
+   transition for the load-in — leave that in place and a value written
+   every frame from the scroll position would arrive 450ms late and smear
+   instead of tracking. script.js adds .is-split-ready once the load rise
+   has finished, which is also what tells it that it may start writing.
+   ------------------------------------------------------------------------ */
+
+.hero.is-split-ready .hero__intro,
+.hero.is-split-ready .hero__actions,
+.hero.is-split-ready .stats,
+.hero.is-split-ready .hero__availability,
+.hero.is-split-ready .hero__media,
+.hero.is-split-ready [data-rise] {
+  transition: none;
+}
+
+/* Hero content rises into place on load, one piece behind the next.
+   Scoped to .js, same as [data-reveal] below — without it (JS off, or
+   script.js failing before it reaches the riser code) the hero is
+   simply there, visible, rather than permanently hidden with nothing
+   left to ever show it again. */
+.js [data-rise] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--rise-time-hero) var(--ease),
+              transform var(--rise-time-hero) var(--ease);
+}
+
+.js [data-rise].is-risen {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   7. Marquee — an endless strip of capability keywords
+
+   Driven entirely by a CSS transform, so the browser can run it on the
+   compositor. script.js only stops and starts it.
+   -------------------------------------------------------------------------- */
+
+.marquee {
+  /* The track is deliberately wider than the screen. This is what stops
+     that width reaching the document and adding a sideways scrollbar. */
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding-block: var(--space-md);
+  border-block: 1px solid var(--border);
+}
+
+.marquee__track {
+  display: flex;
+  /* Sized by its contents rather than the screen, which is what makes
+     the 50% below equal exactly one copy of the keywords */
+  width: max-content;
+  animation: marquee-slide 45s linear infinite;
+}
+
+.marquee__group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  /* Matches the gap, so the space at the join is the same as every other
+     gap and the seam is invisible */
+  padding-right: var(--space-lg);
+  flex-shrink: 0;
+}
+
+.marquee__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  white-space: nowrap;
+  font-size: var(--text-marquee);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Every keyword carries its own separator, including the last one, so
+   the pattern stays even across the join */
+.marquee__item::after {
+  content: "·";
+  color: var(--accent);
+}
+
+@keyframes marquee-slide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Added by script.js when the strip scrolls out of view — no reason to
+   animate something nobody is looking at */
+.marquee.is-paused .marquee__track {
+  animation-play-state: paused;
+}
+
+@media (hover: hover) {
+  .marquee:hover .marquee__track {
+    animation-play-state: paused;
+  }
+}
+
+/* ---- Marquee CTA ---------------------------------------------------------
+   The page's second marquee. Every mechanic above is reused unchanged —
+   the seamless two-copy track, the hover pause, the off-screen pause —
+   and only the type and colour differ. Being a .marquee, it is already
+   covered by the reduced-motion rule and the observer in script.js.
+   ------------------------------------------------------------------------ */
+
+.marquee--cta {
+  /* Tight on a phone — the display-size band below is tall enough to
+     take over the whole screen otherwise. The 900px block restores the
+     full padding. */
+  padding-block: var(--space-md);
+}
+
+.marquee--cta .marquee__track {
+  /* One copy of three long phrases at display size is much wider than
+     one copy of the keyword strip, so the same 45s would run this at a
+     very different pixel speed. This keeps the two moving comparably. */
+  animation-duration: 30s;
+}
+
+.marquee--cta .marquee__group {
+  gap: var(--space-xl);
+  /* Still matched to the gap, so the seam stays invisible */
+  padding-right: var(--space-xl);
+}
+
+.marquee--cta .marquee__item {
+  gap: var(--space-xl);
+  /* Readable rather than overwhelming at phone widths; the 900px block
+     puts the full display scale back */
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  /* The label tracking inherited from .marquee__item is far too wide at
+     display size — this pulls it back to the tight setting the hero name
+     and section headings use */
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+/* Quiet punctuation between loud phrases, rather than a third violet
+   shape competing with them */
+.marquee--cta .marquee__item::after {
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------------------
+   8. Sections — the shared shell every content section from here on uses
+   -------------------------------------------------------------------------- */
+
+/* Every full-width band on the page is explicitly transparent, so the
+   fixed particle canvas behind them (.bg-canvas, z-index -2) shows
+   through the whole document rather than only wherever a section
+   happened not to have a background. Declared rather than just left
+   unset, so a background added to any of these later is an obvious
+   deliberate choice instead of a silent hole punched in the canvas. */
+.hero,
+.section,
+.marquee,
+.contact,
+.footer,
+main,
+body {
+  background-color: transparent;
+}
+
+.section {
+  padding-block: var(--section-padding);
+}
+
+/* Reading highlight — script.js toggles .is-active on whichever section
+   an IntersectionObserver finds centred in the viewport. Scoped to .js
+   so a page with JavaScript off (or too old for IntersectionObserver)
+   never leaves every section permanently dimmed. */
+.js .section {
+  opacity: 0.35;
+  transition: opacity 500ms var(--ease);
+}
+
+.js .section.is-active {
+  opacity: 1;
+}
+
+/* On top of the opacity fade, an inactive section's own heading is
+   forced to --muted outright — otherwise an amber section number or
+   marker would still read as "lit" at 0.35 opacity */
+.js .section:not(.is-active) .section__marker,
+.js .section:not(.is-active) .section__num,
+.js .section:not(.is-active) .work__heading,
+.js .section:not(.is-active) .about__lead,
+.js .section:not(.is-active) .contact__heading,
+.js .section:not(.is-active) .contact__heading em {
+  color: var(--muted);
+  transition: color 500ms var(--ease);
+}
+
+/* The two-part opener: number in accent, title in muted */
+.section__marker {
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: var(--space-xl);
+}
+
+.section__num {
+  color: var(--accent-2);
+}
+
+/* Rises into view as the section is reached. script.js works out the
+   stagger from each child's position, so a section can hold any number
+   of them without a matching rule here. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--rise-time) var(--ease),
+              transform var(--rise-time) var(--ease);
+}
+
+.js [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Section headings — script.js wraps each character in .char-clip
+   (the overflow: hidden mask) around .char (the piece that actually
+   rises), with a 25ms-per-character transitionDelay written inline.
+   Only [data-split-reveal] elements get split at all; everything else
+   keeps its plain text. */
+.char-clip {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.char {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 500ms var(--ease);
+}
+
+/* Italic glyphs lean out past their own advance width, and .char-clip's
+   overflow: hidden — needed to mask the rise — was cutting that overhang
+   off: measured at 11% of the word's ink, all on the right-hand edge.
+   The padding gives the lean somewhere to paint inside the mask, and the
+   matching negative margin takes exactly the same amount back out of the
+   layout, so letter spacing and the centring are both untouched. The
+   mask still clips vertically, which is the part the reveal relies on. */
+.contact__heading em .char-clip {
+  padding-right: 0.16em;
+  margin-right: -0.16em;
+}
+
+[data-split-reveal].is-split-revealed .char {
+  transform: none;
+}
+
+/* ---- About -------------------------------------------------------------- */
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.about__copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: var(--measure);
+}
+
+.about__lead {
+  font-size: var(--text-heading);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: var(--space-sm);
+}
+
+/* Definition list beside the copy */
+.facts {
+  display: flex;
+  flex-direction: column;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding-block: var(--space-sm);
+  border-top: 1px solid var(--border);
+}
+
+.fact:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.fact__value {
+  color: var(--text);
+  font-size: var(--text-body);
+}
+
+/* ---- Counters ----------------------------------------------------------- */
+
+.counters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border);
+}
+
+.counter__value {
+  font-size: var(--text-stat);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: var(--space-2xs);
+  /* Digits keep a fixed width, so the number doesn't jitter sideways
+     while it counts up */
+  font-variant-numeric: tabular-nums;
+}
+
+.counter__label {
+  display: block;
+}
+
+/* ---- Selected Work ------------------------------------------------------
+   Stacked on a phone, heading first, cards below at their own natural
+   height. From 900px this becomes two columns: a sticky intro on the
+   left, and the card row on the right, scrolling sideways on its own —
+   see .work__intro / .work__viewport. Nothing pins the page's own
+   vertical scroll; .work__intro is a plain CSS position: sticky element,
+   nothing more.
+   ------------------------------------------------------------------------ */
+
+/* Mobile: a plain column, intro block first, viewport (holding the
+   stacked cards) beneath it — the same order as the markup, no CSS
+   reordering needed. The two-column sticky/scrolling treatment only
+   exists from 900px (see that block below); every property it needs is
+   declared explicitly here at its normal, unremarkable value rather
+   than just being left unset, so nothing about that later, narrower
+   block can ever affect layout at this width. */
+.work__layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.work__intro {
+  position: static;
+  padding-inline: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.work__heading {
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-block: var(--space-sm) var(--space-md);
+}
+
+.work__intro-copy {
+  max-width: 34ch;
+  color: var(--muted);
+}
+
+.work__viewport {
+  min-width: 0;
+  height: auto;
+  overflow: visible;
+}
+
+/* The whole scroll-control cluster — arrows and progress bar — is a
+   desktop affordance for the horizontal row. On mobile the cards stack
+   vertically and there's nothing for it to control. */
+.work__controls {
+  display: none;
+}
+
+.work__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding-inline: var(--space-md);
+  margin: 0;
+  height: auto;
+  overflow: visible;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  padding: var(--space-lg);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  /* Nothing — a chip, the ghost number — can ever render past the
+     card's own edge */
+  overflow: hidden;
+  transition: transform 300ms var(--ease),
+              border-color 300ms var(--ease),
+              box-shadow 300ms var(--ease);
+}
+
+/* The oversized index number behind the content. z-index: 0 plus
+   position: relative on every real content element (below) is what
+   keeps it a backdrop rather than something sitting on top of the text. */
+.card__ghost {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  z-index: 0;
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent-2);
+  opacity: 0.10;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.card__date,
+.card__context,
+.card__title,
+.card__place,
+.card__points,
+.card__tags {
+  position: relative;
+  z-index: 1;
+}
+
+.card__date {
+  color: var(--accent-2);
+}
+
+.card__context {
+  color: var(--muted);
+  margin-bottom: var(--space-md);
+}
+
+.card__title {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--space-sm);
+  /* Room for the ghost number so a long role name never runs under it */
+  padding-right: 3.5rem;
+}
+
+.card__role,
+.card__org {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.card__role {
+  color: var(--text);
+}
+
+.card__org {
+  color: var(--accent-2);
+}
+
+.card__place {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  color: var(--muted);
+  font-size: var(--text-label);
+  margin-bottom: var(--space-md);
+}
+
+.card__arrow {
+  font-size: 0.9em;
+}
+
+.card__points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-md);
+  padding-left: 1.1em;
+  list-style: disc;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+/* The small amber dots */
+.card__points li::marker {
+  color: var(--accent-2);
+}
+
+.card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  /* Pins the tag row to the card's own bottom edge, so every card's tags
+     sit on the same baseline regardless of how much text sits above them */
+  margin-top: auto;
+  padding-top: var(--space-2xs);
+}
+
+/* Muted at rest — .card:hover switches these to the violet accent
+   further down, so hovering a card is still what "interactive" looks
+   like everywhere else on the page */
+.chip {
+  padding: 0.3rem var(--space-xs);
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--slow) var(--ease),
+              color var(--slow) var(--ease);
+}
+
+/* A chip on its own — not inside a hovered card — still gets a quiet
+   response when pointed at directly. Gated so a tap can't leave one
+   stuck in its hovered colour. */
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--accent);
+    color: var(--accent-soft);
+  }
+}
+
+/* ---- Capabilities --------------------------------------------------------
+   Six groups, each a small uppercase label over a wrapped row of chips.
+   One column on a phone; a two-column grid from 900px, matching the
+   density of six categories without forcing them into a single long
+   scroll of chip rows.
+   ------------------------------------------------------------------------ */
+
+.capabilities {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.capability {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border);
+}
+
+/* Lifted off the base .label's muted grey — the same warm accent the
+   section number and each card's index already use, so the six titles
+   read as a matching set of markers rather than as plain body text */
+.capability__label {
+  color: var(--accent-2);
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+}
+
+/* ---- Content: floating video cards ---------------------------------------
+   Four 9:16 thumbnails with nothing behind them — no --surface panel, no
+   border — so "floating" is a shadow lifting them off the page rather
+   than a card frame. script.js writes an idle bob and a scroll parallax
+   to .video__float every frame; hover lives on .video__card instead, so
+   a CSS transition there never collides with a transform being
+   overwritten sixty times a second on its parent.
+   ------------------------------------------------------------------------ */
+
+/* Mobile: a swipeable deck, not a stack of full-width cards. Each
+   .video is absolutely positioned and filled by script.js's --depth —
+   0 for the card at the front, 1/2/3 for the ones behind it. The
+   container is sized from a 9:16 shape capped at 55svh (the same
+   height-led trick the hero portrait uses) rather than an independent
+   width, so the deck can never grow taller than the cap; the extra
+   height reserved past that cap is just room for the offset cards
+   behind to peek out without being clipped. Desktop resets all of this
+   back to the original floating row — see the 900px block below. */
+.videos {
+  position: relative;
+  width: min(78vw, calc(55svh * 9 / 16));
+  height: calc(55vh + 3.25rem);
+  height: calc(55svh + 3.25rem);
+  margin-inline: auto;
+  /* Vertical is the page's own scroll; horizontal is the deck's swipe —
+     see the direction-locked touch handling in script.js */
+  touch-action: pan-y;
+}
+
+.video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55vh;
+  height: 55svh;
+  /* The front card sits above the rest; each one behind it a layer
+     lower, so the stack paints in the right order */
+  z-index: calc(10 - var(--depth, 0));
+}
+
+.video__float {
+  position: relative;
+  height: 100%;
+}
+
+.video__card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Height-led on the phone, so the deck's fixed card height wins over
+     the aspect-ratio rather than fighting it */
+  aspect-ratio: auto;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  /* The shadow is what reads as "floating" in place of a panel */
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45),
+              0 8px 20px rgba(0, 0, 0, 0.35);
+  /* Pinning the scale to the bottom edge is what makes the cards behind
+     peek out below the front one, rather than shrinking toward its middle */
+  transform-origin: bottom center;
+  transform:
+    translateY(calc(var(--depth, 0) * 12px))
+    scale(calc(1 - var(--depth, 0) * 0.05));
+  opacity: calc(1 - var(--depth, 0) * 0.22);
+  transition: transform 400ms cubic-bezier(0.34, 1.4, 0.5, 1),
+              opacity 400ms ease,
+              box-shadow var(--slow) var(--ease);
+}
+
+.video__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.9);
+  transition: filter var(--slow) ease,
+              transform var(--slow) ease;
+}
+
+.video__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.video__play svg {
+  width: 52px;
+  height: 52px;
+  padding: 16px;
+  color: var(--text);
+  background-color: rgba(8, 8, 10, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: background-color var(--slow) var(--ease),
+              transform var(--slow) var(--ease);
+}
+
+/* min-width: 900px as well as (hover: hover) — on a hybrid touchscreen
+   whose primary pointer still reports hover-capable, this transform
+   would otherwise fight the deck's own --depth transform below 900px */
+@media (hover: hover) and (min-width: 900px) {
+  .video__card:hover {
+    transform: translateY(-12px);
+    /* Violet, not the plain dark shadow the resting card carries below */
+    box-shadow: 0 28px 60px rgba(139, 92, 246, 0.28),
+                0 10px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .video__card:hover .video__thumb {
+    filter: brightness(1);
+    transform: scale(1.05);
+  }
+
+  .video__card:hover .video__play svg {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.08);
+  }
+
+  /* The rest of the row steps back while one card is hovered — same
+     "only one thing lit at a time" idea as the work card's own glow */
+  .videos:hover .video__card:not(:hover) {
+    opacity: 0.7;
+  }
+}
+
+/* ---- Lightbox -------------------------------------------------------- */
+
+/* Close, prev, next and the dots are all position: absolute, floating
+   over the backdrop around the frame rather than sitting beside it in
+   flex flow. A flex row of 44px arrows either side of a near-full-width
+   frame does not fit at 375px — absolute positioning sidesteps the
+   width budget entirely, since none of the controls consume space the
+   frame would otherwise get; the frame just stays centred by the
+   container regardless of what floats on top of it. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lightbox);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-md);
+  background-color: rgba(8, 8, 10, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lightbox__frame {
+  position: relative;
+  /* Kept narrow enough on a phone that the side-mounted arrows below
+     always clear it with room to spare */
+  width: min(72vw, calc(65vh * 9 / 16));
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  background-color: #000000;
+  border-radius: var(--radius-md);
+  /* The dip-and-return when switching between videos */
+  transition: opacity 200ms ease;
+}
+
+.lightbox__frame.is-switching {
+  opacity: 0;
+}
+
+.lightbox__frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.lightbox__close,
+.lightbox__nav {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--body);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background-color: rgba(8, 8, 10, 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: color var(--fast) ease,
+              border-color var(--fast) ease;
+}
+
+.lightbox__close {
+  top: var(--space-md);
+  right: var(--space-md);
+}
+
+.lightbox__nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox__nav--prev {
+  left: var(--space-2xs);
+}
+
+.lightbox__nav--next {
+  right: var(--space-2xs);
+}
+
+@media (hover: hover) {
+  .lightbox__close:hover,
+  .lightbox__nav:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+}
+
+.lightbox__dots {
+  position: absolute;
+  bottom: var(--space-md);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-2xs);
+}
+
+/* Larger than the dot it draws, so there is something big enough to
+   tap on a phone */
+/* Shared with .videos__dot below the video deck — same job, same look:
+   a button bigger than the dot it draws, so there's something a thumb
+   can actually hit */
+.lightbox__dot,
+.videos__dot {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.lightbox__dot::before,
+.videos__dot::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background-color: var(--border);
+  transition: background-color var(--fast) ease,
+              transform var(--fast) ease;
+}
+
+.lightbox__dot.is-current::before,
+.videos__dot.is-current::before {
+  background-color: var(--accent);
+  transform: scale(1.3);
+}
+
+@media (hover: hover) {
+  .lightbox__dot:hover::before,
+  .videos__dot:hover::before {
+    background-color: var(--muted);
+  }
+}
+
+/* The deck's own dot row, centred beneath the reserved peek space */
+.videos__dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2xs);
+  margin-top: var(--space-sm);
+}
+
+/* ---- Background: education, languages ------------------------------------
+   Same grouped-with-amber-label shape as Capabilities above, so the two
+   sections read as one visual family rather than two different systems.
+   ------------------------------------------------------------------------ */
+
+.background {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.background__group {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border);
+}
+
+.background__label {
+  color: var(--accent-2);
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+}
+
+.education {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.education__title {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.education__meta {
+  color: var(--muted);
+  font-size: var(--text-label);
+  margin-top: var(--space-2xs);
+}
+
+.languages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.language {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--border);
+}
+
+.language:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.language__name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.language__level {
+  color: var(--muted);
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---- Contact: closing statement, no form ----------------------------------
+   The one deliberate exception to "glows are violet": this one warm-amber
+   bloom, behind the heading only, echoing the accent-2 word inside it.
+   ------------------------------------------------------------------------ */
+
+.contact {
+  position: relative;
+  /* Deliberately not clipped. This used to be overflow: hidden purely to
+     stop the glow below widening the page — but the email and phone now
+     travel a long way toward the cursor, and a clip here would slice
+     them off the moment they left the section. The glow is capped to the
+     viewport width instead, which solves the same problem without
+     putting a boundary around the links. */
+  overflow: visible;
+  text-align: center;
+  padding-block: clamp(5rem, 14vh, 9rem);
+}
+
+.contact__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  /* Centred, so capping at the viewport width is what guarantees it can
+     never reach past either edge and add a horizontal scrollbar */
+  width: min(760px, 100vw);
+  aspect-ratio: 1;
+  transform: translate(-50%, -55%);
+  background: var(--glow-warm);
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.contact__eyebrow {
+  position: relative;
+  color: var(--accent-2);
+  margin-bottom: var(--space-lg);
+}
+
+.contact__heading {
+  position: relative;
+  /* Smaller mobile scale — 900px block below restores the full
+     hero-name-sized clamp once there's room for it. Floor lowered from
+     2rem to 1.75rem for extra headroom at the narrowest widths. */
+  font-size: clamp(1.75rem, 8vw, 3.5rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: var(--space-lg);
+  /* Each <br>-separated line ("Let's keep your" / "customers" /
+     "around") is its own unbreakable run — the clamp() above already
+     scales the type down for the width available, so a line breaking
+     mid-word on top of that would only ever mean the clamp needs
+     tuning further, not that this line should silently wrap instead */
+  white-space: nowrap;
+}
+
+/* Its own line, rather than an inline word after a <br>. The heading's
+   0.92 line-height is deliberately tighter than the font size, and each
+   character is additionally wrapped in an inline-block .char-clip by
+   the split-reveal — together those made this line's box overlap the
+   one above it by ~16px. display: block plus a line-height of its own
+   (and a little margin) gives it clear air instead. */
+.contact__heading em {
+  display: block;
+  text-align: center;
+  font-style: italic;
+  color: var(--accent-2);
+  line-height: 1.12;
+  /* Was 0.08em, which left only ~2px of air under "CUSTOMERS" at
+     375px — enough to read as though the line were sitting wrong */
+  margin-top: 0.18em;
+  /* Italic leans right, so its ink sits left of where the glyph boxes
+     say the centre is. Being an em, this scales with the heading, so
+     the correction stays proportional from 375px up to desktop. */
+  padding-left: 0.08em;
+}
+
+.contact__line {
+  position: relative;
+  color: var(--muted);
+  max-width: var(--measure);
+  margin-inline: auto;
+  margin-bottom: var(--space-xl);
+}
+
+.contact__email {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  /* Small enough to clear the viewport at 375px; the 900px block below
+     switches this back up to the full section-heading size */
+  font-size: clamp(1rem, 4.5vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  /* Fallback for the narrowest phones: if the address still doesn't
+     fit even at the smallest end of the clamp, break mid-word rather
+     than push the page wider than the viewport */
+  word-break: break-all;
+}
+
+.contact__phone {
+  position: relative;
+  display: block;
+  width: fit-content;
+  margin-inline: auto;
+  margin-top: var(--space-md);
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* The wider gap and the stacking order exist only to keep these two
+   separable while the magnetic pull is throwing them around, and that
+   runs solely on a hover-capable pointer. On touch nothing moves, so
+   nothing can overlap — the extra room would just be a gap in the
+   layout. Both sit behind the same query the effect itself uses. */
+@media (hover: hover) {
+  .contact__phone {
+    /* Room for the email to travel over a hundred pixels without
+       landing on top of the phone */
+    margin-top: var(--space-xl);
+    /* Above the email wherever the two do overlap, so the smaller
+       target is never the one buried */
+    z-index: 2;
+  }
+}
+
+/* ---- Magnetic response --------------------------------------------------
+   script.js writes --magnet-near on each link every frame: 0 when the
+   cursor is beyond its reach, rising to 1 as it arrives. Everything
+   below reads that one number, so the visual response tracks the pull
+   continuously rather than snapping between a hovered and unhovered
+   state. The movement itself is a spring integrated per frame in
+   script.js — deliberately no CSS transition on transform here, since a
+   transition would sit between the spring and the screen and smear it.
+   ------------------------------------------------------------------------ */
+
+.contact__email::after,
+.contact__phone::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.15em;
+  width: 100%;
+  background-color: var(--accent-2);
+  /* Past 1 the rule overshoots the text on both sides, which is what
+     reads as the underline stretching rather than merely appearing */
+  transform: scaleX(calc(var(--magnet-near, 0) * 1.08));
+  transform-origin: center;
+  pointer-events: none;
+  /* Short enough to still feel tied to the cursor while it approaches,
+     long enough that whipping the pointer away retracts the rule
+     gracefully instead of blinking it out of existence */
+  transition: transform 150ms var(--ease);
+}
+
+.contact__email::after {
+  height: 2px;
+}
+
+/* Thinner and shorter-reaching, in keeping with the smaller text */
+.contact__phone::after {
+  height: 1px;
+  transform: scaleX(calc(var(--magnet-near, 0) * 1.04));
+}
+
+@media (hover: hover) {
+  /* Already white, so "brighter" has to be a glow rather than a lift in
+     the colour itself. Keyed to the same amber as the underline. */
+  .contact__email {
+    text-shadow: 0 0 calc(var(--magnet-near, 0) * 24px)
+                 rgba(245, 166, 35, calc(var(--magnet-near, 0) * 0.5));
+  }
+
+  /* Grey text, so this one really can just brighten — muted lifts to
+     near-white as the cursor closes in. Less intense than the email. */
+  .contact__phone {
+    filter: brightness(calc(1 + var(--magnet-near, 0) * 0.75));
+  }
+}
+
+/* Both links carry [data-reveal], whose rule is more specific than these
+   two selectors are on their own — it would otherwise reinstate a
+   transform transition and put the reveal's translate back on elements
+   whose transform the spring owns outright. Matching that specificity
+   and sitting later leaves them a plain fade in, and nothing else
+   touching transform. */
+.js .contact__email,
+.js .contact__phone {
+  transform: none;
+  transition: opacity var(--rise-time) var(--ease);
+}
+
+/* ---- Section dot navigation ----------------------------------------------
+   Fixed to the right edge, centred vertically. One dot per section, in
+   the order they actually appear down the page (Content sits before
+   Background in the markup, so it does here too — a progress indicator
+   that disagreed with the scroll order would be worse than useless).
+   The active dot is kept in sync by the same IntersectionObserver that
+   drives the nav highlight; the fill on the hairline is written from
+   scroll position by script.js.
+   ------------------------------------------------------------------------ */
+
+.dots {
+  position: fixed;
+  top: 50%;
+  right: var(--space-xs);
+  z-index: var(--z-dots);
+  transform: translateY(-50%);
+  transition: opacity var(--fast) ease;
+}
+
+/* The mobile menu is a full-screen overlay below these in the stack —
+   they would otherwise float on top of it */
+body.is-locked .dots {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dots__list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+/* The hairline runs the full height of the dot column, behind the dots */
+.dots__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background-color: var(--border);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.dots__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top center;
+  /* No transition — script.js writes this from the page's own scroll
+     position, so it has to track exactly rather than ease behind it */
+}
+
+/* The link is deliberately bigger than the dot it draws, so there is
+   something a thumb can actually hit */
+.dots__dot {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.dots__dot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background-color: var(--muted);
+  transition: width var(--fast) var(--ease),
+              height var(--fast) var(--ease),
+              margin var(--fast) var(--ease),
+              background-color var(--fast) ease,
+              box-shadow var(--fast) ease;
+}
+
+.dots__dot.is-active::after {
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  background-color: var(--accent);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.9);
+}
+
+/* Sits to the left of the dot (the dots are already at the right edge)
+   and slides in from the right on hover */
+.dots__label {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  display: none;
+  padding: 0.3rem var(--space-xs);
+  white-space: nowrap;
+  font-size: var(--text-label);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text);
+  background-color: var(--bg-blur);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(10px);
+  transition: opacity 200ms var(--ease),
+              transform 200ms var(--ease);
+}
+
+/* Labels are a pointer affordance only — no hover on touch, and no room
+   for them beside a phone-width viewport either */
+@media (hover: hover) and (min-width: 900px) {
+  .dots__label {
+    display: block;
+  }
+
+  .dots__dot:hover .dots__label,
+  .dots__dot:focus-visible .dots__label {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
+}
+
+/* ---- Footer ---------------------------------------------------------- */
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-block: var(--space-lg);
+}
+
+.footer__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.footer__name {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.footer__meta {
+  color: var(--muted);
+  font-size: var(--text-label);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   9. Larger screens
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 600px) {
+  .wrap {
+    padding-inline: var(--space-lg);
+  }
+
+  .hero__actions {
+    gap: var(--space-sm);
+  }
+}
+
+@media (min-width: 900px) {
+  /* Links come back inline, menu button goes away */
+  .nav__links {
+    display: block;
+  }
+
+  .burger {
+    display: none;
+  }
+
+  .hero {
+    padding-top: calc(var(--nav-height) + var(--space-xl));
+    padding-bottom: var(--space-2xl);
+  }
+
+  /* The five flattened children regroup into the original two columns:
+     everything in the left, the portrait spanning the right. Grid rather
+     than flex, because the copy has to stack in a column beside a
+     portrait that spans all of it. */
+  .hero__inner {
+    display: grid;
+    grid-template-columns: 1fr clamp(260px, 28vw, 380px);
+    grid-template-areas:
+      "intro   media"
+      "actions media"
+      "stats   media"
+      "avail   media";
+    align-items: start;
+    column-gap: var(--space-2xl);
+    row-gap: var(--space-lg);
+  }
+
+  .hero__intro   { grid-area: intro; gap: var(--space-md); min-width: 0; }
+  .hero__actions { grid-area: actions; }
+  /* Back to three columns, value stacked above its label */
+  .stats {
+    grid-area: stats;
+    flex-direction: row;
+    gap: var(--space-xl);
+    padding-top: var(--space-lg);
+  }
+
+  .stat {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--space-2xs);
+  }
+
+  .stat__value {
+    min-width: 0;
+  }
+  .hero__availability { grid-area: avail; }
+
+  .hero__media {
+    grid-area: media;
+    width: 100%;
+    max-width: none;
+    align-self: center;
+  }
+
+  /* Back to a ratio-led crop with room to breathe */
+  .portrait {
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-position: 50% 18%;
+  }
+
+  /* The hero is one screen tall here, so the cue sits where it belongs */
+  .scroll-cue {
+    display: flex;
+  }
+
+  /* Copy on the left, the facts list beside it */
+  .about {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-2xl);
+  }
+
+  .about__copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .facts {
+    flex-shrink: 0;
+    width: clamp(240px, 26vw, 320px);
+  }
+
+  .counters {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-xl);
+  }
+
+  /* Back to the full display scale — unchanged from what it has always
+     been on desktop, it is only the phone that steps down */
+  .marquee--cta {
+    padding-block: clamp(var(--space-xl), 8vh, var(--space-2xl));
+  }
+
+  .marquee--cta .marquee__item {
+    font-size: clamp(2.5rem, 9vw, 6rem);
+  }
+
+  /* Two up — six groups read better as a short, wide block than as one
+     long column of chip rows */
+  .capabilities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-2xl);
+    row-gap: var(--space-lg);
+  }
+
+  /* Four across, rather than the mobile deck. Every property the deck
+     needed — position, height, touch-action — is reset here back to
+     the original floating row, so this is the layout exactly as it was
+     before the deck existed. */
+  .videos {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+    width: auto;
+    height: auto;
+    margin-inline: 0;
+    touch-action: auto;
+  }
+
+  .video {
+    position: static;
+    max-width: 220px;
+    height: auto;
+    z-index: auto;
+  }
+
+  .video__float {
+    height: auto;
+  }
+
+  .video__card {
+    height: auto;
+    aspect-ratio: 9 / 16;
+    transform: none;
+    opacity: 1;
+    transition: transform var(--slow) var(--ease),
+                box-shadow var(--slow) var(--ease),
+                opacity 300ms ease;
+  }
+
+  /* The deck's own indicator — nothing to show once all four cards are
+     visible side by side */
+  .videos__dots {
+    display: none;
+  }
+
+  /* More room to work with, so the controls move further from the frame
+     and grow back to their full size */
+  .lightbox__frame {
+    width: min(32vw, calc(78vh * 9 / 16));
+  }
+
+  .lightbox__close,
+  .lightbox__nav {
+    width: 44px;
+    height: 44px;
+  }
+
+  .lightbox__close {
+    top: var(--space-lg);
+    right: var(--space-lg);
+  }
+
+  .lightbox__nav--prev {
+    left: var(--space-lg);
+  }
+
+  .lightbox__nav--next {
+    right: var(--space-lg);
+  }
+
+  /* Set once here and read by the row and the progress bar, so the last
+     card's right edge and the bar both line up with the page's own
+     right-hand container edge without repeating the calc twice */
+  .work {
+    --work-pad: max(
+      var(--space-lg),
+      calc((100% - var(--wrap-max)) / 2 + var(--space-lg))
+    );
+  }
+
+  /* Two columns, on a CSS grid rather than flex. Grid tracks are fixed,
+     explicit boundaries — unlike a flex item, a grid column can't be
+     pushed wider by a child's content (the row's five 560px cards, far
+     wider than the column, were doing exactly that to the old flex
+     layout, which is why card 01 was rendering under the intro text).
+     column-gap is the actual mechanism for "a clear gap after the
+     heading column" — a real gutter between the two tracks, not
+     padding borrowed from one side or the other. */
+  .work__layout {
+    display: grid;
+    /* 320px, not 280px — the old floor left too little room for
+       "SELECTED WORK" beside its own padding at narrow desktop widths,
+       which is what was forcing the heading to break mid-word */
+    grid-template-columns: clamp(320px, 30%, 380px) 1fr;
+    column-gap: var(--space-xl);
+    align-items: start;
+  }
+
+  /* A plain sticky sidebar — nothing more. It stays in view only for as
+     long as the section (which is roughly as tall as the row of cards)
+     is taller than this column itself; once the section's bottom edge
+     catches up, it scrolls away with everything else, same as any other
+     sticky sidebar. top matches where content already clears the fixed
+     nav elsewhere on the page. */
+  .work__intro {
+    position: sticky;
+    top: calc(var(--nav-height) + var(--space-lg));
+    padding-inline-start: var(--space-lg);
+    margin-bottom: 0;
+  }
+
+  .work__heading {
+    font-size: clamp(1.75rem, 3vw, 2.75rem);
+    /* Belt and braces alongside the wider column above: never break
+       inside "SELECTED" or "WORK" even if something narrower comes
+       along later */
+    white-space: nowrap;
+  }
+
+  /* The permanent clip: this is the column boundary itself — cards can
+     scroll sideways inside it, but nothing ever renders outside this
+     grid cell, so nothing can ever reach back under .work__intro. */
+  .work__viewport {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* The row turns sideways and fills its column exactly. The gap from
+     the intro column is now explicit padding-left on the row itself —
+     not just the grid's own column-gap — so "a clear gap after the
+     heading column" is a real, literal space on the track's own box,
+     not something inferred from the layout mechanism around it. The
+     right side keeps the full wrap-aligned pad, so the last card still
+     lines up with the page's own edge. */
+  .work__row {
+    flex-direction: row;
+    align-items: stretch;
+    gap: var(--space-lg);
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    padding-block: var(--space-2xs);
+    padding-inline: var(--space-lg) var(--work-pad);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    /* Settles on a card boundary after any scroll — wheel, drag, touch,
+       or the arrow buttons — rather than a fast scroll landing halfway
+       between two cards and reading as "skipped" */
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* script.js adds this only while a wheel or drag gesture is actively
+     under way. Mandatory snap fights direct scrollLeft writes — the
+     wheel handler's scrollLeft += and the drag handler's scrollLeft =
+     both happen in many small steps rather than one native scroll
+     gesture, and the browser was treating each step as a finished
+     scroll and snapping straight back to the current card, which is
+     what made wheel and drag look dead. Suspending snap for the
+     gesture's duration and letting it re-engage once it ends keeps
+     both: full manual control while scrolling, still settling on a
+     card boundary the moment you let go. */
+  .work__row.is-snap-suspended {
+    scroll-snap-type: none;
+  }
+
+  .work__row::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .work__row::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Side by side — the same "two up" treatment as .capabilities above */
+  .background {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-2xl);
+  }
+
+  /* Back up to the full hero-name-scale clamp and the full section-
+     heading size — there's room for both now, and no need for the
+     mobile break-all fallback on the email */
+  .contact__heading {
+    font-size: clamp(2.5rem, 9vw, 7rem);
+  }
+
+  .contact__email {
+    font-size: var(--text-heading);
+    word-break: normal;
+  }
+
+  .footer__inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Roomier than the phone version, which stays deliberately small so it
+     never competes with the content beside it */
+  .dots {
+    right: var(--space-md);
+  }
+
+  .dots__list {
+    gap: var(--space-xs);
+  }
+
+  .dots__dot {
+    width: 26px;
+    height: 26px;
+  }
+
+  .dots__dot::after {
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+  }
+
+  .dots__dot.is-active::after {
+    width: 13px;
+    height: 13px;
+    margin: -6.5px 0 0 -6.5px;
+  }
+
+  .card {
+    flex-shrink: 0;
+    width: 560px;
+    /* min-height, not height: cards with more content (04, 05) can grow
+       past 620px instead of having overflow: hidden clip their tags.
+       .work__row's align-items: stretch then matches every card in the
+       row to whichever one is tallest, so they still look uniform. */
+    min-height: 620px;
+    /* The boundary .work__row's scroll-snap-type: x mandatory settles
+       on — each card's left edge, matching how the row already reads
+       left to right */
+    scroll-snap-align: start;
+  }
+
+  /* Grab-to-drag, set by script.js only while a drag is actually under way */
+  .work__row.is-draggable {
+    cursor: grab;
+  }
+
+  .work__row.is-dragging {
+    cursor: grabbing;
+    /* Stops the drag selecting the card text as it goes */
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Arrows either side of the progress bar, all one row. Left padding
+     matches .work__row above exactly, so this lines up with the first
+     card's own left edge; the right side keeps the wrap-aligned pad to
+     match the row. */
+  .work__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    padding-inline: var(--space-lg) var(--work-pad);
+  }
+
+  .work__arrow {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    transition: border-color var(--fast) ease,
+                color var(--fast) ease;
+  }
+
+  /* Set by script.js at either end of the row's scroll range */
+  .work__arrow:disabled {
+    opacity: 0.35;
+  }
+
+  .work__progress {
+    flex: 1;
+    height: 2px;
+    background-color: var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .work__progress-bar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Amber, matching the rest of the card row's numbering and dots —
+       not the site's usual violet accent */
+    background-color: var(--accent-2);
+    transform: scaleX(0);
+    transform-origin: left center;
+    /* No transition: script.js writes this every frame from the row's
+       own scroll position, so it has to track exactly rather than ease
+       behind it */
+  }
+}
+
+@media (min-width: 900px) and (hover: hover) {
+  .work__arrow:not(:disabled):hover {
+    border-color: var(--accent-2);
+    color: var(--accent-2);
+  }
+}
+
+@media (min-width: 900px) and (hover: hover) {
+  .card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent);
+    /* The one glow on this screen — only ever one card is hovered */
+    box-shadow: 0 20px 50px rgba(139, 92, 246, 0.16);
+  }
+
+  .card:hover .chip {
+    border-color: var(--accent);
+    color: var(--accent-soft);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   9. Reduced motion — respects the "less movement" setting on the device
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* The menu still opens and closes, it just does it at once. The delays
+     have to go too — the rule above only shortens durations, and a
+     lingering visibility delay would leave the panel on screen. */
+  .menu,
+  .menu__item,
+  .menu__resume,
+  .menu__foot {
+    transition-delay: 0s !important;
+  }
+
+  .menu.is-open .menu__item,
+  .menu.is-open .menu__resume,
+  .menu.is-open .menu__foot {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Hero content is simply there, with no rise */
+  [data-rise] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The strip holds still. The rule above shortens the animation to
+     nothing, which would leave it frozen at the end of its travel —
+     removing it outright keeps the keywords where they started. */
+  .marquee__track {
+    animation: none;
+  }
+
+  /* Section content is simply there, with no rise */
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* script.js never initialises the particle canvas, the sparkle trail
+     or the cursor dot/ring/glow under reduced motion, so the native
+     cursor has to come back — otherwise the page would be left with no
+     visible pointer at all */
+  html,
+  a,
+  button {
+    cursor: auto;
+  }
+
+  a,
+  button {
+    cursor: pointer;
+  }
+
+  .cursor-dot,
+  .cursor-ring,
+  .cursor-glow {
+    display: none;
+  }
+
+  /* No characters to catch mid-clip if script.js never split them */
+  [data-split-reveal] .char {
+    transform: none;
+  }
+
+  /* The reading highlight never runs, so nothing should sit dimmed */
+  .section {
+    opacity: 1;
+  }
+
+  /* The dot column is a scroll-progress indicator with a travelling
+     fill — there is nothing left of it once the motion is removed, and
+     the nav still covers every one of these sections */
+  .dots {
+    display: none;
+  }
+
+  /* Neither the hover transition nor the scroll-driven version runs
+     here, so the portrait simply stays in colour. The edge mask is not
+     motion and stays put. */
+  .portrait {
+    filter: none;
+  }
+
+  /* script.js never drives the hero split, so nothing should start
+     shifted or faded */
+  .hero__intro,
+  .hero__actions,
+  .stats,
+  .hero__availability,
+  .hero__media {
+    transform: none;
+    opacity: 1;
+  }
+}

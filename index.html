@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mohamed Elhayyany — Technical Customer Success</title>
+  <meta name="description" content="Mohamed Elhayyany, Technical Customer Success. Sales gets the customer. Support keeps them. Automation makes both scale. I've done all three.">
+
+  <link rel="canonical" href="https://med-elh.github.io/portfolio/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://med-elh.github.io/portfolio/">
+  <meta property="og:title" content="Mohamed Elhayyany — Technical Customer Success">
+  <meta property="og:description" content="Sales gets the customer. Support keeps them. Automation makes both scale. I've done all three.">
+  <meta property="og:image" content="https://med-elh.github.io/portfolio/assets/images/portrait.jpg">
+  <meta property="og:image:alt" content="Mohamed Elhayyany, Technical Customer Success Manager">
+  <meta property="og:locale" content="en_US">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mohamed Elhayyany — Technical Customer Success">
+  <meta name="twitter:description" content="Sales gets the customer. Support keeps them. Automation makes both scale. I've done all three.">
+  <meta name="twitter:image" content="https://med-elh.github.io/portfolio/assets/images/portrait.jpg">
+
+  <link rel="icon" type="image/jpeg" href="assets/images/portrait.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- The whole atmosphere layer: background particles/sparkles on one
+       canvas, two fixed corner glows, a grain overlay, and the custom
+       cursor. All decorative, all aria-hidden, none of it focusable, so
+       it changes nothing about tab order or what a screen reader hears. -->
+  <canvas id="bg-canvas" class="bg-canvas" aria-hidden="true"></canvas>
+  <span class="bg-glow bg-glow--top" aria-hidden="true"></span>
+  <span class="bg-glow bg-glow--bottom" aria-hidden="true"></span>
+  <span class="cursor-glow" id="cursor-glow" aria-hidden="true"></span>
+  <span class="noise" aria-hidden="true"></span>
+
+  <span class="cursor-ring" id="cursor-ring" aria-hidden="true"></span>
+  <span class="cursor-dot" id="cursor-dot" aria-hidden="true"></span>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav" id="nav">
+    <div class="wrap nav__inner">
+
+      <a class="nav__brand" href="#hero">Mohamed Elhayyany</a>
+
+      <nav class="nav__links" aria-label="Main">
+        <ul class="nav__list">
+          <li><a class="nav__link" href="#profile">Profile</a></li>
+          <li><a class="nav__link" href="#work">Selected Work</a></li>
+          <li><a class="nav__link" href="#capabilities">Capabilities</a></li>
+          <li><a class="nav__link" href="#background">Background</a></li>
+          <li><a class="nav__link" href="#content">Content</a></li>
+          <li><a class="nav__link" href="#contact">Contact</a></li>
+          <li>
+            <a class="nav__resume" href="assets/docs/cv.pdf" download>Resume</a>
+          </li>
+        </ul>
+      </nav>
+
+      <button class="burger" id="burger" type="button"
+              aria-expanded="false" aria-controls="menu">
+        <span class="burger__label">Menu</span>
+        <span class="burger__icon" aria-hidden="true"></span>
+      </button>
+
+    </div>
+  </header>
+
+  <div class="menu" id="menu">
+    <span class="menu__glow" aria-hidden="true"></span>
+
+    <nav class="menu__nav" aria-label="Mobile">
+      <ul>
+        <li class="menu__item">
+          <a class="menu__link" href="#profile">
+            <span class="label menu__num">01</span>
+            <span class="menu__text">Profile</span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <a class="menu__link" href="#work">
+            <span class="label menu__num">02</span>
+            <span class="menu__text">Selected Work</span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <a class="menu__link" href="#capabilities">
+            <span class="label menu__num">03</span>
+            <span class="menu__text">Capabilities</span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <a class="menu__link" href="#background">
+            <span class="label menu__num">04</span>
+            <span class="menu__text">Background</span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <a class="menu__link" href="#content">
+            <span class="label menu__num">05</span>
+            <span class="menu__text">Content</span>
+          </a>
+        </li>
+        <li class="menu__item">
+          <a class="menu__link" href="#contact">
+            <span class="label menu__num">06</span>
+            <span class="menu__text">Contact</span>
+          </a>
+        </li>
+      </ul>
+
+      <a class="btn btn--outline menu__resume" href="assets/docs/cv.pdf" download>Resume</a>
+    </nav>
+
+    <div class="menu__foot">
+      <a class="menu__contact" href="mailto:mohamedelhayyany@gmail.com">mohamedelhayyany@gmail.com</a>
+      <a class="menu__contact" href="tel:+212694561949">+212 694 561 949</a>
+      <p class="menu__place">Marrakech, Morocco</p>
+    </div>
+  </div>
+
+  <!-- Section dots, right edge. Written out rather than generated so it
+       still works with JavaScript off, and ordered the way the page
+       actually scrolls — Content really does come before Background in
+       the markup, whatever their 04/05 numbering says. The hairline's
+       fill and the active dot are both driven from script.js. -->
+  <nav class="dots" id="dots" aria-label="Sections">
+    <span class="dots__line" aria-hidden="true">
+      <span class="dots__fill" id="dots-fill"></span>
+    </span>
+
+    <ul class="dots__list">
+      <li>
+        <a class="dots__dot" href="#profile" aria-label="Profile">
+          <span class="dots__label" aria-hidden="true">Profile</span>
+        </a>
+      </li>
+      <li>
+        <a class="dots__dot" href="#work" aria-label="Selected Work">
+          <span class="dots__label" aria-hidden="true">Selected Work</span>
+        </a>
+      </li>
+      <li>
+        <a class="dots__dot" href="#capabilities" aria-label="Capabilities">
+          <span class="dots__label" aria-hidden="true">Capabilities</span>
+        </a>
+      </li>
+      <li>
+        <a class="dots__dot" href="#content" aria-label="Content">
+          <span class="dots__label" aria-hidden="true">Content</span>
+        </a>
+      </li>
+      <li>
+        <a class="dots__dot" href="#background" aria-label="Background">
+          <span class="dots__label" aria-hidden="true">Background</span>
+        </a>
+      </li>
+      <li>
+        <a class="dots__dot" href="#contact" aria-label="Contact">
+          <span class="dots__label" aria-hidden="true">Contact</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <main id="main">
+
+    <section class="hero" id="hero">
+      <div class="wrap hero__inner">
+
+        <div class="hero__intro">
+
+          <p class="label" data-rise>Technical Customer Success manager</p>
+
+          <h1 class="hero__name" data-rise>Mohamed Elhayyany<span class="hero__stop">.</span></h1>
+
+          <p class="hero__pitch" data-rise>
+            Sales gets the customer. <strong>Support keeps them.</strong>
+            Automation makes both scale. I've done all three.
+          </p>
+
+        </div>
+
+        <div class="hero__media" data-rise>
+          <span class="hero__glow" aria-hidden="true"></span>
+          <img class="portrait"
+               id="portrait"
+               src="assets/images/portrait.jpg"
+               alt="Mohamed Elhayyany, Technical Customer Success Manager"
+               width="928"
+               height="1152">
+        </div>
+
+        <div class="hero__actions" data-rise>
+          <a class="btn btn--filled" href="#contact" data-magnetic>Get in touch</a>
+          <a class="btn btn--outline" href="#work">View work</a>
+          <a class="btn btn--ghost" href="assets/docs/cv.pdf" download data-magnetic>Resume</a>
+        </div>
+
+        <dl class="stats" data-rise>
+          <div class="stat">
+            <dt class="stat__value">4+</dt>
+            <dd class="stat__label label">Years customer-facing</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat__value">98%</dt>
+            <dd class="stat__label label">Policy accuracy at scale</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat__value">4</dt>
+            <dd class="stat__label label">Languages spoken</dd>
+          </div>
+        </dl>
+
+        <p class="hero__availability label" data-rise>
+          <span class="hero__dot" aria-hidden="true"></span>
+          Open to new roles · Marrakech, Morocco
+        </p>
+
+      </div>
+
+      <a class="scroll-cue" href="#profile">
+        <span class="label">Scroll</span>
+        <span class="scroll-cue__line" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <!-- The track holds the keywords twice. Sliding it exactly half its
+         own width lands copy two where copy one began, so the loop has no
+         seam. The second copy is hidden from screen readers. -->
+    <section class="marquee" id="marquee" aria-label="Capabilities">
+      <div class="marquee__track">
+
+        <ul class="marquee__group">
+          <li class="marquee__item">Customer Success</li>
+          <li class="marquee__item">Account Management</li>
+          <li class="marquee__item">Full-Cycle Sales</li>
+          <li class="marquee__item">Onboarding</li>
+          <li class="marquee__item">Retention</li>
+          <li class="marquee__item">Workflow Automation</li>
+          <li class="marquee__item">AI Agents</li>
+          <li class="marquee__item">Data Analysis</li>
+          <li class="marquee__item">Content Strategy</li>
+        </ul>
+
+        <ul class="marquee__group" aria-hidden="true">
+          <li class="marquee__item">Customer Success</li>
+          <li class="marquee__item">Account Management</li>
+          <li class="marquee__item">Full-Cycle Sales</li>
+          <li class="marquee__item">Onboarding</li>
+          <li class="marquee__item">Retention</li>
+          <li class="marquee__item">Workflow Automation</li>
+          <li class="marquee__item">AI Agents</li>
+          <li class="marquee__item">Data Analysis</li>
+          <li class="marquee__item">Content Strategy</li>
+        </ul>
+
+      </div>
+    </section>
+
+    <section class="section" id="profile">
+      <div class="wrap">
+
+        <p class="section__marker" data-reveal>
+          <span class="section__num">01</span> — <span>Profile</span>
+        </p>
+
+        <div class="about">
+
+          <div class="about__copy">
+            <p class="about__lead" data-reveal>
+              A customer-facing operator who turns <em>friction</em> into retention.
+            </p>
+
+            <p data-reveal>
+              Over four years I've worked every side of the customer relationship
+              — answering calls at Terrain 360, moderating content at scale for
+              Majorel, and now owning the full client lifecycle at SafeApps.
+              Support taught me how customers fail. Data taught me why.
+              Automation is how I stop it happening twice.
+            </p>
+
+            <p data-reveal>
+              Today I manage high-priority SaaS accounts from onboarding through
+              renewal, run full-cycle outreach that converts prospects into
+              long-term subscribers, and build the automated workflows that
+              remove manual work from my clients' operations. On the side I
+              founded <strong>Postry</strong>, a wall art brand I run end to end
+              — which is where I learned what retention costs when the customer
+              is paying you directly. I work in Arabic, English, and French.
+            </p>
+          </div>
+
+          <dl class="facts" data-reveal>
+            <div class="fact">
+              <dt class="label">Role</dt>
+              <dd class="fact__value">Technical Customer Success Manager</dd>
+            </div>
+            <div class="fact">
+              <dt class="label">Based in</dt>
+              <dd class="fact__value">Marrakech, Morocco</dd>
+            </div>
+            <div class="fact">
+              <dt class="label">Focus</dt>
+              <dd class="fact__value">Retention · Revenue · Automation</dd>
+            </div>
+            <div class="fact">
+              <dt class="label">Languages</dt>
+              <dd class="fact__value">Arabic · English · French · Spanish</dd>
+            </div>
+            <div class="fact">
+              <dt class="label">Also</dt>
+              <dd class="fact__value">Founder, Postry (DTC wall art)</dd>
+            </div>
+            <div class="fact">
+              <dt class="label">Status</dt>
+              <dd class="fact__value">Open to work</dd>
+            </div>
+          </dl>
+
+        </div>
+
+        <dl class="counters" data-reveal>
+          <div class="counter">
+            <dt class="counter__value" data-count="4" data-suffix="+">4+</dt>
+            <dd class="counter__label label">Years customer-facing</dd>
+          </div>
+          <div class="counter">
+            <dt class="counter__value" data-count="250" data-suffix="+">250+</dt>
+            <dd class="counter__label label">Posters sold in three months</dd>
+          </div>
+          <div class="counter">
+            <dt class="counter__value" data-count="98" data-suffix="%">98%</dt>
+            <dd class="counter__label label">Accuracy at review scale</dd>
+          </div>
+          <div class="counter">
+            <dt class="counter__value" data-count="4" data-suffix="">4</dt>
+            <dd class="counter__label label">Languages</dd>
+          </div>
+        </dl>
+
+      </div>
+    </section>
+
+    <!-- The right column scrolls horizontally on its own — mouse wheel,
+         click-and-drag, touch swipe, and the arrow buttons below, all set
+         up in script.js. Nothing pins and nothing hijacks the page's own
+         vertical scroll; .work__intro (the left column) is a plain
+         position: sticky element that stays beside the cards only for as
+         long as the section is taller than the column, same as any other
+         sticky sidebar. -->
+    <section class="section" id="work">
+      <div class="work">
+        <div class="work__layout">
+
+          <div class="work__intro" data-reveal>
+            <p class="section__marker">
+              <span class="section__num">02</span> — <span>Selected Work</span>
+            </p>
+            <h2 class="work__heading" data-split-reveal>Selected Work</h2>
+            <!-- Written for this layout, not quoted from CLAUDE.md — purely
+                 a wayfinding line (what the cards are, how to move through
+                 them), no claims about outcomes or scope. -->
+            <p class="work__intro-copy">
+              Five case studies — the account, the problem, what I built.
+              Scroll →
+            </p>
+          </div>
+
+          <div class="work__viewport" data-reveal>
+            <ol class="work__row" id="work-row" tabindex="0"
+                role="region" aria-label="Selected work — scroll sideways to browse">
+
+                <li class="card">
+                  <span class="card__ghost" aria-hidden="true">01</span>
+                  <p class="card__date label">2025 — Present</p>
+                  <p class="card__context">Current role</p>
+                  <h3 class="card__title">
+                    <span class="card__role">Automation &amp; AI Agent Delivery</span>
+                    <span class="card__org">SafeApps (eGrow)</span>
+                  </h3>
+                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <ul class="card__points">
+                    <li>Built custom automated workflows and AI-driven agents for
+                      client operations, tailored per account rather than sold as
+                      a template.</li>
+                    <li>Designed the automations around what each client's team
+                      was actually doing manually, then removed that work.</li>
+                    <li>Built WhatsApp automations for the moments customers
+                      actually care about: automatic order confirmation on
+                      purchase, and delivery tracking updates pushed to the
+                      customer as the parcel moves.</li>
+                    <li>Built transactional email flows alongside them so
+                      clients reach customers on whichever channel they respond
+                      to.</li>
+                    <li>Implemented Facebook Conversions API integrations,
+                      sending server-side conversion events so clients' ad
+                      targeting and attribution stop depending on browser
+                      tracking.</li>
+                  </ul>
+                  <ul class="card__tags">
+                    <li class="chip">Zapier</li>
+                    <li class="chip">AI Agents</li>
+                    <li class="chip">Workflow Design</li>
+                    <li class="chip">Client Discovery</li>
+                  </ul>
+                </li>
+
+                <li class="card">
+                  <span class="card__ghost" aria-hidden="true">02</span>
+                  <p class="card__date label">2025 — Present</p>
+                  <p class="card__context">Current role</p>
+                  <h3 class="card__title">
+                    <span class="card__role">Account Ownership &amp; Retention</span>
+                    <span class="card__org">SafeApps (eGrow)</span>
+                  </h3>
+                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <ul class="card__points">
+                    <li>Own high-priority accounts end to end: onboarding,
+                      technical support, adoption guidance, and renewal.</li>
+                    <li>Troubleshoot complex platform errors directly with users
+                      rather than handing them to a queue.</li>
+                    <li>Run full-cycle sales alongside: sourcing, qualifying, cold
+                      outreach, and converting prospects into long-term
+                      subscribers.</li>
+                  </ul>
+                  <ul class="card__tags">
+                    <li class="chip">Onboarding</li>
+                    <li class="chip">Technical Support</li>
+                    <li class="chip">Renewals</li>
+                    <li class="chip">Cold Outreach</li>
+                  </ul>
+                </li>
+
+                <li class="card">
+                  <span class="card__ghost" aria-hidden="true">03</span>
+                  <p class="card__date label">2025 — Present</p>
+                  <p class="card__context">Current role</p>
+                  <h3 class="card__title">
+                    <span class="card__role">Brand Content &amp; Customer Education</span>
+                    <span class="card__org">SafeApps (eGrow)</span>
+                  </h3>
+                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <ul class="card__points">
+                    <li>On-camera face of the brand across marketing campaigns
+                      and product advertising.</li>
+                    <li>Produce educational tutorials that reduce the support
+                      load by answering common questions before they become
+                      tickets.</li>
+                    <li>Own the content end to end — scripting, filming, editing,
+                      publishing.</li>
+                  </ul>
+                  <ul class="card__tags">
+                    <li class="chip">Video Production</li>
+                    <li class="chip">Product Education</li>
+                    <li class="chip">Premiere Pro</li>
+                    <li class="chip">CapCut</li>
+                  </ul>
+                </li>
+
+                <li class="card">
+                  <span class="card__ghost" aria-hidden="true">04</span>
+                  <p class="card__date label">2022 — 2024</p>
+                  <p class="card__context">Majorel Outsourcing</p>
+                  <h3 class="card__title">
+                    <span class="card__role">Moderation at Scale &amp; Team Enablement</span>
+                    <span class="card__org">Majorel Outsourcing</span>
+                  </h3>
+                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <ul class="card__points">
+                    <li>Reviewed hundreds of user posts and advertisements daily
+                      against detailed platform policy, sustaining a 98% accuracy
+                      rate.</li>
+                    <li>Trained and mentored incoming moderators on tools and
+                      workflows, shortening ramp-up time for the team.</li>
+                    <li>Escalated high-risk cases — illegal activity, credible
+                      threats — to internal teams and authorities under time
+                      pressure.</li>
+                    <li>Analysed moderation data to surface recurring patterns
+                      and recommend process changes rather than only enforcing
+                      case by case.</li>
+                  </ul>
+                  <ul class="card__tags">
+                    <li class="chip">Policy Enforcement</li>
+                    <li class="chip">Training</li>
+                    <li class="chip">Escalation</li>
+                    <li class="chip">Data Analysis</li>
+                  </ul>
+                </li>
+
+                <li class="card">
+                  <span class="card__ghost" aria-hidden="true">05</span>
+                  <p class="card__date label">January 2026 — Present</p>
+                  <p class="card__context">Current role</p>
+                  <h3 class="card__title">
+                    <span class="card__role">Postry — Founder</span>
+                    <span class="card__org">Independent venture</span>
+                  </h3>
+                  <p class="card__place">Morocco <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <ul class="card__points">
+                    <li>Founded and run Postry, a self-printed wall art brand
+                      selling A4 and A3 prints direct to customers in Morocco.</li>
+                    <li>Built the storefront end to end on Shopify — product
+                      catalogue, theme customisation, and a bundle selector
+                      driving tiered pricing that lifts average order value.</li>
+                    <li>Run the whole operation solo: printing, product
+                      photography and mockups, pricing, listings, and customer
+                      conversations.</li>
+                    <li>Chose a deliberately low-overhead stack, avoiding
+                      recurring app subscriptions so margin stays in the
+                      business.</li>
+                    <li>Sold over 250 posters in the first three months, moving
+                      from launch to a consistently profitable operation without
+                      outside funding.</li>
+                    <li>Won business clients alongside individual buyers,
+                      including Experience Morocco, plus commissions from
+                      artists and content creators.</li>
+                  </ul>
+                  <ul class="card__tags">
+                    <li class="chip">Shopify</li>
+                    <li class="chip">DTC E-commerce</li>
+                    <li class="chip">Pricing Strategy</li>
+                    <li class="chip">Product Photography</li>
+                    <li class="chip">Customer Support</li>
+                  </ul>
+                </li>
+
+            </ol>
+
+            <div class="work__controls">
+              <button class="work__arrow" id="work-prev"
+                      type="button" aria-label="Previous case study">←</button>
+
+              <div class="work__progress" aria-hidden="true">
+                <span class="work__progress-bar" id="work-progress-bar"></span>
+              </div>
+
+              <button class="work__arrow" id="work-next"
+                      type="button" aria-label="Next case study">→</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="capabilities">
+      <div class="wrap">
+        <p class="section__marker" data-reveal>
+          <span class="section__num">03</span> — <span>Capabilities</span>
+        </p>
+
+        <div class="capabilities">
+
+          <div class="capability" data-reveal>
+            <h3 class="label capability__label">Customer Success</h3>
+            <ul class="chip-row">
+              <li class="chip">Account Management</li>
+              <li class="chip">Onboarding</li>
+              <li class="chip">Retention</li>
+              <li class="chip">Renewals</li>
+              <li class="chip">Escalation</li>
+              <li class="chip">De-escalation</li>
+              <li class="chip">Technical Support</li>
+            </ul>
+          </div>
+
+          <div class="capability" data-reveal>
+            <h3 class="label capability__label">Sales</h3>
+            <ul class="chip-row">
+              <li class="chip">Full-Cycle Sales</li>
+              <li class="chip">Lead Qualification</li>
+              <li class="chip">Cold Outreach</li>
+              <li class="chip">Upselling</li>
+              <li class="chip">Pipeline Management</li>
+            </ul>
+          </div>
+
+          <div class="capability" data-reveal>
+            <h3 class="label capability__label">Technical</h3>
+            <ul class="chip-row">
+              <li class="chip">Workflow Automation</li>
+              <li class="chip">AI Agents</li>
+              <li class="chip">Troubleshooting</li>
+              <li class="chip">Data Analysis</li>
+              <li class="chip">Reporting</li>
+            </ul>
+          </div>
+
+          <div class="capability" data-reveal>
+            <h3 class="label capability__label">Tools</h3>
+            <ul class="chip-row">
+              <li class="chip">Zapier</li>
+              <li class="chip">Power BI</li>
+              <li class="chip">Excel</li>
+              <li class="chip">Google Sheets</li>
+              <li class="chip">Claude Code</li>
+              <li class="chip">Adobe Premiere Pro</li>
+              <li class="chip">Adobe Illustrator</li>
+              <li class="chip">CapCut</li>
+              <li class="chip">Microsoft Office</li>
+            </ul>
+          </div>
+
+          <div class="capability" data-reveal>
+            <h3 class="label capability__label">E-commerce</h3>
+            <ul class="chip-row">
+              <li class="chip">Shopify</li>
+              <li class="chip">Storefront Build</li>
+              <li class="chip">Pricing &amp; Bundling</li>
+              <li class="chip">Product Photography</li>
+              <li class="chip">Order Fulfilment</li>
+            </ul>
+          </div>
+
+          <div class="capability" data-reveal>
+            <h3 class="label capability__label">Practices</h3>
+            <ul class="chip-row">
+              <li class="chip">Client Discovery</li>
+              <li class="chip">Process Improvement</li>
+              <li class="chip">Team Training</li>
+              <li class="chip">Multilingual Support</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- The second of the page's two marquees. Same mechanics as the
+         keyword strip after the hero — the track holds the phrases twice
+         and slides exactly half its own width, so the loop has no seam —
+         but set large and in the accent. The .marquee class is what the
+         IntersectionObserver in script.js already looks for, so this
+         pauses off screen without any new JavaScript. -->
+    <section class="marquee marquee--cta" aria-label="Keep customers, grow revenue, automate the rest">
+      <div class="marquee__track">
+
+        <ul class="marquee__group">
+          <li class="marquee__item">Keep Customers</li>
+          <li class="marquee__item">Grow Revenue</li>
+          <li class="marquee__item">Automate The Rest</li>
+        </ul>
+
+        <ul class="marquee__group" aria-hidden="true">
+          <li class="marquee__item">Keep Customers</li>
+          <li class="marquee__item">Grow Revenue</li>
+          <li class="marquee__item">Automate The Rest</li>
+        </ul>
+
+      </div>
+    </section>
+
+    <section class="section" id="content">
+      <div class="wrap">
+        <p class="section__marker" data-reveal>
+          <span class="section__num">05</span> — <span>Content</span>
+        </p>
+
+        <!-- No card background, no border — the brief calls for these
+             floating free on the page. On desktop .video__float carries
+             the idle bob and the scroll parallax (script.js), kept
+             apart from .video__card so a hover transition there never
+             fights a transform written every frame. Below 900px this is
+             a swipeable deck instead — the active card at the front,
+             the rest stacked and peeking out behind it — driven by the
+             same --depth custom property script.js sets on each .video. -->
+        <ul class="videos" data-reveal>
+
+          <li class="video">
+            <div class="video__float">
+              <button class="video__card" type="button"
+                      data-video-id="ZDRf9FOJpMA" aria-label="Play video 1">
+                <img class="video__thumb"
+                     src="https://img.youtube.com/vi/ZDRf9FOJpMA/maxresdefault.jpg"
+                     data-fallback="https://img.youtube.com/vi/ZDRf9FOJpMA/hqdefault.jpg"
+                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
+                <span class="video__play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+              </button>
+            </div>
+          </li>
+
+          <li class="video">
+            <div class="video__float">
+              <button class="video__card" type="button"
+                      data-video-id="pGP2rb5e0_U" aria-label="Play video 2">
+                <img class="video__thumb"
+                     src="https://img.youtube.com/vi/pGP2rb5e0_U/maxresdefault.jpg"
+                     data-fallback="https://img.youtube.com/vi/pGP2rb5e0_U/hqdefault.jpg"
+                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
+                <span class="video__play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+              </button>
+            </div>
+          </li>
+
+          <li class="video">
+            <div class="video__float">
+              <button class="video__card" type="button"
+                      data-video-id="bJdhYTdqVE4" aria-label="Play video 3">
+                <img class="video__thumb"
+                     src="https://img.youtube.com/vi/bJdhYTdqVE4/maxresdefault.jpg"
+                     data-fallback="https://img.youtube.com/vi/bJdhYTdqVE4/hqdefault.jpg"
+                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
+                <span class="video__play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+              </button>
+            </div>
+          </li>
+
+          <li class="video">
+            <div class="video__float">
+              <button class="video__card" type="button"
+                      data-video-id="Mcrh3GoqDTk" aria-label="Play video 4">
+                <img class="video__thumb"
+                     src="https://img.youtube.com/vi/Mcrh3GoqDTk/maxresdefault.jpg"
+                     data-fallback="https://img.youtube.com/vi/Mcrh3GoqDTk/hqdefault.jpg"
+                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
+                <span class="video__play" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+              </button>
+            </div>
+          </li>
+
+        </ul>
+
+        <!-- Mobile only — which card the deck below has at the front,
+             and a direct way to jump to any of the four -->
+        <div class="videos__dots" id="videos-dots"></div>
+      </div>
+    </section>
+
+    <section class="section" id="background">
+      <div class="wrap">
+        <p class="section__marker" data-reveal>
+          <span class="section__num">04</span> — <span>Background</span>
+        </p>
+
+        <div class="background">
+
+          <div class="background__group" data-reveal>
+            <h3 class="label background__label">Education</h3>
+            <ul class="education">
+              <li class="education__item">
+                <p class="education__title">Professional Foundations &amp; Data Analytics</p>
+                <p class="education__meta">ALX Africa · 2024–2025</p>
+              </li>
+              <li class="education__item">
+                <p class="education__title">Bachelor's Degree in Economics</p>
+                <p class="education__meta">Cadi Ayyad University, Marrakech · 2022–2024</p>
+              </li>
+              <li class="education__item">
+                <p class="education__title">Baccalaureate</p>
+                <p class="education__meta">Ibn Toumert High School, Marrakech · 2022</p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="background__group" data-reveal>
+            <h3 class="label background__label">Languages</h3>
+            <dl class="languages">
+              <div class="language">
+                <dt class="language__name">Arabic</dt>
+                <dd class="language__level">Native</dd>
+              </div>
+              <div class="language">
+                <dt class="language__name">English</dt>
+                <dd class="language__level">Fluent</dd>
+              </div>
+              <div class="language">
+                <dt class="language__name">French</dt>
+                <dd class="language__level">C1</dd>
+              </div>
+              <div class="language">
+                <dt class="language__name">Spanish</dt>
+                <dd class="language__level">B1</dd>
+              </div>
+            </dl>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact">
+      <span class="contact__glow" aria-hidden="true"></span>
+      <div class="wrap">
+        <p class="label contact__eyebrow" data-reveal>— Contact —</p>
+
+        <h2 class="contact__heading" data-reveal data-split-reveal>
+          Let's keep your<br>
+          customers
+          <em>around</em>
+        </h2>
+
+        <p class="contact__line" data-reveal>
+          Open to work. Marrakech, Morocco — or remote.
+        </p>
+
+        <!-- Far stronger than the hero buttons: these two are the whole
+             point of the section, so they reach for the cursor hard.
+             The phone is tuned down to suit its smaller text. -->
+        <a class="contact__email" href="mailto:mohamedelhayyany@gmail.com"
+           data-reveal data-magnetic
+           data-magnet-radius="45vw" data-magnet-strength="180">
+          mohamedelhayyany@gmail.com
+        </a>
+
+        <a class="contact__phone" href="tel:+212694561949"
+           data-reveal data-magnetic
+           data-magnet-radius="40vw" data-magnet-strength="120">
+          +212 694 561 949
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <p class="footer__name">Mohamed Elhayyany</p>
+      <p class="footer__meta">
+        Technical Customer Success Manager · Marrakech, Morocco ·
+        <span id="footer-year"></span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- The iframe is never created until a card is clicked, and is
+       destroyed (not just hidden) on close or on switching videos, so
+       nothing ever keeps playing off screen. -->
+  <div class="lightbox" id="lightbox" hidden>
+
+    <button class="lightbox__close" id="lightbox-close" type="button" aria-label="Close video">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19"/>
+      </svg>
+    </button>
+
+    <button class="lightbox__nav lightbox__nav--prev" id="lightbox-prev" type="button" aria-label="Previous video">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M15 4l-8 8 8 8"/>
+      </svg>
+    </button>
+
+    <div class="lightbox__frame" id="lightbox-frame"></div>
+
+    <button class="lightbox__nav lightbox__nav--next" id="lightbox-next" type="button" aria-label="Next video">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M9 4l8 8-8 8"/>
+      </svg>
+    </button>
+
+    <div class="lightbox__dots" id="lightbox-dots"></div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
