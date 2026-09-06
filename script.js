@@ -215,7 +215,15 @@
     var splitMax = 60;
 
     var splitLeft = [];
-    var leftSel = ['.hero__intro', '.hero__actions', '.stats', '.hero__availability'];
+    /* .stats is deliberately not in here. Everything listed gets
+       opacity: 1 - scrollY/viewportHeight written straight onto it, and
+       the stat row sits low in the hero — lowest of all on a phone,
+       where the column is stacked and taller than one screen. That meant
+       the numbers were already part-faded by the time they scrolled into
+       view and hit zero while still on screen. Left out of the split
+       entirely, they neither fade nor move: they simply sit there until
+       they leave the top of the viewport. */
+    var leftSel = ['.hero__intro', '.hero__actions', '.hero__availability'];
 
     for (var ls = 0; ls < leftSel.length; ls++) {
       var found = heroEl.querySelector(leftSel[ls]);
@@ -392,7 +400,15 @@
 
         revealObserver.unobserve(entries[e].target);
       }
-    }, { threshold: 0.15 });
+    /* 0.05, not 0.15. The threshold is a fraction of the *target*, and
+       the target here is a whole section — on a phone the taller ones
+       run several screens deep, so the most of themselves they can ever
+       have on screen at once is viewportHeight / sectionHeight. Past
+       about six and a half screens tall that ceiling drops under 0.15
+       and the section would never reach its own trigger, leaving its
+       children stuck at opacity 0 for good. A low threshold has no such
+       cliff. */
+    }, { threshold: 0.05 });
 
     var revealSections = document.querySelectorAll('section');
 
@@ -593,7 +609,10 @@
           counterObserver.unobserve(entries[n].target);
         }
       }
-    }, { threshold: 0.5 });
+    /* Starts as soon as the number edges into view rather than waiting
+       for half of it, so the count is already running by the time it is
+       properly on screen */
+    }, { threshold: 0.05 });
 
     for (var cn = 0; cn < counters.length; cn++) {
       counterObserver.observe(counters[cn]);
@@ -817,6 +836,79 @@
 
     syncDragCursor();
     window.addEventListener('resize', syncDragCursor);
+  }
+
+  /* ------------------------------------------------------------------
+     Selected Work — cards that open on a phone
+
+     Below 900px a card shows only its header until it is tapped. The
+     animation is entirely CSS (grid-template-rows 0fr to 1fr); all this
+     does is move the .is-open class around and keep aria-expanded on
+     each toggle in step with it.
+
+     Above 900px the cards show everything at once, so the width check
+     lives inside the handler rather than around the whole block —
+     that way a resize across the breakpoint needs no re-binding.
+     ------------------------------------------------------------------ */
+
+  var workCardEls = document.querySelectorAll('.work__row .card');
+  var cardsCollapsible = window.matchMedia('(max-width: 899px)');
+
+  if (workCardEls.length) {
+
+    function setCardOpen(card, open) {
+      card.classList.toggle('is-open', open);
+
+      var toggle = card.querySelector('.card__toggle');
+
+      if (toggle) {
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      }
+    }
+
+    /* Opening one closes the rest, so only ever one is down at a time */
+    function openOnlyCard(card) {
+      for (var oc = 0; oc < workCardEls.length; oc++) {
+        setCardOpen(workCardEls[oc], workCardEls[oc] === card);
+      }
+    }
+
+    for (var wc = 0; wc < workCardEls.length; wc++) {
+      (function (card) {
+        function toggleCard() {
+          if (!cardsCollapsible.matches) {
+            return;
+          }
+
+          if (card.classList.contains('is-open')) {
+            setCardOpen(card, false);
+          } else {
+            openOnlyCard(card);
+          }
+        }
+
+        var toggle = card.querySelector('.card__toggle');
+
+        if (toggle) {
+          /* The button is the keyboard and screen-reader route in; the
+             card-wide handler below is the easy thumb target. Stopping
+             propagation here keeps one tap from toggling twice. */
+          toggle.addEventListener('click', function (event) {
+            event.stopPropagation();
+            toggleCard();
+          });
+        }
+
+        card.addEventListener('click', function (event) {
+          /* Never swallow a real link inside a card */
+          if (event.target.closest && event.target.closest('a')) {
+            return;
+          }
+
+          toggleCard();
+        });
+      })(workCardEls[wc]);
+    }
   }
 
   /* ------------------------------------------------------------------
@@ -1475,6 +1567,84 @@
 
     if (videosWide.matches) {
       startFloat();
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Contact — touch response
+
+     The magnetic pull below needs a cursor to reach for, so on a touch
+     screen the two links answer to the finger instead: a press scales
+     them slightly and sends a ripple out from under the text. The look
+     of both lives in style.css behind (hover: none) — all this does is
+     put the classes on and take them off again.
+     ------------------------------------------------------------------ */
+
+  var touchLinks = document.querySelectorAll('.contact__email, .contact__phone');
+
+  /* How long the pressed state is held before it is allowed to ease
+     back, counted from the moment of contact */
+  var TAP_HOLD = 200;
+
+  if (touchLinks.length && !hoverCapable.matches && !reducedMotion.matches) {
+    for (var tl = 0; tl < touchLinks.length; tl++) {
+      (function (link) {
+        var tapAt = 0;
+        var tapTimer = null;
+
+        link.addEventListener('touchstart', function () {
+          tapAt = Date.now();
+
+          if (tapTimer) {
+            clearTimeout(tapTimer);
+            tapTimer = null;
+          }
+
+          link.classList.add('is-tapped');
+
+          /* Re-adding the class alone will not replay an animation that
+             has already run once. Dropping it, reading a layout property
+             to force the style change to be applied, then adding it back
+             is what restarts the ripple on every tap. */
+          link.classList.remove('is-rippling');
+          void link.offsetWidth;
+          link.classList.add('is-rippling');
+        }, { passive: true });
+
+        function releaseTap() {
+          /* A tap is usually over in well under a tenth of a second, so
+             releasing on touchend alone would put the class on and take
+             it off again inside a frame or two and nothing would ever be
+             seen. Holding out the remainder of TAP_HOLD is what turns it
+             into a deliberate press rather than a flicker. */
+          var elapsed = Date.now() - tapAt;
+          var wait = TAP_HOLD - elapsed;
+
+          if (wait < 0) {
+            wait = 0;
+          }
+
+          if (tapTimer) {
+            clearTimeout(tapTimer);
+          }
+
+          tapTimer = setTimeout(function () {
+            tapTimer = null;
+            link.classList.remove('is-tapped');
+          }, wait);
+        }
+
+        link.addEventListener('touchend', releaseTap, { passive: true });
+        link.addEventListener('touchcancel', releaseTap, { passive: true });
+
+        /* Cleared once the ripple has finished so the next tap starts
+           from nothing rather than from a spent animation */
+        link.addEventListener('animationend', function (event) {
+          if (event.animationName === 'contact-ripple') {
+            link.classList.remove('is-rippling');
+          }
+        });
+      })(touchLinks[tl]);
     }
   }
 

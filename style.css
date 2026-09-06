@@ -1110,7 +1110,7 @@ body.is-locked .nav.is-scrolled {
   /* Tight on a phone — the display-size band below is tall enough to
      take over the whole screen otherwise. The 900px block restores the
      full padding. */
-  padding-block: var(--space-md);
+  padding-block: var(--space-sm);
 }
 
 .marquee--cta .marquee__track {
@@ -1130,7 +1130,7 @@ body.is-locked .nav.is-scrolled {
   gap: var(--space-xl);
   /* Readable rather than overwhelming at phone widths; the 900px block
      puts the full display scale back */
-  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  font-size: clamp(1.2rem, 5vw, 2rem);
   font-weight: 800;
   line-height: 1.1;
   /* The label tracking inherited from .marquee__item is far too wide at
@@ -1177,6 +1177,17 @@ body {
 .js .section {
   opacity: 0.35;
   transition: opacity 500ms var(--ease);
+}
+
+/* A phone is often read outdoors, where 0.35 stops being "quietly
+   receded" and becomes "unreadable". Lifting the floor to 0.6 under
+   768px keeps the sense of one section being the one you are reading
+   without hiding the others. The transition is inherited from the rule
+   above, so the fade is unchanged. */
+@media (max-width: 768px) {
+  .js .section {
+    opacity: 0.6;
+  }
 }
 
 .js .section.is-active {
@@ -1458,7 +1469,13 @@ body {
    keeps it a backdrop rather than something sitting on top of the text. */
 .card__ghost {
   position: absolute;
-  top: var(--space-md);
+  /* On a phone the top-right corner belongs to the expand toggle — a
+     40px circle sitting at 24px in, so it runs to 64px down. Dropping
+     the numeral to 72px clears it outright and lands it alongside the
+     title instead, where the 3.5rem gutter .card__title already
+     reserves keeps it in the clear. The desktop block puts it back in
+     the corner, since there is no toggle there to avoid. */
+  top: calc(var(--space-md) + 3rem);
   right: var(--space-md);
   z-index: 0;
   font-size: 4rem;
@@ -1483,6 +1500,14 @@ body {
 
 .card__date {
   color: var(--accent-2);
+  /* The toggle is a 40px circle inset 24px from the card's edge, which
+     puts its left edge about 28px inside the content box — far enough in
+     that a long date runs under it on a narrow phone ("January 2026 —
+     Present" on card 05 is the longest, and the label styling's 0.16em
+     tracking makes it wider still). Reserving the corner here protects
+     any date length rather than just the one that happened to collide.
+     The desktop block drops it again, there being no toggle to avoid. */
+  padding-right: 2.5rem;
 }
 
 .card__context {
@@ -1577,6 +1602,84 @@ body {
     border-color: var(--accent);
     color: var(--accent-soft);
   }
+}
+
+/* ---- Selected Work: cards that open on a phone ---------------------------
+   Below 900px a card shows its header only — date, role, company, place —
+   until it is tapped. Scoped to .js throughout, so with JavaScript off
+   nothing is ever hidden and every bullet stays readable.
+
+   The open/close animates grid-template-rows from 0fr to 1fr rather than
+   max-height. It resolves to the content's real height, so there is no
+   guessed maximum to overshoot and the easing stays even however long a
+   card happens to be — card 05 has six bullets, card 02 has four.
+   ------------------------------------------------------------------------ */
+
+.card__toggle {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  /* Over the ghost numeral, which shares this corner. Its own dark fill
+     and border are what keep it legible against that faint figure. */
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--muted);
+  background-color: rgba(8, 8, 10, 0.55);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--fast) ease,
+              border-color var(--fast) ease;
+}
+
+.card__toggle svg {
+  transition: transform 300ms var(--ease);
+}
+
+.js .card.is-open .card__toggle {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.js .card.is-open .card__toggle svg {
+  transform: rotate(180deg);
+}
+
+.js .card__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 400ms var(--ease),
+              opacity 400ms var(--ease);
+}
+
+/* A 0fr row only collapses if its one child can actually be clipped */
+.js .card__detail {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.js .card.is-open .card__body {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.js .card.is-open {
+  border-color: var(--accent);
+}
+
+/* Closed, the place line's own margin would leave a stretch of empty
+   card under it — this takes it back, and does so in step with the rest */
+.js .card__place {
+  transition: margin-bottom 400ms var(--ease);
+}
+
+.js .card:not(.is-open) .card__place {
+  margin-bottom: 0;
 }
 
 /* ---- Capabilities --------------------------------------------------------
@@ -2117,8 +2220,12 @@ body {
   transition: transform 150ms var(--ease);
 }
 
+/* Violet rather than the amber the phone keeps, so the email's rule
+   reads as a design element in its own right and pairs with the violet
+   the text flashes to on tap. The phone stays amber, on both counts. */
 .contact__email::after {
   height: 2px;
+  background-color: var(--accent);
 }
 
 /* Thinner and shorter-reaching, in keeping with the smaller text */
@@ -2152,6 +2259,177 @@ body {
 .js .contact__phone {
   transform: none;
   transition: opacity var(--rise-time) var(--ease);
+}
+
+/* ---- Touch response ------------------------------------------------------
+   A touch screen has no cursor to reach for, so the two links get their
+   own vocabulary instead of the magnetic pull. Everything here sits
+   behind (hover: none) — the exact complement of the (hover: hover)
+   query the magnetic effect uses — so the two can never both apply.
+   ------------------------------------------------------------------------ */
+
+@keyframes contact-in-left {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes contact-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Starts at the element's own 20px and grows to about 180px, rather
+   than starting at nothing — a ripple that begins at scale(0) spends its
+   first frames too small to register */
+@keyframes contact-ripple {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to   { transform: translate(-50%, -50%) scale(9); opacity: 0; }
+}
+
+@keyframes contact-underline {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes contact-breathe {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.45; }
+}
+
+/* A phone's own tap highlight is a translucent cyan rectangle drawn over
+   the whole link box — nothing to do with this ripple, and the reason a
+   tap looked like a coloured box appearing on top of the text rather
+   than a glow behind it. Only these two links give it up: they have a
+   scale, a ripple and a colour flash of their own, whereas the rest of
+   the page still wants the native highlight as its tap feedback. */
+.contact__email,
+.contact__phone {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The ripple: a small circle that scales up and fades. width and height
+   are given explicitly and equal rather than leaning on aspect-ratio, so
+   it is a circle by construction. */
+.contact__email::before,
+.contact__phone::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  /* rgb(139, 92, 246) is --accent, written out because a gradient needs
+     an alpha ramp and the custom property cannot carry one. The outer
+     stop is the accent at zero alpha, not `transparent` — transparent is
+     rgba(0,0,0,0), and interpolating violet toward transparent *black*
+     is what greys the edge of a gradient out. */
+  background: radial-gradient(circle,
+              rgba(139, 92, 246, 0.75) 0%,
+              rgba(139, 92, 246, 0.35) 40%,
+              rgba(139, 92, 246, 0) 70%);
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  pointer-events: none;
+  /* Behind the text. The link sets isolation: isolate in the touch block
+     below, which keeps this negative layer inside the link rather than
+     letting it fall behind the section. */
+  z-index: -1;
+}
+
+.contact__pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12em;
+  height: 12em;
+  border-radius: 50%;
+  /* Same multiplication as the ripple: at the old 0.22, breathing
+     between 0.15 and 0.45 opacity would have peaked at about a tenth of
+     full strength — invisible on a phone outdoors. Outer stop is the
+     accent at zero alpha for the same reason as the ripple above. */
+  background: radial-gradient(circle,
+              rgba(139, 92, 246, 0.55) 0%,
+              rgba(139, 92, 246, 0) 70%);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (hover: none) {
+  .js .contact__email,
+  .js .contact__phone {
+    /* Keeps the z-index: -1 layers above inside this link, rather than
+       letting them drop behind the section's own glow */
+    isolation: isolate;
+    /* The reveal script writes an inline transition-delay for the
+       section's stagger. Here the stagger comes from animation-delay
+       instead, and leaving that inline value in place would postpone
+       the tap response by the same amount — !important is the only way
+       a stylesheet outranks an inline style. */
+    transition-delay: 0ms !important;
+    /* These are the release timings — the press itself is quicker, set
+       on .is-tapped below. Transform eases back over 400ms, the colour
+       takes 500ms so it lingers slightly behind the movement. */
+    transition: opacity var(--rise-time) var(--ease),
+                transform 400ms var(--ease),
+                color 500ms var(--ease);
+  }
+
+  /* In from opposite sides, 150ms apart, as the section arrives.
+     backwards fill rather than forwards: the from-state is held through
+     the delay, but once the run ends the element hands transform back to
+     the stylesheet, leaving it free for the tap scale below. forwards
+     would pin it and the tap would have nothing to animate. */
+  .js .contact__email.is-revealed {
+    animation: contact-in-left var(--rise-time) var(--ease) backwards;
+  }
+
+  .js .contact__phone.is-revealed {
+    animation: contact-in-right var(--rise-time) var(--ease) 150ms backwards;
+  }
+
+  /* The press: quick in, then script.js holds the class for 200ms
+     before letting go, so it reads as a deliberate response rather than
+     a flicker. The easing back out is the 400ms/500ms above. */
+  .js .contact__email.is-tapped,
+  .js .contact__phone.is-tapped {
+    transform: scale(1.08);
+    transition: transform 150ms var(--ease),
+                color 150ms var(--ease);
+  }
+
+  /* Each link flashes to its own accent — violet for the email, amber
+     for the phone, matching the underline each one carries */
+  .js .contact__email.is-tapped {
+    color: var(--accent);
+  }
+
+  .js .contact__phone.is-tapped {
+    color: var(--accent-2);
+  }
+
+  .contact__email.is-rippling::before,
+  .contact__phone.is-rippling::before {
+    animation: contact-ripple 700ms var(--ease);
+  }
+
+  /* The underline draws itself once on arrival instead of tracking a
+     cursor that does not exist here */
+  .js .contact__email::after {
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: none;
+  }
+
+  .js .contact__email.is-revealed::after {
+    animation: contact-underline 800ms var(--ease) forwards;
+  }
+
+  .contact__pulse {
+    animation: contact-breathe 3s ease-in-out infinite;
+  }
 }
 
 /* ---- Section dot navigation ----------------------------------------------
@@ -2690,6 +2968,35 @@ body.is-locked .dots {
     scroll-snap-align: start;
   }
 
+  /* The toggle and the two wrappers exist only for the phone's collapse.
+     display: contents takes the wrappers' boxes out of the layout
+     altogether, so the card goes back to being the exact flex column it
+     was before they were added — which is what keeps .card__tags'
+     margin-top: auto pinning the tags to the bottom of the card. */
+  .card__toggle {
+    display: none;
+  }
+
+  /* Nothing occupies the corner here, so the numeral goes back to it
+     and the date needs no reserved space beside it */
+  .card__ghost {
+    top: var(--space-md);
+  }
+
+  .card__date {
+    padding-right: 0;
+  }
+
+  .js .card__body,
+  .js .card__detail {
+    display: contents;
+  }
+
+  /* Nothing is collapsed here, so the header keeps its normal spacing */
+  .js .card:not(.is-open) .card__place {
+    margin-bottom: var(--space-md);
+  }
+
   /* Grab-to-drag, set by script.js only while a drag is actually under way */
   .work__row.is-draggable {
     cursor: grab;
@@ -2792,6 +3099,14 @@ body.is-locked .dots {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* The ambient breathing glow is the one thing here with no business
+     existing at all under reduced motion — the blanket rule above would
+     only freeze it mid-breath, so it goes entirely */
+  .contact__pulse {
+    animation: none !important;
+    opacity: 0 !important;
   }
 
   /* The menu still opens and closes, it just does it at once. The delays

@@ -407,6 +407,19 @@
                     <span class="card__org">SafeApps (eGrow)</span>
                   </h3>
                   <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <!-- Absolutely positioned, so it can sit anywhere in the
+                       card; keeping it next to the content it opens keeps
+                       the two together in the source. -->
+                  <button class="card__toggle" type="button"
+                          aria-label="Details" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+
+                  <div class="card__body">
+                  <div class="card__detail">
                   <ul class="card__points">
                     <li>Built custom automated workflows and AI-driven agents for
                       client operations, tailored per account rather than sold as
@@ -431,6 +444,8 @@
                     <li class="chip">Workflow Design</li>
                     <li class="chip">Client Discovery</li>
                   </ul>
+                  </div>
+                  </div>
                 </li>
 
                 <li class="card">
@@ -442,6 +457,16 @@
                     <span class="card__org">SafeApps (eGrow)</span>
                   </h3>
                   <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <button class="card__toggle" type="button"
+                          aria-label="Details" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+
+                  <div class="card__body">
+                  <div class="card__detail">
                   <ul class="card__points">
                     <li>Contributed to a 15% increase in company revenue within
                       two months through structured outreach and account
@@ -460,6 +485,8 @@
                     <li class="chip">Renewals</li>
                     <li class="chip">Cold Outreach</li>
                   </ul>
+                  </div>
+                  </div>
                 </li>
 
                 <li class="card">
@@ -471,6 +498,16 @@
                     <span class="card__org">SafeApps (eGrow)</span>
                   </h3>
                   <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <button class="card__toggle" type="button"
+                          aria-label="Details" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+
+                  <div class="card__body">
+                  <div class="card__detail">
                   <ul class="card__points">
                     <li>On-camera face of the brand across marketing campaigns
                       and product advertising.</li>
@@ -489,6 +526,8 @@
                     <li class="chip">Premiere Pro</li>
                     <li class="chip">CapCut</li>
                   </ul>
+                  </div>
+                  </div>
                 </li>
 
                 <li class="card">
@@ -500,6 +539,16 @@
                     <span class="card__org">Majorel Outsourcing</span>
                   </h3>
                   <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <button class="card__toggle" type="button"
+                          aria-label="Details" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+
+                  <div class="card__body">
+                  <div class="card__detail">
                   <ul class="card__points">
                     <li>Reviewed hundreds of user posts and advertisements daily
                       against detailed platform policy, sustaining a 98% accuracy
@@ -519,6 +568,8 @@
                     <li class="chip">Escalation</li>
                     <li class="chip">Data Analysis</li>
                   </ul>
+                  </div>
+                  </div>
                 </li>
 
                 <li class="card">
@@ -530,6 +581,16 @@
                     <span class="card__org">Independent venture</span>
                   </h3>
                   <p class="card__place">Morocco <span class="card__arrow" aria-hidden="true">↗</span></p>
+                  <button class="card__toggle" type="button"
+                          aria-label="Details" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+
+                  <div class="card__body">
+                  <div class="card__detail">
                   <ul class="card__points">
                     <li>Founded and run Postry, a self-printed wall art brand
                       selling A4 and A3 prints direct to customers in Morocco.</li>
@@ -556,6 +617,8 @@
                     <li class="chip">Product Photography</li>
                     <li class="chip">Customer Support</li>
                   </ul>
+                  </div>
+                  </div>
                 </li>
 
             </ol>
@@ -854,6 +917,11 @@
            data-reveal data-magnetic
            data-magnet-radius="45vw" data-magnet-strength="180"
            data-magnet-max-y="16">
+          <!-- The slow ambient glow behind the address on touch screens.
+               Its own element because ::before and ::after are already
+               the tap ripple and the underline. Empty and aria-hidden,
+               so the link still announces as just the address. -->
+          <span class="contact__pulse" aria-hidden="true"></span>
           mohamedelhayyany@gmail.com
         </a>
 
