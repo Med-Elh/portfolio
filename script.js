@@ -1556,6 +1556,12 @@
         el: mNode,
         radius: magnetRadiusOf(mNode),
         strength: parseFloat(mNode.getAttribute('data-magnet-strength')) || MAGNET_STRENGTH,
+        /* Optional ceiling on vertical travel, in pixels. Sideways is
+           where the reaching reads anyway; up and down is the axis on
+           which stacked links collide, so the two contact links cap it
+           to less than half the gap between them and can never meet.
+           0 means uncapped. */
+        maxY: parseFloat(mNode.getAttribute('data-magnet-max-y')) || 0,
         /* Where it is, and how fast it is going */
         x: 0,
         y: 0,
@@ -1627,6 +1633,14 @@
 
             targetX = (dx / dist) * pull;
             targetY = (dy / dist) * pull;
+
+            /* Sideways travel stays as long as it likes; vertical is
+               clamped, so a link can lean hard toward the cursor without
+               ever climbing into the one stacked above or below it */
+            if (spec.maxY) {
+              if (targetY > spec.maxY) { targetY = spec.maxY; }
+              if (targetY < -spec.maxY) { targetY = -spec.maxY; }
+            }
           }
         }
 

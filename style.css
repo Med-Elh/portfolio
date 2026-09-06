@@ -1332,6 +1332,45 @@ body {
   display: block;
 }
 
+/* ---- Impact banner -------------------------------------------------------
+   One statement between two sections, hairline above and below. Laid out
+   as a baseline-aligned flex row rather than a plain inline span, because
+   the figure is three times the size of the words beside it — on a single
+   text line that mismatch drags the line box around and the two sit badly
+   against each other. Wrapping is allowed so a narrow screen drops the
+   words under the figure instead of pushing them off the edge.
+   ------------------------------------------------------------------------ */
+
+.impact {
+  padding-block: clamp(var(--space-xl), 9vh, var(--space-2xl));
+  /* The hairline above and below */
+  border-block: 1px solid var(--border);
+}
+
+.impact__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.3em;
+  padding-inline: var(--space-md);
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text);
+  font-size: clamp(0.875rem, 1.8vw, 1.75rem);
+  letter-spacing: 0.06em;
+}
+
+/* Three times the words beside it, in the warm accent */
+.impact__figure {
+  font-size: 3em;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--accent-2);
+}
+
 /* ---- Selected Work ------------------------------------------------------
    Stacked on a phone, heading first, cards below at their own natural
    height. From 900px this becomes two columns: a sticky intro on the
@@ -2025,26 +2064,24 @@ body {
   word-break: break-all;
 }
 
+/* Its own line, centred under the email, muted and a size down from it.
+   The gap is --space-xl (56px) at every width — comfortably clear of the
+   40px minimum — so the two never read as one block. It used to drop to
+   24px without a hover, on the reasoning that nothing moves on touch and
+   the room was only there for the magnetic pull; that left them looking
+   crowded, so the full gap now applies everywhere. */
 .contact__phone {
   position: relative;
   display: block;
   width: fit-content;
   margin-inline: auto;
-  margin-top: var(--space-md);
+  margin-top: var(--space-xl);
   color: var(--muted);
   font-size: 1rem;
 }
 
-/* The wider gap and the stacking order exist only to keep these two
-   separable while the magnetic pull is throwing them around, and that
-   runs solely on a hover-capable pointer. On touch nothing moves, so
-   nothing can overlap — the extra room would just be a gap in the
-   layout. Both sit behind the same query the effect itself uses. */
 @media (hover: hover) {
   .contact__phone {
-    /* Room for the email to travel over a hundred pixels without
-       landing on top of the phone */
-    margin-top: var(--space-xl);
     /* Above the email wherever the two do overlap, so the smaller
        target is never the one buried */
     z-index: 2;
@@ -2325,12 +2362,19 @@ body.is-locked .dots {
   .stats {
     grid-area: stats;
     flex-direction: row;
-    gap: var(--space-xl);
+    /* Four columns share this row now rather than three, so the gutter
+       comes down to give each one usable width. No flex-wrap: the four
+       stay on a single line and shrink together instead of one of them
+       dropping to a second row. */
+    gap: var(--space-md);
     padding-top: var(--space-lg);
   }
 
   .stat {
     flex: 1;
+    /* Lets a column shrink below the natural width of its label, so a
+       long one wraps inside its own column instead of forcing the row
+       wider than the space it has */
     min-width: 0;
     flex-direction: column;
     gap: var(--space-2xs);
@@ -2338,6 +2382,11 @@ body.is-locked .dots {
 
   .stat__value {
     min-width: 0;
+    /* Scales with the room actually available. At the 900px end of this
+       breakpoint the left column is narrow enough that four numbers at
+       the full --text-stat size would leave the labels nothing to sit
+       in; this keeps them large without crowding the row. */
+    font-size: clamp(1.75rem, 2.4vw, 2.5rem);
   }
   .hero__availability { grid-area: avail; }
 

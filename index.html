@@ -207,16 +207,20 @@
 
         <dl class="stats" data-rise>
           <div class="stat">
-            <dt class="stat__value">4+</dt>
-            <dd class="stat__label label">Years customer-facing</dd>
+            <dt class="stat__value" data-count="100" data-suffix="+">100+</dt>
+            <dd class="stat__label label">Customers managed</dd>
           </div>
           <div class="stat">
-            <dt class="stat__value">98%</dt>
-            <dd class="stat__label label">Policy accuracy at scale</dd>
+            <dt class="stat__value" data-count="50" data-suffix="+">50+</dt>
+            <dd class="stat__label label">Sales closed in 2 months</dd>
           </div>
           <div class="stat">
-            <dt class="stat__value">4</dt>
-            <dd class="stat__label label">Languages spoken</dd>
+            <dt class="stat__value" data-count="250" data-suffix="+">250+</dt>
+            <dd class="stat__label label">Posters sold in 3 months</dd>
+          </div>
+          <div class="stat">
+            <dt class="stat__value" data-count="15" data-suffix="%">15%</dt>
+            <dd class="stat__label label">Revenue growth in 2 months</dd>
           </div>
         </dl>
 
@@ -350,6 +354,21 @@
       </div>
     </section>
 
+    <!-- A statement standing on its own between two sections: no number,
+         no heading, just the line. A <section> element rather than a div
+         so the existing scroll-reveal observer (which watches sections
+         and reveals their [data-reveal] children) picks it up — but
+         deliberately without the .section class or an id, so it stays
+         out of the reading-highlight dimming and the dot navigation. An
+         unnamed section exposes no landmark, so it adds nothing for a
+         screen reader to step through either. -->
+    <section class="impact">
+      <p class="impact__line" data-reveal>
+        <span class="impact__figure">15%</span>
+        <span class="impact__rest">Revenue growth in 2 months.</span>
+      </p>
+    </section>
+
     <!-- The right column scrolls horizontally on its own — mouse wheel,
          click-and-drag, touch swipe, and the arrow buttons below, all set
          up in script.js. Nothing pins and nothing hijacks the page's own
@@ -424,12 +443,15 @@
                   </h3>
                   <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
                   <ul class="card__points">
-                    <li>Own high-priority accounts end to end: onboarding,
-                      technical support, adoption guidance, and renewal.</li>
+                    <li>Contributed to a 15% increase in company revenue within
+                      two months through structured outreach and account
+                      expansion.</li>
+                    <li>Manage a portfolio of over 100 active customer accounts
+                      across onboarding, technical support, and renewal.</li>
                     <li>Troubleshoot complex platform errors directly with users
                       rather than handing them to a queue.</li>
-                    <li>Run full-cycle sales alongside: sourcing, qualifying, cold
-                      outreach, and converting prospects into long-term
+                    <li>Closed over 100 sales through structured outreach and
+                      qualification and turned them into long term
                       subscribers.</li>
                   </ul>
                   <ul class="card__tags">
@@ -452,6 +474,9 @@
                   <ul class="card__points">
                     <li>On-camera face of the brand across marketing campaigns
                       and product advertising.</li>
+                    <li>Run Meta ad campaigns for clients, managing audience
+                      targeting, ad creative, and conversion optimisation
+                      through the Conversions API integrations.</li>
                     <li>Produce educational tutorials that reduce the support
                       load by answering common questions before they become
                       tickets.</li>
@@ -592,6 +617,14 @@
               <li class="chip">Troubleshooting</li>
               <li class="chip">Data Analysis</li>
               <li class="chip">Reporting</li>
+            </ul>
+          </div>
+
+          <div class="capability" data-reveal>
+            <h3 class="label capability__label">Meta Ads</h3>
+            <ul class="chip-row">
+              <li class="chip">Ad Campaign Management</li>
+              <li class="chip">Facebook Conversions API</li>
             </ul>
           </div>
 
@@ -812,16 +845,22 @@
 
         <!-- Far stronger than the hero buttons: these two are the whole
              point of the section, so they reach for the cursor hard.
-             The phone is tuned down to suit its smaller text. -->
+             The phone is tuned down to suit its smaller text.
+             data-magnet-max-y caps vertical travel at 16px each: they sit
+             56px apart, so even both leaning fully toward each other
+             closes only 32px and they can never overlap. Sideways travel
+             is left uncapped, which is where the reaching actually reads. -->
         <a class="contact__email" href="mailto:mohamedelhayyany@gmail.com"
            data-reveal data-magnetic
-           data-magnet-radius="45vw" data-magnet-strength="180">
+           data-magnet-radius="45vw" data-magnet-strength="180"
+           data-magnet-max-y="16">
           mohamedelhayyany@gmail.com
         </a>
 
         <a class="contact__phone" href="tel:+212694561949"
            data-reveal data-magnetic
-           data-magnet-radius="40vw" data-magnet-strength="120">
+           data-magnet-radius="40vw" data-magnet-strength="120"
+           data-magnet-max-y="16">
           +212 694 561 949
         </a>
       </div>
