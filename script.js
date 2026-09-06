@@ -160,6 +160,128 @@
   }
 
   /* ------------------------------------------------------------------
+     In-page links scroll smoothly, with a real fallback
+
+     html { scroll-behavior: smooth } handles this on its own in current
+     browsers, but iOS Safari only shipped it in 15.4 — before that a nav
+     tap jumps instantly, and CSS offers no way to feature-detect it.
+     This intercepts same-page hash links and drives the scroll itself:
+     window.scrollTo({ behavior: 'smooth' }) where the browser has it,
+     and a hand-rolled rAF tween where it doesn't.
+
+     It covers the nav, the mobile menu, the dot rail, the hero buttons
+     and the skip link in one delegated handler, since all of them are
+     just <a href="#...">.
+     ------------------------------------------------------------------ */
+
+  var supportsSmoothScroll =
+    'scrollBehavior' in document.documentElement.style;
+
+  /* Measured off the element rather than read from --nav-height, which
+     is authored in rem — and rem needs the root font size to become the
+     pixels scrollTo wants. Measuring is both shorter and correct if the
+     nav's height ever stops matching the variable. */
+  function navOffset() {
+    var navEl = document.querySelector('.nav');
+
+    return navEl ? navEl.offsetHeight : 72;
+  }
+
+  function tweenScrollTo(top) {
+    var start = window.scrollY;
+    var delta = top - start;
+    var began = null;
+    var DURATION = 600;
+
+    function step(now) {
+      if (began === null) {
+        began = now;
+      }
+
+      var t = Math.min((now - began) / DURATION, 1);
+      /* Same settle as the rest of the page — fast out, long tail */
+      var eased = 1 - Math.pow(1 - t, 3);
+
+      window.scrollTo(0, start + delta * eased);
+
+      if (t < 1) {
+        requestAnimationFrame(step);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  document.addEventListener('click', function (event) {
+    /* Let the browser handle anything that isn't a plain left click:
+       new tab, new window, download, and so on */
+    if (event.defaultPrevented || event.button !== 0 ||
+        event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    var link = event.target.closest && event.target.closest('a[href*="#"]');
+
+    if (!link) {
+      return;
+    }
+
+    /* Only same-document links. Comparing the resolved path keeps this
+       from firing on a link to another page that happens to carry a
+       fragment, and works under file:// as well as over http. */
+    if (link.pathname !== window.location.pathname ||
+        link.search !== window.location.search) {
+      return;
+    }
+
+    var id = link.hash.slice(1);
+
+    if (!id) {
+      return;
+    }
+
+    var target = document.getElementById(id);
+
+    if (!target) {
+      return;
+    }
+
+    event.preventDefault();
+
+    var top = Math.max(
+      window.scrollY + target.getBoundingClientRect().top - navOffset() - 12,
+      0
+    );
+
+    if (reducedMotion.matches) {
+      window.scrollTo(0, top);
+    } else if (supportsSmoothScroll) {
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    } else {
+      tweenScrollTo(top);
+    }
+
+    /* preventDefault() skipped the browser's own focus move, which the
+       skip link in particular depends on. preventScroll keeps focusing
+       from fighting the scroll that is already under way. */
+    if (!target.hasAttribute('tabindex')) {
+      target.setAttribute('tabindex', '-1');
+    }
+
+    try {
+      target.focus({ preventScroll: true });
+    } catch (err) {
+      target.focus();
+    }
+
+    /* Keeps the address bar and the back button honest, without the
+       instant jump that assigning location.hash would cause */
+    if (window.history && window.history.pushState) {
+      window.history.pushState(null, '', '#' + id);
+    }
+  });
+
+  /* ------------------------------------------------------------------
      Hero content rises in on load
 
      The hero is on screen from the start, so this is a load sequence
@@ -1967,9 +2089,23 @@
     var mobileParticles = window.matchMedia('(max-width: 768px)');
     var atmosDpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    var ATMOS_FRAME_MS = 1000 / 30;
+    /* 30fps on desktop. Under 768px the cap drops to 24 — the GPU is
+       weaker and the canvas is competing with the page's own scroll
+       compositing, and at this particle count and drift speed 24 is
+       still smooth to the eye. */
+    function atmosFrameBudget() {
+      return mobileParticles.matches ? 1000 / 24 : 1000 / 30;
+    }
+
     var atmosLastFrame = 0;
     var atmosRaf = null;
+
+    /* Observed interval between rAF callbacks, smoothed. Used only to
+       tell a 60Hz screen from a 120Hz one — see the parity skip in
+       atmosFrame. */
+    var rafInterval = 16.7;
+    var rafPrev = 0;
+    var atmosParity = 0;
 
     var canvasW = 0;
     var canvasH = 0;
@@ -2112,7 +2248,34 @@
     function atmosFrame(now) {
       atmosRaf = requestAnimationFrame(atmosFrame);
 
-      if (now - atmosLastFrame < ATMOS_FRAME_MS) {
+      if (rafPrev) {
+        var rafDelta = now - rafPrev;
+
+        /* Ignore the huge gap after a backgrounded tab resumes */
+        if (rafDelta > 0 && rafDelta < 100) {
+          rafInterval += (rafDelta - rafInterval) * 0.1;
+        }
+      }
+
+      rafPrev = now;
+
+      /* Render every other frame — but only on a high-refresh phone.
+         On a 120Hz screen rAF fires twice as often as the 24fps budget
+         below can ever admit, so dropping half the callbacks costs
+         nothing visible and halves the work done per second.
+         On an ordinary 60Hz screen this is deliberately skipped: the
+         24fps budget already admits roughly every third frame there,
+         and an unconditional parity skip on top of it would compound
+         to 15fps, which reads as stutter rather than as economy. */
+      if (mobileParticles.matches && rafInterval < 11) {
+        atmosParity ^= 1;
+
+        if (atmosParity) {
+          return;
+        }
+      }
+
+      if (now - atmosLastFrame < atmosFrameBudget()) {
         return;
       }
 
@@ -2196,6 +2359,9 @@
     function startAtmosphere() {
       if (atmosRaf === null) {
         atmosLastFrame = 0;
+        /* Dropped too, so the first frame after a hidden tab resumes
+           doesn't feed a multi-second gap into the interval average */
+        rafPrev = 0;
         atmosRaf = requestAnimationFrame(atmosFrame);
       }
     }

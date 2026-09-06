@@ -228,6 +228,15 @@ em {
   inset: 0;
   z-index: var(--z-bg);
   pointer-events: none;
+  /* iOS Safari treats a full-viewport fixed canvas as ordinary painted
+     content, so it re-composites the whole thing against the page on
+     every scroll frame. translateZ(0) promotes it to its own GPU layer,
+     which takes it out of the scroll repaint path entirely — the single
+     biggest win available on iPhone. The -webkit- prefix is harmless on
+     current Safari and covers the older builds that need it. */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .bg-glow {
@@ -1029,6 +1038,24 @@ body.is-locked .nav.is-scrolled {
   transform: none;
 }
 
+/* The four blocks script.js drives directly from scrollY (the hero
+   split — see writeSplit). These get a new transform and opacity on
+   every scroll frame for as long as the hero is on screen, which is
+   exactly the case will-change exists for.
+   Note this list is deliberately short. It is tempting to put
+   will-change on every [data-reveal] too, but those transition once
+   and then never move again — and a permanent layer for each of the
+   ~60 revealed elements would cost far more GPU memory on a phone than
+   the one-off transition saves. Browsers already promote an element
+   automatically for the duration of a transform/opacity transition,
+   so the reveals are handled without the hint. */
+.hero__intro,
+.hero__actions,
+.hero__availability,
+.hero__media {
+  will-change: transform, opacity;
+}
+
 /* --------------------------------------------------------------------------
    7. Marquee — an endless strip of capability keywords
 
@@ -1051,6 +1078,10 @@ body.is-locked .nav.is-scrolled {
      the 50% below equal exactly one copy of the keywords */
   width: max-content;
   animation: marquee-slide 45s linear infinite;
+  /* This one never stops moving while it is on screen, so a permanent
+     compositor layer is what it actually wants — the hint is paid for
+     once and saves a repaint of a very wide element every frame */
+  will-change: transform;
 }
 
 .marquee__group {
@@ -1179,14 +1210,17 @@ body {
   transition: opacity 500ms var(--ease);
 }
 
-/* A phone is often read outdoors, where 0.35 stops being "quietly
-   receded" and becomes "unreadable". Lifting the floor to 0.6 under
-   768px keeps the sense of one section being the one you are reading
-   without hiding the others. The transition is inherited from the rule
-   above, so the fade is unchanged. */
+/* The reading highlight is a desktop-only effect. On a phone the whole
+   screen is roughly one section, so dimming the neighbours buys nothing
+   and costs legibility — especially outdoors. Under 768px every section
+   sits at full opacity at all times. !important so nothing further down
+   the file, and no inline style, can reintroduce the dim.
+   This deliberately does NOT touch [data-reveal] / [data-rise]: those
+   animate opacity 0 -> 1 to fade content in, and pinning them to 1 would
+   disable every entrance animation on mobile. */
 @media (max-width: 768px) {
   .js .section {
-    opacity: 0.6;
+    opacity: 1 !important;
   }
 }
 
@@ -1196,15 +1230,21 @@ body {
 
 /* On top of the opacity fade, an inactive section's own heading is
    forced to --muted outright — otherwise an amber section number or
-   marker would still read as "lit" at 0.35 opacity */
-.js .section:not(.is-active) .section__marker,
-.js .section:not(.is-active) .section__num,
-.js .section:not(.is-active) .work__heading,
-.js .section:not(.is-active) .about__lead,
-.js .section:not(.is-active) .contact__heading,
-.js .section:not(.is-active) .contact__heading em {
-  color: var(--muted);
-  transition: color 500ms var(--ease);
+   marker would still read as "lit" at 0.35 opacity.
+   This is the second half of the reading highlight, so it is gated to
+   the same widths as the first half. Without the gate, mobile sections
+   would sit at full opacity but still have grey headings — the effect
+   half-applied, which looks like a bug rather than a choice. */
+@media (min-width: 769px) {
+  .js .section:not(.is-active) .section__marker,
+  .js .section:not(.is-active) .section__num,
+  .js .section:not(.is-active) .work__heading,
+  .js .section:not(.is-active) .about__lead,
+  .js .section:not(.is-active) .contact__heading,
+  .js .section:not(.is-active) .contact__heading em {
+    color: var(--muted);
+    transition: color 500ms var(--ease);
+  }
 }
 
 /* The two-part opener: number in accent, title in muted */
@@ -2833,6 +2873,9 @@ body.is-locked .dots {
      sticky sidebar. top matches where content already clears the fixed
      nav elsewhere on the page. */
   .work__intro {
+    /* Safari carried the prefix until 13; the unprefixed value below
+       overrides it wherever both are understood */
+    position: -webkit-sticky;
     position: sticky;
     top: calc(var(--nav-height) + var(--space-lg));
     padding-inline-start: var(--space-lg);
