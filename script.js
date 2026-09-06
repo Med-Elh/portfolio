@@ -529,8 +529,12 @@
        about six and a half screens tall that ceiling drops under 0.15
        and the section would never reach its own trigger, leaving its
        children stuck at opacity 0 for good. A low threshold has no such
-       cliff. */
-    }, { threshold: 0.05 });
+       cliff, and 0.01 removes it entirely — on iOS the root height moves
+       under you as the address bar collapses, so the less any decision
+       rests on a ratio of it, the better. The rootMargin is what
+       actually sets the trigger point: a target has to be a tenth of a
+       screen clear of the bottom edge before it counts as arrived. */
+    }, { threshold: 0.01, rootMargin: '0px 0px -10% 0px' });
 
     var revealSections = document.querySelectorAll('section');
 
@@ -672,7 +676,12 @@
         entries[se].target.classList.add('is-split-revealed');
         splitObserver.unobserve(entries[se].target);
       }
-    }, { threshold: 0.4 });
+    /* Was 0.4. A heading is short enough that 40% of it was always
+       reachable, so this was never at risk of the cliff the reveal
+       observer has — but it did mean the character animation waited on
+       a fraction of a viewport height that iOS keeps changing. Same
+       treatment as the others: trigger on the margin, not the ratio. */
+    }, { threshold: 0.01, rootMargin: '0px 0px -10% 0px' });
 
     for (var st = 0; st < splitTargets.length; st++) {
       splitChars(splitTargets[st]);
@@ -693,6 +702,15 @@
     var COUNT_TIME = 1400;
 
     function runCounter(el) {
+      /* Two things can start a counter now — the observer and the
+         load-time sweep below — and whichever arrives second must do
+         nothing, or the number visibly restarts from zero */
+      if (el.getAttribute('data-counted') === 'true') {
+        return;
+      }
+
+      el.setAttribute('data-counted', 'true');
+
       var target = parseFloat(el.getAttribute('data-count'));
       var suffix = el.getAttribute('data-suffix') || '';
 
@@ -733,11 +751,41 @@
       }
     /* Starts as soon as the number edges into view rather than waiting
        for half of it, so the count is already running by the time it is
-       properly on screen */
-    }, { threshold: 0.05 });
+       properly on screen. 0.01 rather than 0.05 because iOS recomputes
+       the viewport as the address bar grows and shrinks, and a ratio
+       measured against a shifting root is worth trusting as little as
+       possible. The rootMargin does the real work of deciding when. */
+    }, { threshold: 0.01, rootMargin: '0px 0px -10% 0px' });
 
     for (var cn = 0; cn < counters.length; cn++) {
       counterObserver.observe(counters[cn]);
+    }
+
+    /* iOS Safari intermittently never delivers the first callback batch
+       for an observer created during page load — the counters then sit
+       at their final value, having never counted. This is the backstop:
+       half a second after the document is ready, anything already on
+       screen is started by hand. runCounter refuses to run twice, so on
+       every browser that behaved normally this finds nothing to do. */
+    function sweepVisibleCounters() {
+      var viewH = window.innerHeight || document.documentElement.clientHeight;
+
+      for (var cs = 0; cs < counters.length; cs++) {
+        var box = counters[cs].getBoundingClientRect();
+
+        if (box.top < viewH && box.bottom > 0) {
+          runCounter(counters[cs]);
+          counterObserver.unobserve(counters[cs]);
+        }
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(sweepVisibleCounters, 500);
+      });
+    } else {
+      setTimeout(sweepVisibleCounters, 500);
     }
   }
 

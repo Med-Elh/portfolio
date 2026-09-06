@@ -2345,6 +2345,10 @@ body {
 .contact__email,
 .contact__phone {
   -webkit-tap-highlight-color: transparent;
+  /* Tells Safari a tap here can never be a double-tap-to-zoom, so it
+     stops holding the tap back to find out. Nothing here needs the
+     delay, and the ripple is much crisper without it. */
+  touch-action: manipulation;
 }
 
 /* The ripple: a small circle that scales up and fades. width and height
