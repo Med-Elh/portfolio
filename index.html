@@ -28,6 +28,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
 
@@ -930,6 +931,26 @@
            data-magnet-radius="40vw" data-magnet-strength="120"
            data-magnet-max-y="16">
           +212 694 561 949
+        </a>
+
+        <!-- The only one of the three that leaves the page, so it says so
+             twice: the arrow carries it visually, and the aria-label
+             carries it for a screen reader, which would otherwise reach a
+             link named "LinkedIn" with no warning it opens elsewhere.
+             Same magnet tuning as the phone, being the same size. -->
+        <a class="contact__linkedin"
+           href="https://www.linkedin.com/in/mohamed-elhayyany"
+           target="_blank" rel="noopener noreferrer"
+           aria-label="LinkedIn profile, opens in a new tab"
+           data-reveal data-magnetic
+           data-magnet-radius="40vw" data-magnet-strength="120"
+           data-magnet-max-y="16">
+          LinkedIn
+          <svg class="contact__arrow" viewBox="0 0 24 24" width="14" height="14"
+               fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17 17 7M9 7h8v8"/>
+          </svg>
         </a>
       </div>
     </section>

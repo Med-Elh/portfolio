@@ -2213,7 +2213,8 @@ body {
    24px without a hover, on the reasoning that nothing moves on touch and
    the room was only there for the magnetic pull; that left them looking
    crowded, so the full gap now applies everywhere. */
-.contact__phone {
+.contact__phone,
+.contact__linkedin {
   position: relative;
   display: block;
   width: fit-content;
@@ -2223,9 +2224,28 @@ body {
   font-size: 1rem;
 }
 
+/* Same size and colour as the phone above, but it carries an icon, so
+   it lays its two children out in a row rather than as a plain block.
+   flex, not inline-flex: an inline-level box ignores the margin-inline:
+   auto inherited from the rule above, which would leave this one link
+   sitting off to the side while the email and phone stayed centred. */
+.contact__linkedin {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+/* Nudged up by a hair: the arrow's ink sits low inside its own box, so
+   optically centring it needs a little more than align-items can see */
+.contact__arrow {
+  flex: none;
+  transform: translateY(-0.05em);
+}
+
 @media (hover: hover) {
-  .contact__phone {
-    /* Above the email wherever the two do overlap, so the smaller
+  .contact__phone,
+  .contact__linkedin {
+    /* Above the email wherever they do overlap, so the smaller
        target is never the one buried */
     z-index: 2;
   }
@@ -2242,7 +2262,8 @@ body {
    ------------------------------------------------------------------------ */
 
 .contact__email::after,
-.contact__phone::after {
+.contact__phone::after,
+.contact__linkedin::after {
   content: "";
   position: absolute;
   left: 0;
@@ -2269,7 +2290,8 @@ body {
 }
 
 /* Thinner and shorter-reaching, in keeping with the smaller text */
-.contact__phone::after {
+.contact__phone::after,
+.contact__linkedin::after {
   height: 1px;
   transform: scaleX(calc(var(--magnet-near, 0) * 1.04));
 }
@@ -2282,9 +2304,10 @@ body {
                  rgba(245, 166, 35, calc(var(--magnet-near, 0) * 0.5));
   }
 
-  /* Grey text, so this one really can just brighten — muted lifts to
+  /* Grey text, so these really can just brighten — muted lifts to
      near-white as the cursor closes in. Less intense than the email. */
-  .contact__phone {
+  .contact__phone,
+  .contact__linkedin {
     filter: brightness(calc(1 + var(--magnet-near, 0) * 0.75));
   }
 }
@@ -2296,7 +2319,8 @@ body {
    and sitting later leaves them a plain fade in, and nothing else
    touching transform. */
 .js .contact__email,
-.js .contact__phone {
+.js .contact__phone,
+.js .contact__linkedin {
   transform: none;
   transition: opacity var(--rise-time) var(--ease);
 }
@@ -2343,7 +2367,8 @@ body {
    scale, a ripple and a colour flash of their own, whereas the rest of
    the page still wants the native highlight as its tap feedback. */
 .contact__email,
-.contact__phone {
+.contact__phone,
+.contact__linkedin {
   -webkit-tap-highlight-color: transparent;
   /* Tells Safari a tap here can never be a double-tap-to-zoom, so it
      stops holding the tap back to find out. Nothing here needs the
@@ -2355,7 +2380,8 @@ body {
    are given explicitly and equal rather than leaning on aspect-ratio, so
    it is a circle by construction. */
 .contact__email::before,
-.contact__phone::before {
+.contact__phone::before,
+.contact__linkedin::before {
   content: "";
   position: absolute;
   left: 50%;
@@ -2403,7 +2429,8 @@ body {
 
 @media (hover: none) {
   .js .contact__email,
-  .js .contact__phone {
+  .js .contact__phone,
+  .js .contact__linkedin {
     /* Keeps the z-index: -1 layers above inside this link, rather than
        letting them drop behind the section's own glow */
     isolation: isolate;
@@ -2434,28 +2461,37 @@ body {
     animation: contact-in-right var(--rise-time) var(--ease) 150ms backwards;
   }
 
+  /* Back in from the left, another 150ms behind the phone, so the three
+     arrive left, right, left rather than two from one side */
+  .js .contact__linkedin.is-revealed {
+    animation: contact-in-left var(--rise-time) var(--ease) 300ms backwards;
+  }
+
   /* The press: quick in, then script.js holds the class for 200ms
      before letting go, so it reads as a deliberate response rather than
      a flicker. The easing back out is the 400ms/500ms above. */
   .js .contact__email.is-tapped,
-  .js .contact__phone.is-tapped {
+  .js .contact__phone.is-tapped,
+  .js .contact__linkedin.is-tapped {
     transform: scale(1.08);
     transition: transform 150ms var(--ease),
                 color 150ms var(--ease);
   }
 
   /* Each link flashes to its own accent — violet for the email, amber
-     for the phone, matching the underline each one carries */
+     for the phone and LinkedIn, matching the underline each one carries */
   .js .contact__email.is-tapped {
     color: var(--accent);
   }
 
-  .js .contact__phone.is-tapped {
+  .js .contact__phone.is-tapped,
+  .js .contact__linkedin.is-tapped {
     color: var(--accent-2);
   }
 
   .contact__email.is-rippling::before,
-  .contact__phone.is-rippling::before {
+  .contact__phone.is-rippling::before,
+  .contact__linkedin.is-rippling::before {
     animation: contact-ripple 700ms var(--ease);
   }
 
@@ -3139,6 +3175,10 @@ body.is-locked .dots {
     scroll-behavior: auto;
   }
 
+  /* Everything off by default, so any motion added to the page later is
+     silent under this setting until it is deliberately let through. The
+     exceptions in the next section are motion that carries meaning
+     rather than atmosphere. */
   *,
   *::before,
   *::after {
@@ -3148,18 +3188,82 @@ body.is-locked .dots {
     scroll-behavior: auto !important;
   }
 
-  /* The ambient breathing glow is the one thing here with no business
-     existing at all under reduced motion — the blanket rule above would
-     only freeze it mid-breath, so it goes entirely */
+  /* ---- Functional motion, deliberately kept ---------------------------
+     Each selector here beats the blanket above on specificity, which is
+     what lets it override a declaration that is already !important — a
+     class (0,1,0) outranks the universal selector (0,0,0).
+
+     The line being drawn: this setting exists to stop motion that is
+     applied *to* content, not to stop content that happens to move.
+     A marquee frozen mid-strip is not a calmer marquee, it is three of
+     nine keywords and a layout that looks broken. A tap with no
+     response is not a calmer tap, it is a dead link. Neither is what
+     someone asking for less movement is asking for.
+     -------------------------------------------------------------------- */
+
+  /* Both marquees. The travel is the only way the rest of the keywords
+     are ever seen, so removing it removes content. */
+  .marquee__track {
+    animation: marquee-slide 45s linear infinite !important;
+  }
+
+  .marquee--cta .marquee__track {
+    animation-duration: 30s !important;
+  }
+
+  /* The off-screen pause is a performance measure, not motion, so it
+     still applies */
+  .marquee.is-paused .marquee__track {
+    animation-play-state: paused !important;
+  }
+
+  /* Card expand and collapse. Without the row transition the card snaps
+     open and the chevron stops explaining what it just did. */
+  .js .card__body {
+    transition: grid-template-rows 400ms var(--ease),
+                opacity 400ms var(--ease) !important;
+  }
+
+  /* Nav background arriving on scroll, and the active-section colour */
+  .nav {
+    transition: background-color var(--fast) ease,
+                border-color var(--fast) ease !important;
+  }
+
+  .nav__link,
+  .menu__link {
+    transition: color var(--fast) ease !important;
+  }
+
+  /* The mobile menu panel keeps its wipe. This was previously forced
+     instant, but a full-screen panel that teleports into place is more
+     disorienting than one that arrives in a fifth of a second — the
+     opposite of what the setting is asking for. The visibility delay
+     has to be restored with it, or the panel vanishes before it has
+     finished wiping back out. */
+  .menu {
+    transition: transform var(--slow) var(--ease),
+                visibility 0s linear var(--slow) !important;
+  }
+
+  .menu.is-open {
+    transition: transform var(--slow) var(--ease),
+                visibility 0s linear 0s !important;
+  }
+
+  /* ---- Decorative motion, off ----------------------------------------- */
+
+  /* The ambient breathing glow behind the contact links. Not tap
+     feedback — it pulses on its own forever with nothing prompting it,
+     which is exactly what this setting is for. The blanket above would
+     only freeze it mid-breath, so it goes entirely. */
   .contact__pulse {
     animation: none !important;
     opacity: 0 !important;
   }
 
-  /* The menu still opens and closes, it just does it at once. The delays
-     have to go too — the rule above only shortens durations, and a
-     lingering visibility delay would leave the panel on screen. */
-  .menu,
+  /* The per-link stagger inside the menu is decoration on top of the
+     panel wipe above, so the links are simply in place when it opens */
   .menu__item,
   .menu__resume,
   .menu__foot {
@@ -3177,13 +3281,6 @@ body.is-locked .dots {
   [data-rise] {
     opacity: 1;
     transform: none;
-  }
-
-  /* The strip holds still. The rule above shortens the animation to
-     nothing, which would leave it frozen at the end of its travel —
-     removing it outright keeps the keywords where they started. */
-  .marquee__track {
-    animation: none;
   }
 
   /* Section content is simply there, with no rise */
@@ -3246,5 +3343,47 @@ body.is-locked .dots {
   .hero__media {
     transform: none;
     opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   9b. Reduced motion on a touch device — the tap feedback survives
+
+   In its own combined query rather than inside the block above, so none
+   of it can reach a desktop pointer, where the magnetic links do this
+   job instead and are correctly switched off under reduced motion.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) and (hover: none) {
+  /* The press, and the slower release script.js holds it out to. Same
+     timings the effect normally uses: a tap that produces nothing at
+     all reads as an unresponsive link, which is a usability failure
+     rather than a calmer page. */
+  .js .contact__email,
+  .js .contact__phone,
+  .js .contact__linkedin {
+    transition: transform 400ms var(--ease),
+                color 500ms var(--ease) !important;
+  }
+
+  .js .contact__email.is-tapped,
+  .js .contact__phone.is-tapped,
+  .js .contact__linkedin.is-tapped {
+    transition: transform 150ms var(--ease),
+                color 150ms var(--ease) !important;
+  }
+
+  /* The ripple travelling out from under the finger */
+  .contact__email.is-rippling::before,
+  .contact__phone.is-rippling::before,
+  .contact__linkedin.is-rippling::before {
+    animation: contact-ripple 700ms var(--ease) !important;
+  }
+
+  /* The underline normally draws itself as the link is revealed, and
+     reveals do not run under this setting — so it would otherwise never
+     appear at all. It is simply present instead. */
+  .js .contact__email::after {
+    transform: scaleX(1);
   }
 }

@@ -574,7 +574,13 @@
 
   var highlightSections = document.querySelectorAll('.section[id]');
 
-  if (highlightSections.length && !reducedMotion.matches && 'IntersectionObserver' in window) {
+  /* Runs whatever the motion setting says, because it drives two
+     separate things: the section dimming (decorative — switched off in
+     the stylesheet's reduced-motion block, which pins .section to full
+     opacity) and the active-section highlight in the nav and the mobile
+     menu (functional — it is how you know where you are on the page).
+     Gating the observer itself took the second one out with the first. */
+  if (highlightSections.length && 'IntersectionObserver' in window) {
 
     /* The right-edge section dots are matched by the same selector, so
        they light up from this one observer with no second pass */
@@ -698,7 +704,12 @@
 
   var counters = document.querySelectorAll('[data-count]');
 
-  if (counters.length && !reducedMotion.matches && 'IntersectionObserver' in window) {
+  /* Deliberately not gated on reduced motion. A counter that skips
+     straight to its final value has not been calmed — it has simply
+     stopped being a counter, and the one thing the animation is there
+     to communicate (that this is a quantity that accumulated) is gone.
+     The movement is small, contained, and triggered by arriving at it. */
+  if (counters.length && 'IntersectionObserver' in window) {
     var COUNT_TIME = 1400;
 
     function runCounter(el) {
@@ -1096,7 +1107,15 @@
       for (var m = 0; m < entries.length; m++) {
         entries[m].target.classList.toggle('is-paused', !entries[m].isIntersecting);
       }
-    }, { threshold: 0 });
+    /* The 200px skirt matters on iOS. With a bare threshold of 0 the
+       strip counts as off screen the instant it touches the viewport
+       edge — and iOS moves that edge on its own as the address bar
+       collapses and expands, which can land a "not intersecting"
+       callback while the marquee is plainly visible, pausing it with
+       nothing to start it again until the next scroll. Pausing only
+       once it is a clear 200px away keeps the off-screen saving while
+       putting that race well out of reach. */
+    }, { threshold: 0, rootMargin: '200px 0px 200px 0px' });
 
     for (var q = 0; q < marquees.length; q++) {
       marqueeObserver.observe(marquees[q]);
@@ -1750,13 +1769,20 @@
      put the classes on and take them off again.
      ------------------------------------------------------------------ */
 
-  var touchLinks = document.querySelectorAll('.contact__email, .contact__phone');
+  var touchLinks = document.querySelectorAll(
+    '.contact__email, .contact__phone, .contact__linkedin'
+  );
 
   /* How long the pressed state is held before it is allowed to ease
      back, counted from the moment of contact */
   var TAP_HOLD = 200;
 
-  if (touchLinks.length && !hoverCapable.matches && !reducedMotion.matches) {
+  /* No reduced-motion gate. This is the only feedback a touch device
+     gets that a tap landed — desktop has hover and the magnetic pull
+     instead — so removing it leaves the link feeling broken rather than
+     calm. The motion is a response to a deliberate action, not ambient,
+     which is the distinction the setting is actually drawing. */
+  if (touchLinks.length && !hoverCapable.matches) {
     for (var tl = 0; tl < touchLinks.length; tl++) {
       (function (link) {
         var tapAt = 0;
