@@ -83,6 +83,7 @@
 
   /* Shape and motion */
   --radius:    4px;
+  --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 999px;
 
@@ -1219,7 +1220,8 @@ body {
    animate opacity 0 -> 1 to fade content in, and pinning them to 1 would
    disable every entrance animation on mobile. */
 @media (max-width: 768px) {
-  .js .section {
+  .js .section,
+  section {
     opacity: 1 !important;
   }
 }
@@ -2069,6 +2071,138 @@ body {
   color: var(--muted);
   font-size: var(--text-label);
   margin-top: var(--space-2xs);
+}
+
+/* ---- Certificates --------------------------------------------------------
+   Two scans sitting under the certifications list. Stacked on a phone,
+   side by side from 700px — earlier than the page's usual 900px break,
+   because these are wide landscape images and two of them fit long
+   before the rest of the layout wants a second column.
+   ------------------------------------------------------------------------ */
+
+.certs {
+  display: grid;
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+@media (min-width: 700px) {
+  .certs {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cert__link {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  /* Clips the image's own square corners to the rounded ones */
+  overflow: hidden;
+  /* The soft glow beneath. Neutral by default so it reads as depth
+     rather than as colour, and only picks up the accent on hover. */
+  box-shadow: 0 12px 30px rgba(8, 8, 10, 0.55);
+  transition: transform var(--slow) var(--ease),
+              border-color var(--slow) var(--ease),
+              box-shadow var(--slow) var(--ease);
+}
+
+.cert__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The two files are 1280x905 and 1241x857 — close but not identical,
+     which would leave the cards different heights side by side. Pinning
+     both to the same ratio and covering trims a few pixels off the
+     shorter one instead. */
+  aspect-ratio: 1280 / 905;
+  object-fit: cover;
+}
+
+/* Greyscale-until-hover is a pointer behaviour, so it is gated the same
+   way the portrait is — a touch device would otherwise be stuck with
+   grey certificates it can never bring into colour */
+@media (hover: hover) {
+  .cert__img {
+    filter: grayscale(1);
+    transition: filter var(--slow) var(--ease);
+  }
+
+  .cert__link:hover,
+  .cert__link:focus-visible {
+    transform: translateY(-8px);
+    border-color: var(--accent);
+    box-shadow: 0 22px 44px rgba(139, 92, 246, 0.22);
+  }
+
+  .cert__link:hover .cert__img,
+  .cert__link:focus-visible .cert__img {
+    filter: grayscale(0);
+  }
+}
+
+.cert__caption {
+  margin-top: var(--space-sm);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---- Certificate lightbox ------------------------------------------------
+   Deliberately much simpler than the video lightbox: one still image,
+   no stepping between items, so there is nothing to build or tear down.
+   ------------------------------------------------------------------------ */
+
+.certbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-lightbox);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-md);
+  background-color: rgba(8, 8, 10, 0.92);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.certbox[hidden] {
+  display: none;
+}
+
+.certbox__img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.certbox__close {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background-color: rgba(8, 8, 10, 0.6);
+  color: var(--muted);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--fast) ease,
+              border-color var(--fast) ease;
+}
+
+@media (hover: hover) {
+  .certbox__close:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
 }
 
 .languages {

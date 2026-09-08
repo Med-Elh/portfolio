@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
 
 </head>
 <body>
@@ -300,7 +300,11 @@
               remove manual work from my clients' operations. On the side I
               founded <strong>Postry</strong>, a wall art brand I run end to end
               — which is where I learned what retention costs when the customer
-              is paying you directly. I work in Arabic, English, and French.
+              is paying you directly. I also trade financial markets
+              independently — <strong>funded by Funding Pips and Funded
+              Next</strong> — which sharpened the analytical discipline I bring
+              to client data and revenue decisions. I work in Arabic, English,
+              and French.
             </p>
           </div>
 
@@ -681,6 +685,10 @@
               <li class="chip">Troubleshooting</li>
               <li class="chip">Data Analysis</li>
               <li class="chip">Reporting</li>
+              <li class="chip">Financial Markets Analysis</li>
+              <li class="chip">Risk Management</li>
+              <li class="chip">TradingView</li>
+              <li class="chip">MetaTrader 4 &amp; 5</li>
             </ul>
           </div>
 
@@ -867,6 +875,54 @@
           </div>
 
           <div class="background__group" data-reveal>
+            <h3 class="label background__label">Certifications</h3>
+            <ul class="education">
+              <li class="education__item">
+                <p class="education__title">Funded Futures Trader</p>
+                <p class="education__meta">Funded Next · 2026</p>
+              </li>
+              <li class="education__item">
+                <p class="education__title">Funded Forex Trader</p>
+                <p class="education__meta">Funding Pips · 2025</p>
+              </li>
+              <li class="education__item">
+                <p class="education__title">Professional Foundations &amp; Data Analytics</p>
+                <p class="education__meta">ALX Africa · 2025</p>
+              </li>
+            </ul>
+
+            <!-- The href is the full image, so with JavaScript off (or before
+                 script.js runs) tapping a certificate still opens it. The
+                 lightbox intercepts the click when it can. -->
+            <ul class="certs">
+              <li class="cert">
+                <a class="cert__link" data-cert
+                   href="assets/images/cert-funding-pips.png"
+                   target="_blank" rel="noopener noreferrer">
+                  <img class="cert__img"
+                       src="assets/images/cert-funding-pips.png"
+                       alt="Funded Forex Trader certificate issued to Mohamed Elhayyany by Funding Pips"
+                       width="1280" height="905"
+                       loading="lazy" decoding="async">
+                </a>
+                <p class="cert__caption">Funded Forex Trader — Funding Pips</p>
+              </li>
+              <li class="cert">
+                <a class="cert__link" data-cert
+                   href="assets/images/cert-funded-next.png"
+                   target="_blank" rel="noopener noreferrer">
+                  <img class="cert__img"
+                       src="assets/images/cert-funded-next.png"
+                       alt="Funded Futures Trader certificate issued to Mohamed Elhayyany by Funded Next"
+                       width="1241" height="857"
+                       loading="lazy" decoding="async">
+                </a>
+                <p class="cert__caption">Funded Futures Trader — Funded Next</p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="background__group" data-reveal>
             <h3 class="label background__label">Languages</h3>
             <dl class="languages">
               <div class="language">
@@ -967,6 +1023,20 @@
     </div>
   </footer>
 
+  <!-- Its own overlay rather than a mode added to the video lightbox
+       below: that one builds and destroys YouTube iframes and steps
+       between four videos, none of which a still image needs. -->
+  <div class="certbox" id="certbox" hidden>
+    <button class="certbox__close" id="certbox-close" type="button"
+            aria-label="Close certificate">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+           stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M5 5l14 14M19 5L5 19"/>
+      </svg>
+    </button>
+    <img class="certbox__img" id="certbox-img" src="" alt="">
+  </div>
+
   <!-- The iframe is never created until a card is clicked, and is
        destroyed (not just hidden) on close or on switching videos, so
        nothing ever keeps playing off screen. -->
@@ -996,6 +1066,6 @@
 
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>

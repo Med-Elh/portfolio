@@ -2557,6 +2557,81 @@
      goes stale
      ------------------------------------------------------------------ */
 
+  /* ------------------------------------------------------------------
+     Certificate lightbox
+
+     The links point at the image files, so with JavaScript off a tap
+     still opens the certificate — this only upgrades that to an overlay.
+     Not gated on reduced motion: opening and closing a viewer is
+     functional, and the overlay does not animate anyway.
+     ------------------------------------------------------------------ */
+
+  var certLinks = document.querySelectorAll('[data-cert]');
+  var certBox = document.getElementById('certbox');
+  var certImg = document.getElementById('certbox-img');
+  var certClose = document.getElementById('certbox-close');
+
+  if (certLinks.length && certBox && certImg && certClose) {
+    var certOpener = null;
+
+    function openCert(link) {
+      var full = link.querySelector('img');
+
+      certImg.src = link.getAttribute('href');
+      /* The thumbnail already describes the certificate, so the overlay
+         reuses it rather than inventing a second wording */
+      certImg.alt = full ? full.getAttribute('alt') : '';
+
+      certOpener = link;
+      certBox.hidden = false;
+      document.body.classList.add('is-locked');
+      certClose.focus();
+    }
+
+    function closeCert() {
+      certBox.hidden = true;
+      /* Dropped so a large scan is not held in memory, and so reopening
+         cannot flash the previous certificate for a frame */
+      certImg.src = '';
+      document.body.classList.remove('is-locked');
+
+      if (certOpener) {
+        certOpener.focus();
+        certOpener = null;
+      }
+    }
+
+    for (var ci = 0; ci < certLinks.length; ci++) {
+      (function (link) {
+        link.addEventListener('click', function (event) {
+          /* Anything asking for a new tab or window is left alone */
+          if (event.metaKey || event.ctrlKey || event.shiftKey ||
+              event.altKey || event.button !== 0) {
+            return;
+          }
+
+          event.preventDefault();
+          openCert(link);
+        });
+      }(certLinks[ci]));
+    }
+
+    certClose.addEventListener('click', closeCert);
+
+    /* A tap on the backdrop, but not on the image itself */
+    certBox.addEventListener('click', function (event) {
+      if (event.target === certBox) {
+        closeCert();
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !certBox.hidden) {
+        closeCert();
+      }
+    });
+  }
+
   var footerYear = document.getElementById('footer-year');
 
   if (footerYear) {

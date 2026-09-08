@@ -276,6 +276,7 @@ Customer Support
   Photography · Order Fulfilment
 - Practices — Client Discovery · Process Improvement · Team Training ·
   Multilingual Support
+- Financial Markets Analysis · Risk Management · TradingView · MetaTrader 4 & 5
 
 ### Marquee CTA
 Bring Customers · Keep Them · Grow Revenue · Automate The Rest ·
@@ -295,7 +296,11 @@ Education:
 - Professional Foundations & Data Analytics — ALX Africa — 2024–2025
 - Bachelor's Degree in Economics — Cadi Ayyad University, Marrakech — 2022–2024
 - Baccalaureate — Ibn Toumert High School, Marrakech — 2022
-
+Certifications:
+- Funded Futures Trader — Funded Next — 2026
+- Funded Forex Trader — Funding Pips — 2025
+- Professional Foundations & Data Analytics — ALX Africa — 2025
+Certificate images: assets/images/cert-funding-pips.png, assets/images/cert-funded-next.png, 
 Languages:
 - Arabic — Native
 - English — Fluent
