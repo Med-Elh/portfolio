@@ -2074,10 +2074,11 @@ body {
 }
 
 /* ---- Certificates --------------------------------------------------------
-   Two scans sitting under the certifications list. Stacked on a phone,
-   side by side from 700px — earlier than the page's usual 900px break,
-   because these are wide landscape images and two of them fit long
-   before the rest of the layout wants a second column.
+   Four scans sitting under the certifications list. Stacked on a phone,
+   spreading to two columns from 700px, then four on one row at 900px —
+   earlier than the page's usual 900px break, because these are wide
+   landscape images and four of them fit long before the rest of the
+   layout wants a second column.
    ------------------------------------------------------------------------ */
 
 .certs {
@@ -2089,6 +2090,12 @@ body {
 @media (min-width: 700px) {
   .certs {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1100px) {
+  .certs {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
   }
 }
 
@@ -2110,10 +2117,10 @@ body {
   display: block;
   width: 100%;
   height: auto;
-  /* The two files are 1280x905 and 1241x857 — close but not identical,
-     which would leave the cards different heights side by side. Pinning
-     both to the same ratio and covering trims a few pixels off the
-     shorter one instead. */
+  /* The four files are 1280x905, 1241x857, 1280x905 and (EF SET)
+     1280x905 — close but not identical, which would leave the cards
+     different heights side by side. Pinning all four to the same ratio
+     and covering trims a few pixels off the shorter one instead. */
   aspect-ratio: 1280 / 905;
   object-fit: cover;
 }
