@@ -317,130 +317,595 @@
   }
 
   /* ------------------------------------------------------------------
-     Hero split on scroll
+     STEP 2 — hero to sidebar, as an inverse FLIP
 
-     Mapped straight from scroll position, not animated: 0 to one
-     viewport height of scroll maps onto 0 to 60% translation, with
-     opacity going 1 to 0 across the same range. Because it is a pure
-     function of scrollY it reverses exactly on the way back up, with
-     no state to get out of step.
+     There are no flying copies any more. The REAL sidebar elements do the
+     travelling: each one is pushed back onto its hero counterpart at the
+     start and released toward its own slot as you scroll. At the end its
+     transform is exactly `none`, so it is simply sitting where it lives —
+     there is nothing to hand over to and nothing that can land wrong.
 
-     Desktop sends the copy left and the portrait right. Below 900px
-     there is nowhere to send them — the two sit stacked, not side by
-     side — so that width only fades.
+     The only swap is at the very beginning. Over the first 8% the hero
+     item fades out while the real sidebar item fades in on the same spot,
+     which is a dissolve between two things occupying the same pixels.
+     After that only the real items are on screen.
+
+     Progress is a pure function of scrollY, so scrolling back up runs the
+     exact same numbers backwards.
+
+     Desktop only. Below 900px the sidebar is display:none and the zone has
+     no extra height, so this stands down.
      ------------------------------------------------------------------ */
 
-  var heroEl = document.getElementById('hero');
+  var hz = document.getElementById('hz');
+  var hx = document.getElementById('hero');
+  var sb = document.getElementById('sb');
 
-  if (heroEl && !reducedMotion.matches) {
-    var splitWide = window.matchMedia('(min-width: 900px)');
-    var splitMax = 60;
+  if (hz && hx && sb) {
+    var wide = window.matchMedia('(min-width: 900px)');
 
-    var splitLeft = [];
-    /* .stats is deliberately not in here. Everything listed gets
-       opacity: 1 - scrollY/viewportHeight written straight onto it, and
-       the stat row sits low in the hero — lowest of all on a phone,
-       where the column is stacked and taller than one screen. That meant
-       the numbers were already part-faded by the time they scrolled into
-       view and hit zero while still on screen. Left out of the split
-       entirely, they neither fade nor move: they simply sit there until
-       they leave the top of the viewport. */
-    var leftSel = ['.hero__intro', '.hero__actions', '.hero__availability'];
+    /* Viewport heights of scroll the morph is spread over. The pin (the
+       extra height on .hz) is deliberately much shorter than this: the
+       sidebar is position:fixed, so its items keep animating perfectly
+       well after the hero has scrolled off, and pinning for the whole run
+       is what used to leave the right-hand side empty at the end. */
+    /* Three quarters of a viewport of scroll, against a pin zone of 110vh.
+       That pairing is what decides where Profile has got to by the time the
+       morph finishes, and it has to clear one more hurdle than the eye:
+       style.css dims every .section to 35% until the reading-highlight
+       observer finds it crossing the 40–45% band. At RUN 0.5 the morph
+       ended with Profile's top still at 60% of the viewport — on screen,
+       but dimmed to a third, which is exactly the "main area is empty"
+       everyone was looking at. At 0.75 it ends at about 40% and Profile is
+       lit the moment the sidebar lands. */
+    var RUN = 0.75;
+    var SWAP = 0.08;
 
-    for (var ls = 0; ls < leftSel.length; ls++) {
-      var found = heroEl.querySelector(leftSel[ls]);
-      if (found) {
-        splitLeft.push(found);
-      }
+    var word = document.getElementById('hx-word');
+    var wordIn = hx.querySelector('.hx__wordin');
+    var portrait = document.getElementById('hx-portrait');
+    var lead = document.getElementById('hx-lead');
+    var traits = document.getElementById('hx-traits');
+    var tag = document.getElementById('hx-tag');
+    var desc = document.getElementById('hx-desc');
+
+    var heroNav = [].slice.call(hx.querySelectorAll('[data-fly-nav]'));
+    var heroStats = [].slice.call(hx.querySelectorAll('[data-fly-stat]'));
+    var heroGo = hx.querySelector('[data-fly-btn="0"]');
+    var divs = [].slice.call(hx.querySelectorAll('.hx__div'));
+
+    var sbLogo = document.getElementById('sb-logo');
+    var sbLogoIn = sb.querySelector('.sb__logoin');
+    var sbLinks = [].slice.call(sb.querySelectorAll('[data-sb-link]'));
+    var sbStats = [].slice.call(sb.querySelectorAll('.sb__stat'));
+    var sbResume = document.getElementById('sb-resume');
+    var sbPanels = [].slice.call(sb.querySelectorAll('.sb__panel'));
+    var sbR1 = sb.querySelector('.sb__r1');
+    var sbR2 = sb.querySelector('.sb__r2');
+
+    /* Everything in the sidebar with no hero counterpart: it cannot travel
+       from anywhere, so it simply arrives at the end. */
+    var sbLate = [];
+
+    ['.sb__blurb', '.sb__icon', '.sb__track',
+     '.sb__addr', '.sb__copy'].forEach(function (sel) {
+      var el = sb.querySelector(sel);
+      if (el) { sbLate.push(el); }
+    });
+
+    /* The real sidebar elements that travel, each with the hero box it
+       starts on and its own slice of the run. */
+    var moves = [];
+    /* The hero elements that dissolve out under them */
+    var heroFade = [];
+
+    var measured = false;
+    var ticking = false;
+    var running = null;
+
+    /* A cubic ease-out, not the exponential one used elsewhere. On a
+       scroll-linked animation the user IS the clock, and an exponential
+       curve is 83% finished a third of the way in — the items arrived
+       almost at once and then sat still for the rest of the scroll. This
+       keeps them visibly moving to about two thirds of the way through and
+       still settles rather than stops. */
+    function easeOut(t) {
+      if (t <= 0) { return 0; }
+      if (t >= 1) { return 1; }
+      var u = 1 - t;
+      return 1 - u * u * u;
     }
 
-    var splitRight = heroEl.querySelector('.hero__media');
-    var splitReady = false;
-    var splitTicking = false;
-
-    function writeSplit(el, percent, fade) {
-      if (!el) {
-        return;
-      }
-
-      el.style.transform = percent === 0
-        ? ''
-        : 'translate3d(' + percent + '%, 0, 0)';
-      el.style.opacity = fade;
+    function win(p, from, to) {
+      var t = (p - from) / (to - from);
+      return t < 0 ? 0 : (t > 1 ? 1 : t);
     }
 
-    function applySplit() {
-      splitTicking = false;
-
-      if (!splitReady) {
-        return;
-      }
-
-      var viewH = window.innerHeight || 1;
-      var progress = window.scrollY / viewH;
-
-      if (progress < 0) { progress = 0; }
-      if (progress > 1) { progress = 1; }
-
-      var fade = 1 - progress;
-      /* Sideways only where the two columns actually sit side by side */
-      var shift = splitWide.matches ? progress * splitMax : 0;
-
-      for (var i = 0; i < splitLeft.length; i++) {
-        writeSplit(splitLeft[i], -shift, fade);
-      }
-
-      writeSplit(splitRight, shift, fade);
-
-      /* Fully faded means fully gone — otherwise the buttons would still
-         be sitting there catching clicks from behind the next section */
-      heroEl.style.pointerEvents = progress >= 1 ? 'none' : '';
+    function fontOf(el) {
+      return parseFloat(window.getComputedStyle(el).fontSize) || 16;
     }
 
-    function queueSplit() {
-      if (!splitTicking) {
-        splitTicking = true;
-        requestAnimationFrame(applySplit);
+    /* While the hero is pinned its rect.top is 0 whatever the scroll, so a
+       measurement taken mid-pin matches one taken at the very top. Once the
+       pin releases the hero starts sliding up, and this puts the reading
+       back where it would have been. */
+    function pinShift() {
+      var over = window.scrollY - (hz.offsetHeight - hx.offsetHeight);
+      return over > 0 ? over : 0;
+    }
+
+    /* real  — the sidebar element that will actually be transformed
+       hero  — where it has to start from
+       align — the inner box of `real` that must sit on `alignTo` inside
+               `hero`. Padding, chips and icons mean the element's own box
+               is rarely the thing the eye is matching up.
+       Scale comes from the font size for text, because a text box's width
+       depends on letter-spacing and wrapping, not on its type size. */
+    function pair(real, hero, from, to, opts) {
+      if (!real || !hero) { return; }
+
+      var o = opts || {};
+      var align = o.align || real;
+      var alignTo = o.alignTo || hero;
+
+      var shift = pinShift();
+      var A = real.getBoundingClientRect();
+      var a = align.getBoundingClientRect();
+      var H = alignTo.getBoundingClientRect();
+
+      if (!A.height || !a.height || !H.height) { return; }
+
+      var s = o.scale === 'height' ? H.height / a.height
+                                   : fontOf(alignTo) / fontOf(align);
+
+      if (!(s > 0) || !isFinite(s)) { s = 1; }
+
+      /* A filled pill has to cover its counterpart exactly, or it visibly
+         changes width at the swap. Scale the box on both axes independently
+         and counter-scale the label inside it, so the shape matches while
+         the type still scales evenly. */
+      var sx = s;
+
+      if (o.counter) {
+        sx = H.width / a.width;
+        if (!(sx > 0) || !isFinite(sx)) { sx = s; }
       }
+
+      /* Scaling happens about `real`'s own top-left, so the offset from
+         that corner to the alignment box is multiplied by the scale — which
+         is why a card's padding used to throw the numbers out by tens of
+         pixels. */
+      moves.push({
+        el: real,
+        dx: H.left - A.left - (a.left - A.left) * sx,
+        dy: (H.top + shift) - A.top - (a.top - A.top) * s,
+        s: s,
+        sx: sx,
+        counter: o.counter || null,
+        from: from,
+        to: to
+      });
     }
 
-    /* Nothing may be written until the load-in rise has finished, or the
-       two would fight over the same transform and opacity. The stylesheet
-       drops the rise transition at the same moment (.is-split-ready), so
-       what follows tracks the scroll exactly instead of easing behind it. */
-    function armSplit() {
-      if (splitReady) {
-        return;
+    function measure() {
+      /* Read the elements at rest: an inline transform left over from the
+         last frame would be baked into the new deltas. */
+      for (var c = 0; c < moves.length; c++) {
+        moves[c].el.style.transform = '';
+        if (moves[c].counter) { moves[c].counter.style.transform = ''; }
       }
 
-      splitReady = true;
-      heroEl.classList.add('is-split-ready');
-      applySplit();
+      moves = [];
+
+      var undo = [];
+
+      function neutral(el, prop, value) {
+        if (!el) { return; }
+        undo.push([el, prop, el.style.getPropertyValue(prop)]);
+        el.style.setProperty(prop, value);
+      }
+
+      /* The panels build in with a scale; measuring a box through a scaled
+         ancestor reads it 4% small. Flatten them for the reading. */
+      for (var z = 0; z < sbPanels.length; z++) { neutral(sbPanels[z], '--bgs', '1'); }
+
+      if (lead) { neutral(lead, 'transform', 'translateX(-50%)'); }
+
+      /* 1 — the wordmark becomes the logo pill. Measured on the inner
+         spans, so the pill's padding and the wordmark's full-width box stay
+         out of it and the letters line up with the letters. */
+      pair(sbLogo, word, 0.02, 1, { align: sbLogoIn, alignTo: wordIn });
+
+      /* 2 — six hero nav items to six sidebar rows. Staggered starts, but
+         every one of them reaches 1 at p = 1. */
+      for (var n = 0; n < heroNav.length; n++) {
+        var idx = parseInt(heroNav[n].getAttribute('data-fly-nav'), 10);
+        var row = sbLinks[idx];
+
+        if (row) {
+          pair(row, heroNav[n], 0.06 + n * 0.03, 1,
+               { align: row.querySelector('.sb__txt') });
+        }
+      }
+
+      /* 3 — four stat cards to four sidebar stats, chip and label moving
+         as one item, aligned on the number chip. */
+      for (var s = 0; s < heroStats.length; s++) {
+        var st = sbStats[s];
+
+        if (st) {
+          pair(st, heroStats[s], 0.05 + s * 0.03, 1, {
+            align: st.querySelector('.sb__num'),
+            alignTo: heroStats[s].querySelector('.hx__num')
+          });
+        }
+      }
+
+      /* 4 — Get in touch becomes Resume. Both are filled pills, so here the
+         whole box is the thing to match and height is the honest ratio. */
+      pair(sbResume, heroGo, 0.05, 1, { scale: 'height', counter: sb.querySelector('.sb__rin') });
+
+      for (var u = undo.length - 1; u >= 0; u--) {
+        if (undo[u][2]) { undo[u][0].style.setProperty(undo[u][1], undo[u][2]); }
+        else { undo[u][0].style.removeProperty(undo[u][1]); }
+      }
+
+      heroFade = [].concat(heroNav, heroStats);
+
+      if (word) { heroFade.push(word); }
+      if (heroGo) { heroFade.push(heroGo); }
+
+      measured = true;
     }
 
-    /* 7 risers, 50ms apart, 450ms each — 800ms clears the last of them.
-       A page restored mid-scroll has no rise to wait for. */
-    if (window.scrollY > 0) {
-      armSplit();
-    } else {
-      setTimeout(armSplit, 800);
+    /* Put everything back to the plain, untransformed page: mobile, reduced
+       motion, or simply scrolled back to the top of the hero. */
+    function reset() {
+      for (var m = 0; m < moves.length; m++) {
+        moves[m].el.style.transform = '';
+        moves[m].el.style.opacity = '';
+        moves[m].el.__q = null;
+      }
+
+      moves = [];
+      measured = false;
+
+      sb.classList.remove('is-morphing', 'is-live');
+      hx.classList.remove('is-gone');
+
+      [].concat(heroNav, heroStats, divs,
+                [word, heroGo, portrait, lead, traits, tag, desc])
+        .forEach(function (el) {
+          if (!el) { return; }
+          el.style.opacity = '';
+          el.style.transform = '';
+          el.style.filter = '';
+        });
+
+      [].concat(sbPanels, sbLinks, sbStats, sbLate,
+                [sbLogo, sbLogoIn, sbResume, sbR1, sbR2, sb.querySelector('.sb__rin')])
+        .forEach(function (el) {
+          if (!el) { return; }
+          el.style.opacity = '';
+          el.style.transform = '';
+          el.style.color = '';
+          el.style.removeProperty('--bgo');
+          el.style.removeProperty('--bgs');
+          el.style.removeProperty('--pill');
+        });
+
+      var icons = sb.querySelectorAll('.sb__ico');
+
+      for (var ic = 0; ic < icons.length; ic++) { icons[ic].style.opacity = ''; }
     }
 
-    window.addEventListener('scroll', queueSplit, { passive: true });
+    function apply() {
+      ticking = false;
 
-    window.addEventListener('resize', function () {
-      /* Crossing the breakpoint leaves a stale sideways offset behind */
-      if (!splitWide.matches) {
-        for (var c = 0; c < splitLeft.length; c++) {
-          splitLeft[c].style.transform = '';
+      var live = wide.matches && !reducedMotion.matches;
+
+      if (live !== running) {
+        running = live;
+        reset();
+        /* No morph to run: the sidebar is simply page furniture, always on */
+        sb.classList.toggle('is-live', !live && wide.matches);
+      }
+
+      if (!live) { return; }
+      if (!measured) { measure(); }
+
+      var vh = window.innerHeight || 1;
+      var p = window.scrollY / (RUN * vh);
+
+      if (p < 0) { p = 0; }
+      if (p > 1) { p = 1; }
+
+      sb.classList.add('is-morphing');
+
+      /* --- the one swap, and it is at the START ---------------------------
+         Both sides of it are in the same place on screen, so it reads as
+         one item changing, not as two items trading places. */
+      var swap = win(p, 0, SWAP);
+      var into = swap.toFixed(3);
+      var outof = (1 - swap).toFixed(3);
+
+      for (var h = 0; h < heroFade.length; h++) { heroFade[h].style.opacity = outof; }
+
+      /* --- the travel ---------------------------------------------------- */
+      for (var i = 0; i < moves.length; i++) {
+        var m = moves[i];
+        var q = easeOut(win(p, m.from, m.to));
+
+        var sy = m.s + (1 - m.s) * q;
+        var sx = m.sx + (1 - m.sx) * q;
+        var rx = m.dx * (1 - q);
+        var ry = m.dy * (1 - q);
+
+        /* Land on exactly `none`, not on a matrix that rounds to the
+           identity. Anything inside a twentieth of a pixel and half a
+           thousandth of scale IS arrived, and saying so in the style
+           attribute means the element stops being a composited layer and
+           goes back to being an ordinary part of the sidebar. */
+        var home = q >= 1 || (Math.abs(rx) < 0.05 && Math.abs(ry) < 0.05 &&
+                              Math.abs(sx - 1) < 0.0005 && Math.abs(sy - 1) < 0.0005);
+
+        m.el.style.transform = home ? 'none'
+          : 'translate3d(' + rx.toFixed(2) + 'px, ' + ry.toFixed(2) + 'px, 0) scale(' +
+            sx.toFixed(4) + ', ' + sy.toFixed(4) + ')';
+
+        /* Undo the box's horizontal stretch for the label riding inside it */
+        if (m.counter) {
+          m.counter.style.transform = home ? 'none' : 'scale(' + (sy / sx).toFixed(4) + ', 1)';
         }
 
-        if (splitRight) {
-          splitRight.style.transform = '';
+        m.el.style.opacity = into;
+        m.el.__q = q;
+        m.el.__s = sy;
+      }
+
+      /* Everything with no hero counterpart simply arrives */
+      var late = win(p, 0.8, 1).toFixed(3);
+
+      for (var l = 0; l < sbLate.length; l++) { sbLate[l].style.opacity = late; }
+
+      /* --- the trimmings, each on its own item's progress ----------------
+         An icon is a child of the row, so it scales with the row: at the
+         start it would be a 170px chevron. It arrives late instead, once
+         the row is close enough to its real size for an icon to read as
+         one. */
+      for (var k = 0; k < sbLinks.length; k++) {
+        var ico = sbLinks[k].querySelector('.sb__ico');
+        var lq = sbLinks[k].__q;
+
+        if (ico) {
+          ico.style.opacity = (lq == null) ? late : win(lq, 0.3, 0.8).toFixed(3);
         }
       }
 
-      queueSplit();
+      /* The name itself is the travelling item and is legible the whole way.
+         It leaves as the hero's yellow letters and only turns to ink just
+         before the pill slides in underneath — otherwise the wordmark
+         changes colour the instant you start scrolling, which reads as a
+         swap rather than a move. Both windows sit at the end of the
+         journey, where the letters are close to their real size, so the
+         pill never appears as a giant lozenge. */
+      if (sbLogoIn) {
+        /* Driven off how big the letters still are rather than off q. The
+           wordmark starts nearly thirteen times its final size, so a plain
+           progress window would paint the pill while it was still a metre
+           wide. 1/scale is 0.5 at double size and 1 at rest. */
+        var shrunk = 1 / (sbLogo.__s || 1);
+        var ink = win(shrunk, 0.33, 0.72);
+
+        sbLogoIn.style.color = 'rgb(' +
+          Math.round(245 - 228 * ink) + ', ' +
+          Math.round(229 - 212 * ink) + ', ' +
+          Math.round(17 * ink) + ')';
+
+        sbLogo.style.setProperty('--pill', win(shrunk, 0.62, 0.97).toFixed(3));
+      }
+
+      /* Resume is violet from the first frame, so only the label changes */
+      if (sbResume) {
+        var lab = win(sbResume.__q || 0, 0.5, 0.7);
+
+        if (sbR1) { sbR1.style.opacity = (1 - lab).toFixed(3); }
+        if (sbR2) { sbR2.style.opacity = lab.toFixed(3); }
+      }
+
+      /* Panel backgrounds build in behind the arriving items. They are
+         painted on a pseudo-element, because fading the panel itself would
+         take every travelling item inside it down to nothing with it. */
+      for (var pa = 0; pa < sbPanels.length; pa++) {
+        var pw = win(p, 0.5 + pa * 0.05, 0.9 + pa * 0.02);
+
+        sbPanels[pa].style.setProperty('--bgo', pw.toFixed(3));
+        sbPanels[pa].style.setProperty('--bgs', (0.96 + 0.04 * pw).toFixed(4));
+      }
+
+      /* --- and the hero empties out -------------------------------------- */
+      if (portrait) {
+        var pf = win(p, 0, 0.55);
+
+        portrait.style.filter = pf > 0.002 ? 'blur(' + (pf * 30).toFixed(1) + 'px)' : '';
+        portrait.style.opacity = (1 - pf).toFixed(3);
+      }
+
+      if (lead) {
+        var lf = win(p, 0.04, 0.5);
+
+        lead.style.transform = 'translateX(-50%) translate3d(0, ' +
+          (easeOut(lf) * -160).toFixed(1) + 'px, 0)';
+        lead.style.opacity = (1 - lf).toFixed(3);
+      }
+
+      var gone = (1 - win(p, 0.02, 0.36)).toFixed(3);
+
+      [traits, tag, desc].forEach(function (el) { if (el) { el.style.opacity = gone; } });
+
+      var dv = (1 - win(p, 0, 0.2)).toFixed(3);
+
+      for (var d = 0; d < divs.length; d++) { divs[d].style.opacity = dv; }
+
+      /* Once they are at zero, take them out of hit-testing too, so the
+         invisible hero nav cannot swallow a click meant for the sidebar
+         sitting on top of it. */
+      hx.classList.toggle('is-gone', p >= SWAP);
+
+      /* Not 0.999. The last stretch moves items by fractions of a pixel, so
+         a reader who stops just short of the end would be looking at a
+         finished sidebar that does not answer the mouse. By 0.97 everything
+         is home to within a pixel, which is the honest moment to hand it
+         back its hover states and its clicks. */
+      sb.classList.toggle('is-live', p >= 0.97);
+    }
+
+    function queue() {
+      if (!ticking) { ticking = true; requestAnimationFrame(apply); }
+    }
+
+    var resizeTimer = null;
+
+    function remeasure() {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(function () { measured = false; queue(); }, 150);
+    }
+
+    /* The intro keyframes hold these elements translated and blurred for
+       their first 1.95s — and a filled animation outranks an inline style,
+       so until it is over both the start boxes and every write would be
+       wrong. Measure once it has finished and let go of them. */
+    function ready() {
+      hx.classList.add('is-ready');
+      measured = false;
+      queue();
+    }
+
+    if (reducedMotion.matches) { ready(); } else { window.setTimeout(ready, 1950); }
+
+    apply();
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', remeasure);
+
+    /* Inter arrives after first paint and text metrics decide where each of
+       these lands, so measure again once it is in. */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(remeasure);
+    }
+
+    if (wide.addEventListener) { wide.addEventListener('change', remeasure); }
+  }
+
+  /* ------------------------------------------------------------------
+     Reveal safety net
+
+     [data-reveal] starts at opacity 0 and waits for an IntersectionObserver
+     to release it. If that observer never fires for an element — a section
+     that was already on screen when it was registered, a browser that
+     throttles it, a layout that moved under it — the content stays
+     invisible for good. This sweeps anything that is in the viewport and
+     still hidden, on every scroll tick, and costs one boundingRect per
+     element until it is released.
+     ------------------------------------------------------------------ */
+
+  var pending = [].slice.call(document.querySelectorAll('[data-reveal]'));
+
+  if (pending.length) {
+    var sweeping = false;
+
+    function sweep() {
+      sweeping = false;
+
+      var vh = window.innerHeight || 0;
+
+      for (var i = pending.length - 1; i >= 0; i--) {
+        var el = pending[i];
+
+        if (el.classList.contains('is-revealed')) {
+          pending.splice(i, 1);
+          continue;
+        }
+
+        var box = el.getBoundingClientRect();
+
+        if (box.top < vh && box.bottom > 0) {
+          el.classList.add('is-revealed');
+          pending.splice(i, 1);
+        }
+      }
+
+      if (!pending.length) {
+        window.removeEventListener('scroll', queueSweep);
+        window.removeEventListener('resize', queueSweep);
+      }
+    }
+
+    function queueSweep() {
+      if (!sweeping) {
+        sweeping = true;
+        requestAnimationFrame(sweep);
+      }
+    }
+
+    window.addEventListener('scroll', queueSweep, { passive: true });
+    window.addEventListener('resize', queueSweep);
+    /* One pass a beat after load, for anything on screen from the start */
+    window.setTimeout(queueSweep, 1200);
+  }
+
+  var sbNavLinks = document.querySelectorAll('[data-sb-link]');
+
+  if (sbNavLinks.length && 'IntersectionObserver' in window) {
+    var sbObserver = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var id = entries[i].target.id;
+        var link = document.querySelector('[data-sb-link][href="#' + id + '"]');
+
+        if (link) {
+          link.classList.toggle('is-active', entries[i].isIntersecting);
+        }
+      }
+    }, { rootMargin: '-40% 0px -55% 0px' });
+
+    for (var sn = 0; sn < sbNavLinks.length; sn++) {
+      var target = document.getElementById(sbNavLinks[sn].getAttribute('href').slice(1));
+      if (target) { sbObserver.observe(target); }
+    }
+  }
+
+  var copyBtn = document.getElementById('sb-copy');
+
+  if (copyBtn) {
+    var copyLabel = copyBtn.querySelector('.sb__copy-text');
+    var copyTimer = null;
+
+    copyBtn.addEventListener('click', function () {
+      var value = copyBtn.getAttribute('data-copy') || '';
+
+      function done() {
+        if (!copyLabel) { return; }
+        copyLabel.textContent = 'Copied';
+        window.clearTimeout(copyTimer);
+        copyTimer = window.setTimeout(function () {
+          copyLabel.textContent = 'Copy';
+        }, 1500);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(done, done);
+      } else {
+        /* file:// and older browsers have no async clipboard */
+        var tmp = document.createElement('textarea');
+        tmp.value = value;
+        tmp.setAttribute('readonly', '');
+        tmp.style.position = 'fixed';
+        tmp.style.opacity = '0';
+        document.body.appendChild(tmp);
+        tmp.select();
+        try { document.execCommand('copy'); } catch (e) { /* nothing to do */ }
+        document.body.removeChild(tmp);
+        done();
+      }
     });
   }
 
@@ -565,11 +1030,20 @@
      Section reading highlight
 
      Whichever .section the rootMargin below finds sitting in the
-     middle 20% of the viewport gets .is-active, along with its
+     middle half of the viewport gets .is-active, along with its
      matching nav and mobile-menu links; every other .section (and
      style.css's .js .section rule) falls back to the dimmed, muted
      state. Hero is never a .section, so it's never touched here — it
      stays at full opacity regardless, as required.
+
+     The band used to be the middle 20%, which meant a section had to be
+     nearly centred before it lit up — about 140px of scrolling after its
+     own content had already started revealing. For the section directly
+     after the hero that read as a dead stretch: the sidebar had finished
+     forming, Profile was on screen, and it was still sitting at 35%
+     opacity with no nav link lit. The middle half puts .is-active within
+     a few pixels of the reveal trigger, so a section brightens as its
+     heading animates in rather than long afterwards.
      ------------------------------------------------------------------ */
 
   var highlightSections = document.querySelectorAll('.section[id]');
@@ -601,7 +1075,7 @@
           links[hl].classList.toggle('is-active', entries[hi].isIntersecting);
         }
       }
-    }, { rootMargin: '-40% 0px -40% 0px' });
+    }, { rootMargin: '-40% 0px -55% 0px' });
 
     for (var hs = 0; hs < highlightSections.length; hs++) {
       highlightObserver.observe(highlightSections[hs]);
@@ -801,296 +1275,334 @@
   }
 
   /* ------------------------------------------------------------------
-     Selected Work — horizontal scrolling
+     Card rails — reusable horizontal scrollers
 
-     A normal scroll container, nothing more: the page's own vertical
-     scroll is never touched. Sideways movement comes from the browser
-     itself (trackpad, touch swipe) plus four things set up here —
-     click-and-drag, the wheel, the arrow keys, and the two arrow
-     buttons — all of which just move .work__row's native scrollLeft.
+     Found by attribute, not by id, so one copy of this drives every rail
+     on the page and adding another section needs no new JavaScript:
+
+       [data-rail]          the wrapper
+       [data-rail-row]        the scrolling track inside it
+       [data-rail-prev/next]  the arrows
+       [data-rail-fill]       the progress bar's inner span
+
+     Everything is native overflow scrolling underneath — touch swipe and
+     trackpad come for free from the browser, which is why there is no
+     touch handling here at all. What is added is the three things the
+     browser does not give you on a horizontal row: mouse drag, vertical
+     wheel mapped onto horizontal scroll, and the arrows.
      ------------------------------------------------------------------ */
 
-  var workRow = document.getElementById('work-row');
-  var workWide = window.matchMedia('(min-width: 900px)');
+  var rails = document.querySelectorAll('[data-rail]');
 
-  if (workRow) {
+  for (var r = 0; r < rails.length; r++) {
+    (function (rail) {
+      var row = rail.querySelector('[data-rail-row]');
 
-    function cardStep() {
-      var card = workRow.querySelector('.card');
-
-      if (!card) {
-        return workRow.clientWidth * 0.8;
-      }
-
-      /* One card plus the gap between them */
-      var styles = getComputedStyle(workRow);
-      return card.getBoundingClientRect().width + parseFloat(styles.columnGap || 0);
-    }
-
-    /* ---- drag ---- */
-
-    var dragging = false;
-    var dragStartX = 0;
-    var dragStartScroll = 0;
-    var dragMoved = 0;
-
-    function dragAvailable() {
-      return workWide.matches && finePointer.matches;
-    }
-
-    function syncDragCursor() {
-      workRow.classList.toggle('is-draggable', dragAvailable());
-    }
-
-    workRow.addEventListener('mousedown', function (event) {
-      if (!dragAvailable()) {
+      if (!row) {
         return;
       }
 
-      dragging = true;
-      dragMoved = 0;
-      dragStartX = event.pageX;
-      dragStartScroll = workRow.scrollLeft;
-      workRow.classList.add('is-dragging');
-      /* Mandatory scroll-snap fights a drag's many small scrollLeft
-         writes (see the comment on .is-snap-suspended in style.css) —
-         suspended for the drag's duration, restored on mouseup below */
-      workRow.classList.add('is-snap-suspended');
+      var prev = rail.querySelector('[data-rail-prev]');
+      var next = rail.querySelector('[data-rail-next]');
+      var fill = rail.querySelector('[data-rail-fill]');
 
-      /* Stops the browser starting its own text selection or image drag */
-      event.preventDefault();
-    });
+      /* Two opt-ins, both off unless the markup asks for them:
 
-    document.addEventListener('mousemove', function (event) {
-      if (!dragging) {
-        return;
+         data-rail-nowheel   leave the wheel alone entirely, so a vertical
+                             wheel over the cards scrolls the page. For a
+                             row that is meant to be dragged and nothing
+                             else, turning the wheel sideways is a surprise.
+         data-rail-momentum  carry the throw after the mouse comes up, then
+                             settle on the nearest card. */
+      var noWheel = rail.hasAttribute('data-rail-nowheel');
+      var hasMomentum = rail.hasAttribute('data-rail-momentum');
+
+      /* One card plus one gap — measured, so it stays right when the card
+         width or the gap changes at a breakpoint */
+      function step() {
+        var card = row.firstElementChild;
+
+        if (!card) {
+          return row.clientWidth * 0.8;
+        }
+
+        var gap = parseFloat(window.getComputedStyle(row).columnGap);
+
+        return card.getBoundingClientRect().width + (gap > 0 ? gap : 0);
       }
 
-      var travelled = event.pageX - dragStartX;
-      dragMoved = Math.abs(travelled);
-      workRow.scrollLeft = dragStartScroll - travelled;
-    });
-
-    document.addEventListener('mouseup', function () {
-      if (!dragging) {
-        return;
+      function maxScroll() {
+        return row.scrollWidth - row.clientWidth;
       }
 
-      dragging = false;
-      workRow.classList.remove('is-dragging');
-      /* Snap re-engages now, so letting go settles the row on the
-         nearest card rather than wherever the drag happened to stop */
-      workRow.classList.remove('is-snap-suspended');
-    });
+      /* Drag is a pointer affordance: pointless on touch, where the
+         native swipe already does it, and the cursor change would be a
+         lie. Re-checked on resize rather than bound once. */
+      var finePointerRail = window.matchMedia('(hover: hover) and (pointer: fine)');
 
-    /* A drag that ends over a card would otherwise register as a click */
-    workRow.addEventListener('click', function (event) {
-      if (dragMoved > 6) {
+      function syncDragCursor() {
+        row.classList.toggle('is-draggable',
+          finePointerRail.matches && maxScroll() > 1);
+      }
+
+      /* ---- progress bar and arrow states ---- */
+
+      function update() {
+        var max = maxScroll();
+        var at = max > 0 ? row.scrollLeft / max : 0;
+
+        if (fill) {
+          fill.style.transform = 'scaleX(' + at.toFixed(4) + ')';
+        }
+
+        if (prev) {
+          prev.disabled = row.scrollLeft <= 1;
+        }
+
+        if (next) {
+          next.disabled = row.scrollLeft >= max - 1;
+        }
+      }
+
+      /* ---- arrows ---- */
+
+      function nudge(direction) {
+        row.scrollBy({
+          left: step() * direction,
+          behavior: reducedMotion.matches ? 'auto' : 'smooth'
+        });
+      }
+
+      if (prev) {
+        prev.addEventListener('click', function () { nudge(-1); });
+      }
+
+      if (next) {
+        next.addEventListener('click', function () { nudge(1); });
+      }
+
+      /* ---- keyboard, once the row itself has focus ---- */
+
+      row.addEventListener('keydown', function (event) {
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          nudge(1);
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          nudge(-1);
+        }
+      });
+
+      /* ---- wheel: vertical scroll becomes horizontal ----
+         Only while the row actually has somewhere to go in the direction
+         of the gesture. At either end the event is left alone, so the
+         page carries on scrolling past the section instead of trapping
+         the wheel — the thing that makes carousels miserable. */
+
+      var snapTimer = null;
+
+      function suspendSnap() {
+        row.classList.add('is-snap-suspended');
+        window.clearTimeout(snapTimer);
+        snapTimer = window.setTimeout(function () {
+          row.classList.remove('is-snap-suspended');
+        }, 140);
+      }
+
+      row.addEventListener('wheel', function (event) {
+        if (noWheel) {
+          return;
+        }
+
+        if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
+          return;
+        }
+
+        var max = maxScroll();
+        var goingRight = event.deltaY > 0;
+
+        if (max <= 0) {
+          return;
+        }
+
+        if (goingRight && row.scrollLeft >= max - 1) {
+          return;
+        }
+
+        if (!goingRight && row.scrollLeft <= 1) {
+          return;
+        }
+
         event.preventDefault();
-        event.stopPropagation();
-      }
-    }, true);
+        suspendSnap();
+        row.scrollLeft += event.deltaY;
+      }, { passive: false });
 
-    /* ---- wheel ----
-       A vertical wheel gesture over the row moves it sideways. Once the
-       row has run out of travel the event is left alone, so the page
-       carries on scrolling instead of the row swallowing the gesture. */
+      /* ---- mouse drag ---- */
 
-    var wheelSnapTimer = null;
+      var dragging = false;
+      var dragStartX = 0;
+      var dragStartScroll = 0;
+      var dragMoved = 0;
+      var lastX = 0;
+      var lastT = 0;
+      var velocity = 0;
+      var glideId = 0;
 
-    workRow.addEventListener('wheel', function (event) {
-      if (!workWide.matches) {
-        return;
-      }
-
-      /* A genuinely sideways gesture is already handled by the browser */
-      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) {
-        return;
+      function stopGlide() {
+        if (glideId) { cancelAnimationFrame(glideId); glideId = 0; }
       }
 
-      var maxScroll = workRow.scrollWidth - workRow.clientWidth;
-      var atStart = workRow.scrollLeft <= 0;
-      var atEnd = workRow.scrollLeft >= maxScroll - 1;
+      /* Settle on whichever card is nearest where the throw ran out */
+      function settle() {
+        var card = row.firstElementChild;
 
-      if ((event.deltaY < 0 && atStart) || (event.deltaY > 0 && atEnd)) {
-        return;
-      }
+        if (!card) { row.classList.remove('is-snap-suspended'); return; }
 
-      event.preventDefault();
+        var per = step();
+        var target = Math.round(row.scrollLeft / per) * per;
+        var max = maxScroll();
 
-      /* Same fight as the drag handler above — suspended for as long as
-         wheel events keep arriving, then restored a short idle moment
-         after they stop, so the row settles on the nearest card once
-         the gesture is actually over rather than mid-scroll */
-      workRow.classList.add('is-snap-suspended');
+        if (target > max) { target = max; }
+        if (target < 0) { target = 0; }
 
-      if (wheelSnapTimer) {
-        clearTimeout(wheelSnapTimer);
-      }
+        row.scrollTo({ left: target, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
 
-      wheelSnapTimer = setTimeout(function () {
-        wheelSnapTimer = null;
-        workRow.classList.remove('is-snap-suspended');
-      }, 150);
+        /* Snap is suspended for the whole throw, because mandatory snap and
+           a scrollLeft written every frame pull against each other. Putting
+           it back on a fixed timer raced the smooth scroll: snap re-engaged
+           while the settle was still travelling and stopped it short of the
+           card. So wait for the scroll to actually come to rest, and give up
+           after a second in case it never quite does. */
+        if (reducedMotion.matches) {
+          row.classList.remove('is-snap-suspended');
+          return;
+        }
 
-      workRow.scrollLeft += event.deltaY;
-    }, { passive: false });
+        var was = -1;
+        var still = 0;
+        var gaveUp = Date.now() + 1000;
 
-    /* ---- arrow keys ----
-       The row is focusable, so browsers already scroll it by a small step.
-       This moves a whole card at a time instead. */
+        (function watch() {
+          var at = Math.round(row.scrollLeft);
 
-    workRow.addEventListener('keydown', function (event) {
-      if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
-        return;
-      }
+          still = (at === was) ? still + 1 : 0;
+          was = at;
 
-      if (!workWide.matches) {
-        return;
-      }
-
-      event.preventDefault();
-
-      workRow.scrollBy({
-        left: event.key === 'ArrowRight' ? cardStep() : -cardStep(),
-        behavior: reducedMotion.matches ? 'auto' : 'smooth'
-      });
-    });
-
-    /* ---- progress bar and arrow buttons ----
-       All three — the bar, and each arrow's enabled state — are driven
-       by the row's own native scrollLeft, read fresh on every scroll
-       event. Nothing here ever touches the page's vertical scroll. */
-
-    var workProgressBar = document.getElementById('work-progress-bar');
-    var workPrev = document.getElementById('work-prev');
-    var workNext = document.getElementById('work-next');
-
-    function setWorkProgress(value) {
-      if (workProgressBar) {
-        workProgressBar.style.transform = 'scaleX(' + value + ')';
-      }
-    }
-
-    function updateWorkControls() {
-      var maxScroll = workRow.scrollWidth - workRow.clientWidth;
-
-      setWorkProgress(maxScroll > 0 ? workRow.scrollLeft / maxScroll : 0);
-
-      if (workPrev) {
-        workPrev.disabled = workRow.scrollLeft <= 0;
-      }
-
-      if (workNext) {
-        workNext.disabled = workRow.scrollLeft >= maxScroll - 1;
-      }
-    }
-
-    workRow.addEventListener('scroll', updateWorkControls, { passive: true });
-
-    if (workPrev) {
-      workPrev.addEventListener('click', function () {
-        workRow.scrollBy({
-          left: -cardStep(),
-          behavior: reducedMotion.matches ? 'auto' : 'smooth'
-        });
-      });
-    }
-
-    if (workNext) {
-      workNext.addEventListener('click', function () {
-        workRow.scrollBy({
-          left: cardStep(),
-          behavior: reducedMotion.matches ? 'auto' : 'smooth'
-        });
-      });
-    }
-
-    /* Belt and braces: the row should already open at its natural start,
-       but this guarantees card 01 is what's on screen on load rather than
-       trusting scroll-anchoring or any other browser default to leave it
-       there on its own */
-    workRow.scrollLeft = 0;
-
-    updateWorkControls();
-    window.addEventListener('resize', updateWorkControls);
-
-    syncDragCursor();
-    window.addEventListener('resize', syncDragCursor);
-  }
-
-  /* ------------------------------------------------------------------
-     Selected Work — cards that open on a phone
-
-     Below 900px a card shows only its header until it is tapped. The
-     animation is entirely CSS (grid-template-rows 0fr to 1fr); all this
-     does is move the .is-open class around and keep aria-expanded on
-     each toggle in step with it.
-
-     Above 900px the cards show everything at once, so the width check
-     lives inside the handler rather than around the whole block —
-     that way a resize across the breakpoint needs no re-binding.
-     ------------------------------------------------------------------ */
-
-  var workCardEls = document.querySelectorAll('.work__row .card');
-  var cardsCollapsible = window.matchMedia('(max-width: 899px)');
-
-  if (workCardEls.length) {
-
-    function setCardOpen(card, open) {
-      card.classList.toggle('is-open', open);
-
-      var toggle = card.querySelector('.card__toggle');
-
-      if (toggle) {
-        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      }
-    }
-
-    /* Opening one closes the rest, so only ever one is down at a time */
-    function openOnlyCard(card) {
-      for (var oc = 0; oc < workCardEls.length; oc++) {
-        setCardOpen(workCardEls[oc], workCardEls[oc] === card);
-      }
-    }
-
-    for (var wc = 0; wc < workCardEls.length; wc++) {
-      (function (card) {
-        function toggleCard() {
-          if (!cardsCollapsible.matches) {
+          if (still >= 3 || Date.now() > gaveUp) {
+            row.classList.remove('is-snap-suspended');
             return;
           }
 
-          if (card.classList.contains('is-open')) {
-            setCardOpen(card, false);
-          } else {
-            openOnlyCard(card);
-          }
+          requestAnimationFrame(watch);
+        }());
+      }
+
+      function glide() {
+        velocity *= 0.94;
+
+        var at = row.scrollLeft;
+        var max = maxScroll();
+
+        row.scrollLeft = at - velocity;
+
+        /* Stop at the ends rather than grinding against them */
+        if (row.scrollLeft <= 0 || row.scrollLeft >= max) { velocity = 0; }
+
+        if (Math.abs(velocity) < 0.4) {
+          glideId = 0;
+          settle();
+          return;
         }
 
-        var toggle = card.querySelector('.card__toggle');
+        glideId = requestAnimationFrame(glide);
+      }
 
-        if (toggle) {
-          /* The button is the keyboard and screen-reader route in; the
-             card-wide handler below is the easy thumb target. Stopping
-             propagation here keeps one tap from toggling twice. */
-          toggle.addEventListener('click', function (event) {
-            event.stopPropagation();
-            toggleCard();
-          });
+      row.addEventListener('mousedown', function (event) {
+        if (!finePointerRail.matches || event.button !== 0) {
+          return;
         }
 
-        card.addEventListener('click', function (event) {
-          /* Never swallow a real link inside a card */
-          if (event.target.closest && event.target.closest('a')) {
-            return;
+        stopGlide();
+        dragging = true;
+        dragMoved = 0;
+        velocity = 0;
+        dragStartX = event.clientX;
+        lastX = event.clientX;
+        lastT = (window.performance && performance.now()) || Date.now();
+        dragStartScroll = row.scrollLeft;
+        row.classList.add('is-dragging');
+        suspendSnap();
+      });
+
+      window.addEventListener('mousemove', function (event) {
+        if (!dragging) {
+          return;
+        }
+
+        var travelled = event.clientX - dragStartX;
+
+        if (hasMomentum) {
+          var now = (window.performance && performance.now()) || Date.now();
+          var dt = now - lastT;
+
+          /* px per frame at 60fps, smoothed so one jittery sample cannot
+             throw the whole gesture */
+          if (dt > 0) {
+            var v = (event.clientX - lastX) * (16.7 / dt);
+            velocity = velocity * 0.7 + v * 0.3;
           }
 
-          toggleCard();
-        });
-      })(workCardEls[wc]);
-    }
+          lastX = event.clientX;
+          lastT = now;
+        }
+
+        dragMoved = Math.abs(travelled);
+        suspendSnap();
+        row.scrollLeft = dragStartScroll - travelled;
+      });
+
+      window.addEventListener('mouseup', function () {
+        if (!dragging) {
+          return;
+        }
+
+        dragging = false;
+        row.classList.remove('is-dragging');
+
+        if (hasMomentum && !reducedMotion.matches && Math.abs(velocity) > 0.5) {
+          row.classList.add('is-snap-suspended');
+          stopGlide();
+          glideId = requestAnimationFrame(glide);
+          return;
+        }
+
+        if (hasMomentum) { settle(); return; }
+
+        row.classList.remove('is-snap-suspended');
+      });
+
+      /* A drag that happened to start on a link or button must not also
+         count as a click on it when the mouse comes up */
+      row.addEventListener('click', function (event) {
+        if (dragMoved > 6) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+
+      row.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', function () {
+        syncDragCursor();
+        update();
+      });
+
+      row.scrollLeft = 0;
+      syncDragCursor();
+      update();
+    })(rails[r]);
   }
+
 
   /* ------------------------------------------------------------------
      Marquee
@@ -1125,22 +1637,28 @@
   /* ------------------------------------------------------------------
      Content — video thumbnails, lightbox, and the floating cards
 
-     Three independent pieces:
+     Two independent pieces:
      1. Swap a thumbnail to hqdefault if maxresdefault doesn't exist —
         YouTube serves a small placeholder image rather than a 404, so
         this has to be detected by size, not by a failed request.
      2. The lightbox: opens on a card click, builds the iframe fresh
         each time (never before, never reused), and destroys it again on
         close or on switching videos, so nothing plays off screen.
-     3. An idle bob plus a scroll parallax on each .video__float,
-        entirely separate from the cards' own hover transform.
+
+     It finds its cards by [data-video-id], so the arrows, the dots and
+     the swipe all covered six videos the moment two more were added to
+     the markup — there is no count written down anywhere here.
+
+     The layout itself is now the shared [data-rail] carousel, and the
+     floating-card bob, the scroll parallax and the mobile deck that used
+     to live here are gone with the layout they belonged to.
      ------------------------------------------------------------------ */
 
-  var videoCards = document.querySelectorAll('.video__card[data-video-id]');
+  var videoCards = document.querySelectorAll('[data-video-id]');
 
   /* ---- thumbnail fallback ---- */
 
-  var thumbs = document.querySelectorAll('.video__thumb[data-fallback]');
+  var thumbs = document.querySelectorAll('[data-fallback]');
 
   function useFallbackThumb(img) {
     var fallback = img.getAttribute('data-fallback');
@@ -1478,666 +1996,11 @@
     }, { passive: true });
   }
 
-  /* ---- mobile deck ----
-     Below 900px the four cards are a stack rather than a row: the front
-     card at full size, the other three behind it offset down and scaled
-     via --depth (0 for the front card, 1/2/3 behind), which .video and
-     .video__card read in style.css. A swipe — or a tap on one of the
-     cards showing behind — brings a different card to the front; a tap
-     on the front card falls through to deckClaimsTap above and opens
-     the lightbox instead. */
-
-  var videosWide = window.matchMedia('(min-width: 900px)');
-  var deckList = document.querySelector('.videos');
-  var deckItems = document.querySelectorAll('.video');
-  var deckDotsWrap = document.getElementById('videos-dots');
-
-  if (deckList && deckItems.length && deckDotsWrap) {
-    var deckFront = 0;
-    var deckDots = [];
-
-    function deckDepth(index) {
-      var n = deckItems.length;
-      return ((index - deckFront) % n + n) % n;
-    }
-
-    function applyDeck() {
-      for (var i = 0; i < deckItems.length; i++) {
-        var depth = deckDepth(i);
-        deckItems[i].style.setProperty('--depth', depth);
-
-        /* On the deck, a card behind the front one promotes rather than
-           plays, so it should not announce itself as a play button */
-        var card = deckItems[i].querySelector('.video__card');
-
-        if (card) {
-          card.setAttribute(
-            'aria-label',
-            (videosWide.matches || depth === 0)
-              ? 'Play video ' + (i + 1)
-              : 'Bring video ' + (i + 1) + ' to the front'
-          );
-        }
-
-        if (deckDots[i]) {
-          deckDots[i].classList.toggle('is-current', depth === 0);
-
-          if (depth === 0) {
-            deckDots[i].setAttribute('aria-current', 'true');
-          } else {
-            deckDots[i].removeAttribute('aria-current');
-          }
-        }
-      }
-    }
-
-    function setDeckFront(index) {
-      var n = deckItems.length;
-      deckFront = ((index % n) + n) % n;
-      applyDeck();
-    }
-
-    for (var dd = 0; dd < deckItems.length; dd++) {
-      (function (index) {
-        var dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'videos__dot';
-        dot.setAttribute('aria-label', 'Show video ' + (index + 1));
-
-        dot.addEventListener('click', function () {
-          setDeckFront(index);
-        });
-
-        deckDotsWrap.appendChild(dot);
-        deckDots.push(dot);
-      })(dd);
-    }
-
-    /* The lightbox's own card click handler calls this before it opens
-       anything, and stands aside if this returns true */
-    deckClaimsTap = function (index) {
-      if (videosWide.matches || deckDepth(index) === 0) {
-        return false;
-      }
-
-      setDeckFront(index);
-      return true;
-    };
-
-    /* ---- swipe, direction-locked ----
-       Same technique as the lightbox's own swipe above: the axis is
-       decided once, on the first move past a small threshold, and held
-       for the rest of the gesture, so a vertical scroll can never
-       suddenly count as a card change partway through, or the reverse. */
-
-    var DECK_SWIPE_LOCK = 10;
-    var DECK_SWIPE_TRIGGER = 50;
-
-    var deckStartX = 0;
-    var deckStartY = 0;
-    var deckAxis = null;
-    var deckTracking = false;
-
-    deckList.addEventListener('touchstart', function (event) {
-      if (videosWide.matches || event.touches.length !== 1) {
-        deckTracking = false;
-        return;
-      }
-
-      deckTracking = true;
-      deckAxis = null;
-      deckStartX = event.touches[0].clientX;
-      deckStartY = event.touches[0].clientY;
-    }, { passive: true });
-
-    /* passive: false is required — a passive listener may not call
-       preventDefault, and the browser would scroll under the swipe */
-    deckList.addEventListener('touchmove', function (event) {
-      if (!deckTracking || event.touches.length !== 1) {
-        return;
-      }
-
-      var dx = event.touches[0].clientX - deckStartX;
-      var dy = event.touches[0].clientY - deckStartY;
-
-      if (deckAxis === null) {
-        if (Math.abs(dx) < DECK_SWIPE_LOCK && Math.abs(dy) < DECK_SWIPE_LOCK) {
-          return;
-        }
-
-        deckAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-      }
-
-      /* Locked horizontal: this is the swipe, not a page scroll */
-      if (deckAxis === 'x') {
-        event.preventDefault();
-      }
-    }, { passive: false });
-
-    deckList.addEventListener('touchend', function (event) {
-      if (!deckTracking) {
-        return;
-      }
-
-      var lockedTo = deckAxis;
-      deckTracking = false;
-      deckAxis = null;
-
-      if (lockedTo !== 'x') {
-        return;
-      }
-
-      var dx = event.changedTouches[0].clientX - deckStartX;
-
-      if (Math.abs(dx) > DECK_SWIPE_TRIGGER) {
-        setDeckFront(deckFront + (dx < 0 ? 1 : -1));
-      }
-    }, { passive: true });
-
-    /* An interrupted gesture — an incoming call, a system edge-swipe —
-       must not leave the deck believing a swipe is still under way */
-    deckList.addEventListener('touchcancel', function () {
-      deckTracking = false;
-      deckAxis = null;
-    }, { passive: true });
-
-    /* Relabels the cards if a resize crosses the 900px breakpoint live */
-    window.addEventListener('resize', applyDeck);
-
-    applyDeck();
-  }
-
-  /* ---- idle float and scroll parallax ----
-     Desktop only — on the mobile deck, each card independently bobbing
-     on top of the stack's own depth offset would read as jitter rather
-     than as a physical stack. Two movements on .video__float, never on
-     .video__card — that split keeps this every-frame transform apart
-     from the card's own transitioned hover transform, so the two can
-     never collide. */
-
-  var floaters = document.querySelectorAll('.video__float');
-  var contentSection = document.getElementById('content');
-
-  if (floaters.length && contentSection && !reducedMotion.matches) {
-    var FLOAT_FPS = 30;
-    var FLOAT_FRAME = 1000 / FLOAT_FPS;
-    var FLOAT_TAU = Math.PI * 2;
-
-    /* One entry per card. Periods share no common multiple worth
-       mentioning, so the four never drift back into sync. */
-    var FLOAT_PERIOD = [5000, 6500, 8000, 7200];
-    var FLOAT_AMP = [10, 8, 12, 9];
-    var FLOAT_PHASE = [0, 2.1, 4.2, 1.3];
-
-    /* Parallax rate relative to the page scroll — 1.0 holds the line,
-       the others drift a little ahead of or behind it */
-    var FLOAT_RATE = [0.9, 1.0, 1.1, 0.95];
-    var FLOAT_SHIFT_CAP = 60;
-
-    var floatRaf = null;
-    var floatLast = 0;
-
-    function floatFrame(now) {
-      floatRaf = requestAnimationFrame(floatFrame);
-
-      if (now - floatLast < FLOAT_FRAME) {
-        return;
-      }
-
-      floatLast = now;
-
-      var viewH = window.innerHeight;
-      var box = contentSection.getBoundingClientRect();
-
-      /* Off screen and out of mind — no reads, no writes */
-      if (box.bottom < -200 || box.top > viewH + 200) {
-        return;
-      }
-
-      var fromCentre = (box.top + box.height / 2) - viewH / 2;
-
-      for (var i = 0; i < floaters.length; i++) {
-        var slot = i % FLOAT_PERIOD.length;
-
-        var drift = Math.sin(
-          (now / FLOAT_PERIOD[slot]) * FLOAT_TAU + FLOAT_PHASE[slot]
-        ) * FLOAT_AMP[slot];
-
-        /* A rate of 1.0 means no extra offset — that card holds the
-           line the others drift ahead of or behind */
-        var shift = fromCentre * (FLOAT_RATE[slot] - 1);
-
-        if (shift > FLOAT_SHIFT_CAP) { shift = FLOAT_SHIFT_CAP; }
-        if (shift < -FLOAT_SHIFT_CAP) { shift = -FLOAT_SHIFT_CAP; }
-
-        floaters[i].style.transform =
-          'translate3d(0, ' + (drift + shift).toFixed(2) + 'px, 0)';
-      }
-    }
-
-    function startFloat() {
-      if (floatRaf === null) {
-        floatLast = 0;
-        floatRaf = requestAnimationFrame(floatFrame);
-      }
-    }
-
-    function stopFloat() {
-      if (floatRaf !== null) {
-        cancelAnimationFrame(floatRaf);
-        floatRaf = null;
-      }
-
-      /* Clears any offset the loop had written, so resizing down to the
-         deck never leaves a stale float transform sitting on top of it —
-         .video__float and .video__card are different elements, but the
-         float's offset would still visibly nudge the deck card it wraps */
-      for (var f = 0; f < floaters.length; f++) {
-        floaters[f].style.transform = '';
-      }
-    }
-
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden || !videosWide.matches) {
-        stopFloat();
-      } else {
-        startFloat();
-      }
-    });
-
-    /* Starts and stops live if a resize crosses the 900px breakpoint */
-    window.addEventListener('resize', function () {
-      if (videosWide.matches && !document.hidden) {
-        startFloat();
-      } else {
-        stopFloat();
-      }
-    });
-
-    if (videosWide.matches) {
-      startFloat();
-    }
-  }
-
-  /* ------------------------------------------------------------------
-     Contact — touch response
-
-     The magnetic pull below needs a cursor to reach for, so on a touch
-     screen the two links answer to the finger instead: a press scales
-     them slightly and sends a ripple out from under the text. The look
-     of both lives in style.css behind (hover: none) — all this does is
-     put the classes on and take them off again.
-     ------------------------------------------------------------------ */
-
-  var touchLinks = document.querySelectorAll(
-    '.contact__email, .contact__phone, .contact__linkedin'
-  );
-
-  /* How long the pressed state is held before it is allowed to ease
-     back, counted from the moment of contact */
-  var TAP_HOLD = 200;
-
-  /* No reduced-motion gate. This is the only feedback a touch device
-     gets that a tap landed — desktop has hover and the magnetic pull
-     instead — so removing it leaves the link feeling broken rather than
-     calm. The motion is a response to a deliberate action, not ambient,
-     which is the distinction the setting is actually drawing. */
-  if (touchLinks.length && !hoverCapable.matches) {
-    for (var tl = 0; tl < touchLinks.length; tl++) {
-      (function (link) {
-        var tapAt = 0;
-        var tapTimer = null;
-
-        link.addEventListener('touchstart', function () {
-          tapAt = Date.now();
-
-          if (tapTimer) {
-            clearTimeout(tapTimer);
-            tapTimer = null;
-          }
-
-          link.classList.add('is-tapped');
-
-          /* Re-adding the class alone will not replay an animation that
-             has already run once. Dropping it, reading a layout property
-             to force the style change to be applied, then adding it back
-             is what restarts the ripple on every tap. */
-          link.classList.remove('is-rippling');
-          void link.offsetWidth;
-          link.classList.add('is-rippling');
-        }, { passive: true });
-
-        function releaseTap() {
-          /* A tap is usually over in well under a tenth of a second, so
-             releasing on touchend alone would put the class on and take
-             it off again inside a frame or two and nothing would ever be
-             seen. Holding out the remainder of TAP_HOLD is what turns it
-             into a deliberate press rather than a flicker. */
-          var elapsed = Date.now() - tapAt;
-          var wait = TAP_HOLD - elapsed;
-
-          if (wait < 0) {
-            wait = 0;
-          }
-
-          if (tapTimer) {
-            clearTimeout(tapTimer);
-          }
-
-          tapTimer = setTimeout(function () {
-            tapTimer = null;
-            link.classList.remove('is-tapped');
-          }, wait);
-        }
-
-        link.addEventListener('touchend', releaseTap, { passive: true });
-        link.addEventListener('touchcancel', releaseTap, { passive: true });
-
-        /* Cleared once the ripple has finished so the next tap starts
-           from nothing rather than from a spent animation */
-        link.addEventListener('animationend', function (event) {
-          if (event.animationName === 'contact-ripple') {
-            link.classList.remove('is-rippling');
-          }
-        });
-      })(touchLinks[tl]);
-    }
-  }
-
-  /* ------------------------------------------------------------------
-     Contact — magnetic links
-
-     A spring integrated per frame, not a CSS transition. Each element
-     carries a position and a velocity; every frame the velocity is
-     pushed toward the offset the cursor is asking for and then damped,
-     which is what gives the movement weight — it arrives with a little
-     overshoot and settles, rather than sliding along a fixed curve.
-
-     The two halves are tuned differently on purpose: reaching for the
-     cursor is stiff and lightly damped, so it snaps; returning is soft
-     and heavily damped, so it eases home without bouncing.
-
-     Gated on hover capability — exactly the query the stylesheet uses
-     for the same links — so a touch device gets plain links.
-     ------------------------------------------------------------------ */
-
-  var magnets = document.querySelectorAll('[data-magnetic]');
-
-  if (magnets.length && hoverCapable.matches && !reducedMotion.matches) {
-    var MAGNET_RADIUS = 80;
-    var MAGNET_STRENGTH = 10;
-
-    /* Reaching out: stiff spring, light damping — fast, with a touch of
-       overshoot as it arrives. Coming back: softer and heavily damped,
-       so it glides home instead of springing past the resting point. */
-    var PULL_STIFFNESS = 0.28;
-    var PULL_DAMPING = 0.60;
-    /* Near critical damping. A springier return rebounded ~20% past the
-       resting point on the way back, which reads as a wobble rather than
-       as the text settling — the pull is where the elasticity belongs. */
-    var BACK_STIFFNESS = 0.09;
-    var BACK_DAMPING = 0.86;
-
-    /* Below this, movement is no longer worth a frame */
-    var MAGNET_REST = 0.05;
-
-    /* How far toward the cursor a link may travel, as a fraction of the
-       distance to it. Short of 1 so it always stops just before the
-       pointer rather than landing on top of it or shooting past. */
-    var MAGNET_CHASE_LIMIT = 0.85;
-
-    /* Displacement past which a link counts as having left its own patch
-       and may be sitting on top of a neighbour */
-    var MAGNET_STRAY = 8;
-
-    /* data-magnet-radius takes plain pixels, or a vw/vh value for a
-       reach that should scale with the window rather than being pinned
-       to one screen size. The contact links use vw so "about half the
-       page" stays about half the page on any display. */
-    function magnetRadiusOf(node) {
-      var raw = (node.getAttribute('data-magnet-radius') || '').trim();
-      var value = parseFloat(raw);
-
-      if (isNaN(value)) {
-        return MAGNET_RADIUS;
-      }
-
-      if (/vw$/i.test(raw)) {
-        return window.innerWidth * value / 100;
-      }
-
-      if (/vh$/i.test(raw)) {
-        return window.innerHeight * value / 100;
-      }
-
-      return value;
-    }
-
-    var magnetSpecs = [];
-
-    for (var mi = 0; mi < magnets.length; mi++) {
-      var mNode = magnets[mi];
-
-      magnetSpecs.push({
-        el: mNode,
-        radius: magnetRadiusOf(mNode),
-        strength: parseFloat(mNode.getAttribute('data-magnet-strength')) || MAGNET_STRENGTH,
-        /* Optional ceiling on vertical travel, in pixels. Sideways is
-           where the reaching reads anyway; up and down is the axis on
-           which stacked links collide, so the two contact links cap it
-           to less than half the gap between them and can never meet.
-           0 means uncapped. */
-        maxY: parseFloat(mNode.getAttribute('data-magnet-max-y')) || 0,
-        /* Where it is, and how fast it is going */
-        x: 0,
-        y: 0,
-        vx: 0,
-        vy: 0,
-        /* Last value written to --magnet-near, so the custom property is
-           only touched when it actually changes */
-        near: -1
-      });
-    }
-
-    var magnetX = -99999;
-    var magnetY = -99999;
-    var magnetPointerIn = false;
-    var magnetRaf = null;
-
-    function magnetFrame() {
-      var awake = false;
-      /* Which link the cursor is actually aiming at, and how far it is
-         from it. Settled after the loop below — see the pass that hands
-         out pointer-events. */
-      var aimedAt = -1;
-      var closestEdge = Infinity;
-
-      for (var i = 0; i < magnetSpecs.length; i++) {
-        var spec = magnetSpecs[i];
-        var el = spec.el;
-        var rect = el.getBoundingClientRect();
-
-        /* getBoundingClientRect reports the element where it currently
-           sits, offset and all. Subtracting the offset back out recovers
-           where it actually lives, so the pull is always measured from a
-           fixed point and can never chase its own tail into a wobble. */
-        var midX = rect.left + rect.width / 2 - spec.x;
-        var midY = rect.top + rect.height / 2 - spec.y;
-        var halfW = rect.width / 2;
-        var halfH = rect.height / 2;
-
-        var targetX = 0;
-        var targetY = 0;
-        var closeness = 0;
-        var edgeDist = Infinity;
-
-        if (magnetPointerIn) {
-          /* Distance to the nearest point on the element rather than to
-             its centre — the email runs a few hundred pixels wide, and
-             measuring from the centre would leave its ends unresponsive */
-          var nearX = Math.min(Math.max(magnetX, midX - halfW), midX + halfW);
-          var nearY = Math.min(Math.max(magnetY, midY - halfH), midY + halfH);
-          var edgeX = magnetX - nearX;
-          var edgeY = magnetY - nearY;
-          edgeDist = Math.sqrt(edgeX * edgeX + edgeY * edgeY);
-
-          if (edgeDist < spec.radius) {
-            closeness = 1 - edgeDist / spec.radius;
-
-            /* Tracks both axes: the offset points at wherever the cursor
-               actually is, not just left/right along the text */
-            var dx = magnetX - midX;
-            var dy = magnetY - midY;
-            var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-
-            /* Capped at most of the way to the cursor rather than the
-               raw strength. Travel this large would otherwise overshoot
-               the pointer whenever it came close, and the text would sit
-               shuddering around it instead of coming to rest under it —
-               this way it always stops just short and settles. */
-            var pull = Math.min(closeness * spec.strength, dist * MAGNET_CHASE_LIMIT);
-
-            targetX = (dx / dist) * pull;
-            targetY = (dy / dist) * pull;
-
-            /* Sideways travel stays as long as it likes; vertical is
-               clamped, so a link can lean hard toward the cursor without
-               ever climbing into the one stacked above or below it */
-            if (spec.maxY) {
-              if (targetY > spec.maxY) { targetY = spec.maxY; }
-              if (targetY < -spec.maxY) { targetY = -spec.maxY; }
-            }
-          }
-        }
-
-        var engaged = closeness > 0;
-        var stiffness = engaged ? PULL_STIFFNESS : BACK_STIFFNESS;
-        var damping = engaged ? PULL_DAMPING : BACK_DAMPING;
-
-        spec.vx = (spec.vx + (targetX - spec.x) * stiffness) * damping;
-        spec.vy = (spec.vy + (targetY - spec.y) * stiffness) * damping;
-        spec.x += spec.vx;
-        spec.y += spec.vy;
-
-        var settled = !engaged &&
-          Math.abs(spec.x) < MAGNET_REST && Math.abs(spec.y) < MAGNET_REST &&
-          Math.abs(spec.vx) < MAGNET_REST && Math.abs(spec.vy) < MAGNET_REST;
-
-        if (settled) {
-          spec.x = 0;
-          spec.y = 0;
-          spec.vx = 0;
-          spec.vy = 0;
-          el.style.transform = '';
-        } else {
-          el.style.transform =
-            'translate(' + spec.x.toFixed(2) + 'px, ' + spec.y.toFixed(2) + 'px)';
-          awake = true;
-        }
-
-        /* Drives the underline stretch and the brightening in the
-           stylesheet. Rounded, so a value is only written when it has
-           moved enough to be worth a style recalculation. */
-        var rounded = Math.round(closeness * 100) / 100;
-
-        if (rounded !== spec.near) {
-          spec.near = rounded;
-          el.style.setProperty('--magnet-near', rounded);
-        }
-
-        if (engaged) {
-          awake = true;
-        }
-
-        /* Aim is judged against where the link has been pulled to, not
-           where it lives. The physics above deliberately works from the
-           home position so the pull cannot chase its own tail — but a
-           person points at what is actually on the screen in front of
-           them, so the two questions need different geometry.
-
-           <= rather than <, so when the cursor sits inside two
-           overlapping links (both at distance 0) the later one wins,
-           matching the one the browser paints on top. */
-        if (magnetPointerIn) {
-          var seenX = Math.min(Math.max(magnetX, rect.left), rect.right);
-          var seenY = Math.min(Math.max(magnetY, rect.top), rect.bottom);
-          var seenDx = magnetX - seenX;
-          var seenDy = magnetY - seenY;
-          var seenEdge = Math.sqrt(seenDx * seenDx + seenDy * seenDy);
-
-          if (seenEdge <= closestEdge) {
-            closestEdge = seenEdge;
-            aimedAt = i;
-          }
-        }
-      }
-
-      /* A link that has wandered a long way from home is sitting over
-         ground that belongs to something else. The email is 883px wide
-         and travels far enough to cover the phone completely, so a click
-         aimed at the phone but a few pixels off would land on the email
-         and open a mail client instead. Whichever link the cursor is
-         actually nearest keeps its clicks; any other one that has strayed
-         stops intercepting them until it comes home. */
-      for (var w = 0; w < magnetSpecs.length; w++) {
-        var other = magnetSpecs[w];
-        var strayed = Math.abs(other.x) > MAGNET_STRAY ||
-                      Math.abs(other.y) > MAGNET_STRAY;
-
-        other.el.style.pointerEvents = (strayed && w !== aimedAt) ? 'none' : '';
-      }
-
-      /* Idle until something moves again, rather than burning a frame
-         forever on elements that are all sitting still */
-      magnetRaf = awake ? requestAnimationFrame(magnetFrame) : null;
-    }
-
-    function wakeMagnets() {
-      if (magnetRaf === null) {
-        magnetRaf = requestAnimationFrame(magnetFrame);
-      }
-    }
-
-    document.addEventListener('mousemove', function (e) {
-      magnetX = e.clientX;
-      magnetY = e.clientY;
-      magnetPointerIn = true;
-      wakeMagnets();
-    }, { passive: true });
-
-    /* The cursor can leave the window without firing another mousemove —
-       without these, a link caught mid-pull would stay pulled */
-    document.addEventListener('mouseleave', function () {
-      magnetPointerIn = false;
-      wakeMagnets();
-    });
-
-    window.addEventListener('blur', function () {
-      magnetPointerIn = false;
-      wakeMagnets();
-    });
-
-    /* The page can move under a perfectly still cursor, which changes
-       the distance to every one of these without a mousemove firing */
-    window.addEventListener('scroll', wakeMagnets, { passive: true });
-
-    /* A viewport-relative reach has to be recalculated when the viewport
-       itself changes, or it would stay sized to the window as it was on
-       load */
-    window.addEventListener('resize', function () {
-      for (var rr = 0; rr < magnetSpecs.length; rr++) {
-        magnetSpecs[rr].radius = magnetRadiusOf(magnetSpecs[rr].el);
-      }
-
-      wakeMagnets();
-    });
-  }
-
   /* ------------------------------------------------------------------
      Atmosphere — background particles, sparkle trail, and the custom
      cursor, all sharing one canvas
 
-     Particles: 50 desktop / 20 under 768px, mixed violet and amber,
+     Particles: 50 desktop / 20 under 768px, mixed violet and dark grey,
      drifting slowly and wrapping at the edges. On a fine pointer, ones
      within 150px of the cursor nudge away and brighten; on touch,
      scroll velocity nudges all of them instead.
@@ -2184,7 +2047,11 @@
     var canvasW = 0;
     var canvasH = 0;
 
-    var PARTICLE_RGB = ['139, 92, 246', '245, 166, 35'];
+    /* Violet and a warm dark grey. On the old near-black page these were
+       violet and amber and worked by being brighter than the background;
+       on beige they have to work by being darker than it, so the second
+       colour is a grey-brown rather than a second accent. */
+    var PARTICLE_RGB = ['124, 58, 237', '90, 84, 74'];
     var particles = [];
 
     var pointerX = -9999;
@@ -2512,7 +2379,7 @@
           cursorIdleTimer = setTimeout(hideCursor, CURSOR_IDLE_DELAY);
         }, { passive: true });
 
-        var CURSOR_GROW_SELECTOR = 'a, button, .video__card, .card';
+        var CURSOR_GROW_SELECTOR = 'a, button, .vid__card, .jr__card';
 
         document.addEventListener('mouseover', function (e) {
           if (e.target.closest && e.target.closest(CURSOR_GROW_SELECTOR)) {
@@ -2636,6 +2503,1626 @@
 
   if (footerYear) {
     footerYear.textContent = new Date().getFullYear();
+  }
+  /* ------------------------------------------------------------------
+     STEP 3 — the Journey timeline
+
+     Nothing about the curve is written by hand. script.js reads where the
+     five cards actually landed, runs a Catmull-Rom spline through their
+     anchor points and writes that out as one cubic path — so the line
+     survives a change of copy, of type size, or of window, and the dots
+     sit ON it because they are placed at the very points it was built
+     from.
+
+     Drawing is stroke-dashoffset against scroll position, which means it
+     unwinds exactly in reverse on the way back up. The dots light as the
+     drawn length passes them.
+     ------------------------------------------------------------------ */
+
+  var jr = document.getElementById('jr');
+  var jrLine = document.getElementById('jr-line');
+  var jrTail = document.getElementById('jr-tail');
+
+  if (jr && jrLine && jrTail) {
+    var jrItems = [].slice.call(jr.querySelectorAll('[data-jr-item]'));
+    var jrNarrow = window.matchMedia('(max-width: 899px)');
+
+    var anchors = [];      /* {x, y} in .jr coordinates */
+    var marks = [];        /* length along the path at each anchor */
+    var mainLen = 0;
+    var jrTicking = false;
+    var animating = 0;     /* cards currently opening or closing */
+
+    function clamp01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+    function win(p, from, to) { return clamp01((p - from) / (to - from)); }
+
+    /* ---- where the line has to pass ---------------------------------
+       Beside each card, on the side the line runs down: level with the
+       card's middle and just outside the thin rule. On a phone the cards
+       are a single column, so every anchor shares one x and the same
+       spline comes out as a straight rail. */
+    function readAnchors() {
+      var box = jr.getBoundingClientRect();
+      var narrow = jrNarrow.matches;
+      var out = [];
+
+      for (var i = 0; i < jrItems.length; i++) {
+        var card = jrItems[i].querySelector('[data-jr-card]');
+        if (!card) { continue; }
+
+        var r = card.getBoundingClientRect();
+        var right = jrItems[i].classList.contains('jr__item--r');
+
+        out.push({
+          x: narrow ? 22 : (right ? r.left - box.left - 22 : r.right - box.left + 22),
+          y: r.top - box.top + r.height / 2
+        });
+      }
+
+      return out;
+    }
+
+    /* ---- Catmull-Rom through the anchors, emitted as cubic beziers ----
+       The tension is under 1 on purpose: at full strength a spline
+       through points this far apart swings out past the cards on the
+       turns. */
+    function spline(pts) {
+      if (pts.length < 2) { return ''; }
+
+      var k = 0.72;
+      var d = 'M' + pts[0].x.toFixed(1) + ',' + pts[0].y.toFixed(1);
+
+      for (var i = 0; i < pts.length - 1; i++) {
+        var p0 = pts[i - 1] || pts[i];
+        var p1 = pts[i];
+        var p2 = pts[i + 1];
+        var p3 = pts[i + 2] || p2;
+
+        d += ' C' + (p1.x + (p2.x - p0.x) * k / 6).toFixed(1) +
+             ',' + (p1.y + (p2.y - p0.y) * k / 6).toFixed(1) +
+             ' ' + (p2.x - (p3.x - p1.x) * k / 6).toFixed(1) +
+             ',' + (p2.y - (p3.y - p1.y) * k / 6).toFixed(1) +
+             ' ' + p2.x.toFixed(1) + ',' + p2.y.toFixed(1);
+      }
+
+      return d;
+    }
+
+    /* The dashed run-on past the last card, continuing in the direction
+       the line was already travelling rather than dropping straight down */
+    function tailPath(pts) {
+      if (pts.length < 2) { return ''; }
+
+      var last = pts[pts.length - 1];
+      var prev = pts[pts.length - 2];
+      var dx = last.x - prev.x;
+      var dy = last.y - prev.y;
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var run = jrNarrow.matches ? 90 : 150;
+
+      /* Damped sideways so the tail trails off downward rather than
+         shooting out toward the edge of the page */
+      var ux = (dx / len) * 0.35;
+      var uy = Math.abs(dy / len);
+
+      return 'M' + last.x.toFixed(1) + ',' + last.y.toFixed(1) +
+             ' q' + (ux * run * 0.5).toFixed(1) + ',' + (uy * run * 0.5).toFixed(1) +
+             ' ' + (ux * run).toFixed(1) + ',' + (uy * run).toFixed(1);
+    }
+
+    /* Length along the path at each anchor. The path goes through every
+       anchor exactly, so this samples it once and keeps the nearest hit —
+       far cheaper than rebuilding a sub-path per point, and it stays
+       right however the spline bulges between them. */
+    function measureMarks() {
+      var total = jrLine.getTotalLength();
+      var steps = 480;
+      var best = [];
+      var i;
+
+      for (i = 0; i < anchors.length; i++) { best.push({ d: Infinity, len: 0 }); }
+
+      for (var s = 0; s <= steps; s++) {
+        var len = total * s / steps;
+        var pt = jrLine.getPointAtLength(len);
+
+        for (i = 0; i < anchors.length; i++) {
+          var ax = pt.x - anchors[i].x;
+          var ay = pt.y - anchors[i].y;
+          var dist = ax * ax + ay * ay;
+
+          if (dist < best[i].d) { best[i].d = dist; best[i].len = len; }
+        }
+      }
+
+      marks = best.map(function (b) { return b.len; });
+      mainLen = total;
+    }
+
+    /* The anchors are in .jr's coordinates but each dot lives inside its
+       own item, which is position:relative — so the offset of the item
+       has to come back out again or every dot lands as far from the line
+       as its item is from the top of the timeline. */
+    function placeDots() {
+      var box = jr.getBoundingClientRect();
+
+      for (var i = 0; i < jrItems.length; i++) {
+        var dot = jrItems[i].querySelector('[data-jr-dot]');
+
+        if (dot && anchors[i]) {
+          var item = jrItems[i].getBoundingClientRect();
+
+          dot.style.left = (anchors[i].x - (item.left - box.left)).toFixed(1) + 'px';
+          dot.style.top = (anchors[i].y - (item.top - box.top)).toFixed(1) + 'px';
+        }
+      }
+    }
+
+    /* The cheap half: re-path and re-place, no length sampling. Run every
+       frame while a card is opening, because the cards below it are
+       sliding and the line has to keep up with them. */
+    function repath() {
+      anchors = readAnchors();
+      jrLine.setAttribute('d', spline(anchors));
+      jrTail.setAttribute('d', tailPath(anchors));
+      placeDots();
+    }
+
+    function remeasureJr() {
+      repath();
+      measureMarks();
+      drawJr();
+    }
+
+    function drawJr() {
+      jrTicking = false;
+
+      if (!mainLen) { return; }
+
+      /* No motion preference: the line is simply drawn, the dots are
+         simply there. Nothing is tied to the scroll. */
+      if (reducedMotion.matches) {
+        jrLine.style.strokeDasharray = 'none';
+        jrLine.style.strokeDashoffset = '0';
+        jrTail.style.opacity = '1';
+
+        for (var r = 0; r < jrItems.length; r++) {
+          jrItems[r].classList.add('is-in');
+          var rd = jrItems[r].querySelector('[data-jr-dot]');
+          if (rd) { rd.classList.add('is-on'); }
+        }
+
+        return;
+      }
+
+      var vh = window.innerHeight || 1;
+      var box = jr.getBoundingClientRect();
+      var lastY = anchors.length ? anchors[anchors.length - 1].y : box.height;
+
+      revealJr(vh);
+
+      /* Drawing starts as the first card comes up the screen and is
+         finished by the time the last dot is comfortably in view.
+         box.top is the only thing that moves: it counts DOWN as you
+         scroll, so progress is how far it has fallen from its starting
+         value, over the distance between the two. */
+      var startTop = vh * 0.72;
+      var endTop = vh * 0.5 - lastY;
+      var p = clamp01((startTop - box.top) / (startTop - endTop));
+
+      jrLine.style.strokeDasharray = mainLen + ' ' + mainLen;
+      jrLine.style.strokeDashoffset = (mainLen * (1 - p)).toFixed(1);
+
+      var drawn = mainLen * p;
+
+      for (var i = 0; i < jrItems.length; i++) {
+        var dot = jrItems[i].querySelector('[data-jr-dot]');
+        /* The floor keeps the first dot, whose mark is 0, from sitting
+           there lit before a single pixel of line has been drawn */
+        if (dot) { dot.classList.toggle('is-on', drawn > 0 && drawn >= marks[i] - 2); }
+      }
+
+      jrTail.style.opacity = win(p, 0.9, 1).toFixed(3);
+    }
+
+    function queueJr() {
+      if (!jrTicking) { jrTicking = true; requestAnimationFrame(drawJr); }
+    }
+
+    /* ---- the cards: reveal, and the year counting up ----------------- */
+
+    /* An opened card states its year in full; a closed one abbreviates it.
+       Same element, same size, same weight — only the digits change. */
+    function yearText(el, open) {
+      var n = parseInt(el.getAttribute('data-jr-year'), 10);
+
+      if (open) { return el.getAttribute('data-jr-full') || String(2000 + n); }
+
+      return "'" + (n < 10 ? '0' + n : String(n));
+    }
+
+    /* Runs every time a card arrives, not once for the life of the page, so
+       the token is there to stop two count-ups racing on one element when
+       the card is scrolled past quickly in both directions. */
+    function countYear(el) {
+      var target = parseInt(el.getAttribute('data-jr-year'), 10);
+
+      if (isNaN(target)) { return; }
+
+      var card = el.closest('[data-jr-card]');
+
+      if (card && card.classList.contains('is-open')) {
+        el.textContent = yearText(el, true);
+        return;
+      }
+
+      function show(n) { el.textContent = "'" + (n < 10 ? '0' + n : String(n)); }
+
+      if (reducedMotion.matches) { show(target); return; }
+
+      var token = (el.__run || 0) + 1;
+      var start = 0;
+
+      el.__run = token;
+
+      function step(now) {
+        if (el.__run !== token) { return; }
+        if (start === 0) { start = now; }
+
+        var t = clamp01((now - start) / 800);
+
+        /* Settles rather than stops */
+        show(Math.round(target * (1 - Math.pow(1 - t, 3))));
+
+        if (t < 1) { requestAnimationFrame(step); }
+      }
+
+      show(0);
+      requestAnimationFrame(step);
+    }
+
+    /* A card is in once its own top has come up past three quarters of the
+       screen, and out again the moment it drops back below — the same
+       scrollY that drives the line, read on the same frame, which is what
+       keeps the card, its dot and the line arriving together. */
+    function revealJr(vh) {
+      for (var i = 0; i < jrItems.length; i++) {
+        var item = jrItems[i];
+        var show = item.getBoundingClientRect().top < vh * 0.75;
+
+        if (show === item.classList.contains('is-in')) { continue; }
+
+        item.classList.toggle('is-in', show);
+
+        var year = item.querySelector('[data-jr-year]');
+
+        if (show && year) { countYear(year); }
+      }
+    }
+
+    /* ---- read more --------------------------------------------------
+       One open at a time. Opening one makes the column below it taller,
+       so the line is re-pathed on every frame of the transition — without
+       that it would stay where the cards used to be and the dots would
+       drift off it. */
+    function follow() {
+      if (animating > 0) {
+        repath();
+        if (mainLen) {
+          mainLen = jrLine.getTotalLength();
+          drawJr();
+        }
+        requestAnimationFrame(follow);
+      }
+    }
+
+    function setOpen(card, open) {
+      var btn = card.querySelector('[data-jr-more]');
+      var year = card.querySelector('[data-jr-year]');
+
+      if (card.classList.contains('is-open') === open) { return; }
+
+      card.classList.toggle('is-open', open);
+      if (btn) { btn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+
+      if (year) {
+        /* Cancels any count-up still in flight, so it cannot overwrite the
+           full year a moment after the card has opened */
+        year.__run = (year.__run || 0) + 1;
+        year.textContent = yearText(year, open);
+      }
+
+      animating++;
+      if (animating === 1) { requestAnimationFrame(follow); }
+
+      window.setTimeout(function () {
+        animating--;
+        /* Settled: take the expensive reading again so the dots are back
+           on the line exactly rather than approximately. */
+        if (animating === 0) { remeasureJr(); }
+      }, 500);
+    }
+
+    function closeAll(except) {
+      var open = jr.querySelectorAll('[data-jr-card].is-open');
+
+      for (var i = 0; i < open.length; i++) {
+        if (open[i] !== except) { setOpen(open[i], false); }
+      }
+    }
+
+    jr.addEventListener('click', function (event) {
+      var more = event.target.closest('[data-jr-more]');
+
+      if (more) {
+        var card = more.closest('[data-jr-card]');
+        closeAll(card);
+        setOpen(card, true);
+        return;
+      }
+
+      var close = event.target.closest('[data-jr-close]');
+
+      if (close) {
+        var owner = close.closest('[data-jr-card]');
+        setOpen(owner, false);
+        var back = owner.querySelector('[data-jr-more]');
+        /* Focus was on a button that is about to be invisible */
+        if (back) { back.focus(); }
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') { return; }
+
+      var open = jr.querySelector('[data-jr-card].is-open');
+
+      if (open) {
+        setOpen(open, false);
+        var back = open.querySelector('[data-jr-more]');
+        if (back) { back.focus(); }
+      }
+    });
+
+    /* ---- wiring ------------------------------------------------------ */
+
+    var jrResize = null;
+
+    function jrDebounced() {
+      window.clearTimeout(jrResize);
+      jrResize = window.setTimeout(remeasureJr, 150);
+    }
+
+    remeasureJr();
+    window.addEventListener('scroll', queueJr, { passive: true });
+    window.addEventListener('resize', jrDebounced);
+    window.addEventListener('load', remeasureJr);
+
+    /* Card heights depend on where the text wraps, which depends on the
+       font that is still loading */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(jrDebounced);
+    }
+
+    if (jrNarrow.addEventListener) { jrNarrow.addEventListener('change', jrDebounced); }
+  }
+
+
+  /* ------------------------------------------------------------------
+     STEP 4 - the strengths row
+
+     Four claims with a number each, under the Work intro. The blocks come
+     up one after another when the row arrives, and the figure inside each
+     yellow marker counts up to its value.
+
+     Deliberately once only, unlike the timeline cards below it: this row
+     is read on the way past, not scrolled back and forth over, and a
+     headline number that resets every time you scroll up would read as a
+     glitch rather than as motion.
+     ------------------------------------------------------------------ */
+
+  var stRow = document.getElementById('st');
+
+  if (stRow) {
+    var stCounts = [].slice.call(stRow.querySelectorAll('[data-st-count]'));
+
+    function stRun() {
+      stRow.classList.add('is-in');
+
+      if (reducedMotion.matches) { return; }
+
+      for (var i = 0; i < stCounts.length; i++) {
+        (function (el, delay) {
+          var target = parseInt(el.getAttribute('data-st-count'), 10);
+
+          if (isNaN(target)) { return; }
+
+          el.textContent = '0';
+
+          window.setTimeout(function () {
+            var start = 0;
+
+            function step(now) {
+              if (start === 0) { start = now; }
+
+              var t = (now - start) / 900;
+
+              if (t > 1) { t = 1; }
+
+              el.textContent = String(Math.round(target * (1 - Math.pow(1 - t, 3))));
+
+              if (t < 1) { requestAnimationFrame(step); }
+            }
+
+            requestAnimationFrame(step);
+          }, delay);
+        }(stCounts[i], i * 90));
+      }
+    }
+
+    if ('IntersectionObserver' in window) {
+      var stSeen = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) {
+          stRun();
+          stSeen.disconnect();
+        }
+      }, { rootMargin: '0px 0px -15% 0px' });
+
+      stSeen.observe(stRow);
+    } else {
+      stRun();
+    }
+  }
+
+
+  /* ------------------------------------------------------------------
+     STEP 5 - What I Bring
+
+     Two things live here.
+
+     The reveal: the sentence is pinned for one extra viewport height, and
+     how far through that you have scrolled decides how many of its words
+     are in focus. Each word gets its own slice of the run, so they come
+     in left to right; because it is read from scrollY every frame rather
+     than played on a timer, scrolling back up runs it exactly backwards.
+
+     The cards: a chip is a button, so the card opens on hover, on tap,
+     and on Enter or Space. It is centred on its chip and then pushed back
+     inside the viewport if that would hang it off an edge, and flipped
+     above the chip if there is no room below.
+     ------------------------------------------------------------------ */
+
+  var wib = document.getElementById('wib');
+  var wibLine = document.getElementById('wib-line');
+
+  if (wib && wibLine) {
+    var wibWords = [].slice.call(wibLine.querySelectorAll('.wib__w'));
+    var wibSlots = [].slice.call(wibLine.querySelectorAll('.wib__slot'));
+    var wibWide = window.matchMedia('(min-width: 900px)');
+    var wibTicking = false;
+    var wibOpen = null;
+
+    function wibClamp(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+    function wibDraw() {
+      wibTicking = false;
+
+      if (reducedMotion.matches || !wibWide.matches) {
+        for (var r = 0; r < wibWords.length; r++) {
+          wibWords[r].style.opacity = '';
+          wibWords[r].style.filter = '';
+        }
+        return;
+      }
+
+      var box = wib.getBoundingClientRect();
+      var run = box.height - (window.innerHeight || 1);
+
+      if (run <= 0) { return; }
+
+      /* box.top counts down from 0 as the zone scrolls past */
+      var p = wibClamp(-box.top / run);
+
+      /* Every word is done by 0.85 so the last one is readable for a beat
+         before the pin lets go, rather than arriving as it releases. */
+      var span = 0.85;
+      var step = span / wibWords.length;
+
+      for (var i = 0; i < wibWords.length; i++) {
+        /* A word holding an open card is shown in full whatever the scroll
+           says: the card is its child, so the word's own opacity would
+           otherwise be multiplied through the card and its text. */
+        if (wibWords[i].classList.contains('is-lift')) {
+          wibWords[i].style.opacity = '1';
+          wibWords[i].style.filter = 'none';
+          continue;
+        }
+
+        var t = wibClamp((p - i * step) / (step * 2.2));
+
+        wibWords[i].style.opacity = (0.15 + 0.85 * t).toFixed(3);
+        wibWords[i].style.filter = t >= 1 ? 'none' : 'blur(' + (4 * (1 - t)).toFixed(2) + 'px)';
+      }
+    }
+
+    function wibQueue() {
+      if (!wibTicking) { wibTicking = true; requestAnimationFrame(wibDraw); }
+    }
+
+    /* ---- the cards ---- */
+
+    /* Safe to call while the card is open: it works out where the card
+       WOULD sit unshifted, so re-running it on scroll does not accumulate
+       an offset or flicker the flip on and off. */
+    function wibPlace(slot) {
+      var card = slot.querySelector('[data-wib-card]');
+      var btn = slot.querySelector('[data-wib-chip]');
+
+      if (!card || !btn || !wibWide.matches) { return; }
+
+      var chip = btn.getBoundingClientRect();
+      var vw = document.documentElement.clientWidth;
+      var vh = window.innerHeight || 1;
+      var rect = card.getBoundingClientRect();
+      var had = parseFloat(slot.style.getPropertyValue('--wib-shift')) || 0;
+      var pad = 12;
+
+      /* Take the shift already applied back out before measuring */
+      var left = rect.left - had;
+      var right = rect.right - had;
+      var shift = 0;
+
+      if (left < pad) { shift = pad - left; }
+      else if (right > vw - pad) { shift = (vw - pad) - right; }
+
+      slot.style.setProperty('--wib-shift', Math.round(shift) + 'px');
+
+      /* Above the chip when there is no room below it and there is above */
+      var below = vh - chip.bottom;
+      var above = chip.top;
+
+      slot.classList.toggle('is-up',
+        below < rect.height + 20 && above > rect.height + 20);
+    }
+
+    function wibShut(slot) {
+      if (!slot) { return; }
+      slot.classList.remove('is-open');
+
+      if (slot.parentElement) { slot.parentElement.classList.remove('is-lift'); }
+
+      var btn = slot.querySelector('[data-wib-chip]');
+      if (btn) { btn.setAttribute('aria-expanded', 'false'); }
+      if (wibOpen === slot) { wibOpen = null; }
+      wibQueue();
+    }
+
+    function wibShow(slot) {
+      if (wibOpen && wibOpen !== slot) { wibShut(wibOpen); }
+      if (!slot || slot.classList.contains('is-open')) { return; }
+
+      /* Measured while it is laid out but still invisible, so the flip and
+         the nudge are decided before anyone sees it */
+      /* Lifted before it is shown, so the card is never painted behind the
+         words that come after it, even for one frame */
+      if (slot.parentElement) { slot.parentElement.classList.add('is-lift'); }
+
+      wibPlace(slot);
+      slot.classList.add('is-open');
+
+      var btn = slot.querySelector('[data-wib-chip]');
+      if (btn) { btn.setAttribute('aria-expanded', 'true'); }
+
+      wibOpen = slot;
+      wibQueue();
+    }
+
+    for (var s = 0; s < wibSlots.length; s++) {
+      (function (slot) {
+        var btn = slot.querySelector('[data-wib-chip]');
+
+        if (!btn) { return; }
+
+        btn.addEventListener('click', function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (slot.classList.contains('is-open')) { wibShut(slot); }
+          else { wibShow(slot); }
+        });
+
+        /* Pointer only, so a tap does not open on hover and immediately
+           close on the click that follows it */
+        slot.addEventListener('pointerenter', function (event) {
+          if (event.pointerType === 'mouse') { wibShow(slot); }
+        });
+
+        slot.addEventListener('pointerleave', function (event) {
+          if (event.pointerType === 'mouse') { wibShut(slot); }
+        });
+
+        /* No open-on-focus. Focus alone opening the card would mean the
+           Enter that follows it lands on an already-open card and closes
+           it again, so the keyboard would be the one way in that does not
+           work. Enter and Space arrive here as a click. Tabbing away does
+           close it. */
+        slot.addEventListener('focusout', function (event) {
+          if (!slot.contains(event.relatedTarget)) { wibShut(slot); }
+        });
+      }(wibSlots[s]));
+    }
+
+    document.addEventListener('click', function (event) {
+      if (wibOpen && !wibOpen.contains(event.target)) { wibShut(wibOpen); }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && wibOpen) {
+        var btn = wibOpen.querySelector('[data-wib-chip]');
+        wibShut(wibOpen);
+        if (btn) { btn.focus(); }
+      }
+    });
+
+    var wibResize = null;
+
+    window.addEventListener('scroll', function () {
+      wibQueue();
+
+      /* Follow the chip rather than close. Closing on scroll looked
+         reasonable until you reach a chip with the keyboard: focusing it
+         scrolls it into view, that fires this handler, and the card shut
+         again in the same frame it opened - so it could never be opened
+         without a mouse at all. The card is anchored to the chip, so it
+         moves on its own; only the flip and the nudge need redoing. */
+      if (wibOpen) { wibPlace(wibOpen); }
+    }, { passive: true });
+
+    window.addEventListener('resize', function () {
+      window.clearTimeout(wibResize);
+      if (wibOpen) { wibShut(wibOpen); }
+      wibResize = window.setTimeout(wibDraw, 120);
+    });
+
+    wibDraw();
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(wibDraw);
+    }
+
+    if (wibWide.addEventListener) { wibWide.addEventListener('change', wibDraw); }
+  }
+
+
+  /* ------------------------------------------------------------------
+     STEP 6 - How I Can Help
+
+     One highlight, three cards. It is measured from where the cards
+     actually are rather than assumed to be a third of the panel, so it
+     stays right when the copy changes their widths or the panel reflows.
+
+     The middle card is home. Hover moves the highlight to whichever card
+     the cursor is over; leaving the panel sends it back.
+     ------------------------------------------------------------------ */
+
+  var hlp = document.getElementById('hlp');
+
+  if (hlp) {
+    var hlpGlide = hlp.querySelector('[data-hlp-glide]');
+    var hlpCards = [].slice.call(hlp.querySelectorAll('[data-hlp-card]'));
+    var hlpWide = window.matchMedia('(min-width: 900px)');
+    var hlpHome = Math.floor(hlpCards.length / 2);
+    var hlpAt = null;
+
+    function hlpMove(card) {
+      if (!hlpGlide || !card || !hlpWide.matches) { return; }
+
+      hlpGlide.style.width = card.offsetWidth + 'px';
+      hlpGlide.style.transform = 'translateX(' + card.offsetLeft + 'px)';
+      hlpAt = card;
+    }
+
+    function hlpReset() { hlpMove(hlpCards[hlpHome]); }
+
+    for (var i = 0; i < hlpCards.length; i++) {
+      (function (card) {
+        /* Pointer, not mouseenter: a tap should not leave the highlight
+           stranded on a card the finger has already left. */
+        card.addEventListener('pointerenter', function (event) {
+          if (event.pointerType === 'mouse') { hlpMove(card); }
+        });
+      }(hlpCards[i]));
+    }
+
+    hlp.addEventListener('pointerleave', function (event) {
+      if (event.pointerType === 'mouse') { hlpReset(); }
+    });
+
+    /* Keyboard users travel through the links inside the cards, so the
+       highlight follows the focus too rather than sitting still. */
+    hlp.addEventListener('focusin', function (event) {
+      var card = event.target.closest('[data-hlp-card]');
+      if (card) { hlpMove(card); }
+    });
+
+    hlp.addEventListener('focusout', function (event) {
+      if (!hlp.contains(event.relatedTarget)) { hlpReset(); }
+    });
+
+    if ('IntersectionObserver' in window) {
+      var hlpSeen = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) {
+          hlp.classList.add('is-in');
+          hlpSeen.disconnect();
+        }
+      }, { rootMargin: '0px 0px -12% 0px' });
+
+      hlpSeen.observe(hlp);
+    } else {
+      hlp.classList.add('is-in');
+    }
+
+    var hlpResize = null;
+
+    window.addEventListener('resize', function () {
+      window.clearTimeout(hlpResize);
+      hlpResize = window.setTimeout(function () {
+        /* Snap rather than glide to the new geometry: a resize is not an
+           interaction, and watching it slide across would be noise. */
+        var keep = hlpGlide ? hlpGlide.style.transition : '';
+
+        if (hlpGlide) { hlpGlide.style.transition = 'none'; }
+
+        hlpMove(hlpAt && hlpWide.matches ? hlpAt : hlpCards[hlpHome]);
+
+        if (hlpGlide) {
+          /* Read something back so the "none" is flushed before the real
+             transition goes on again, or the browser collapses both into
+             one style change and animates anyway. */
+          void hlpGlide.offsetWidth;
+          hlpGlide.style.transition = keep;
+        }
+      }, 120);
+    });
+
+    hlpReset();
+
+    /* Card widths follow the text, and Inter lands after the first paint */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(hlpReset);
+    }
+
+    window.addEventListener('load', hlpReset);
+
+    if (hlpWide.addEventListener) { hlpWide.addEventListener('change', hlpReset); }
+  }
+
+
+  /* ------------------------------------------------------------------
+     The sidebar over the dark band
+
+     There was no existing "dark section switch" to reuse - I looked for
+     one when the old Work section was deleted and there never was any.
+     This is new.
+
+     Each sidebar panel decides for itself. On every scroll frame it
+     compares its own middle against the dark section's top and bottom
+     edges, so as the band rises the panels flip one after another from
+     the bottom of the column up, and back again on the way down. The
+     middle, not the top edge: switching on the edge means a panel spends
+     several hundred pixels of scroll half in one world and half in the
+     other, which reads as a rendering fault rather than as a design.
+
+     The colours are all in style.css under .sb__panel.is-dark - this only
+     decides which panels wear it.
+     ------------------------------------------------------------------ */
+
+  var darkBand = document.getElementById('content');
+  var sbPanelsDark = document.querySelectorAll('#sb .sb__panel, #sb .sb__resume');
+
+  if (darkBand && sbPanelsDark.length) {
+    var darkWide = window.matchMedia('(min-width: 900px)');
+    var darkTicking = false;
+
+    function darkPaint() {
+      darkTicking = false;
+
+      var band = darkBand.getBoundingClientRect();
+      var on = darkWide.matches;
+
+      for (var i = 0; i < sbPanelsDark.length; i++) {
+        var p = sbPanelsDark[i].getBoundingClientRect();
+        var mid = p.top + p.height / 2;
+
+        sbPanelsDark[i].classList.toggle('is-dark',
+          on && mid >= band.top && mid <= band.bottom);
+      }
+    }
+
+    function darkQueue() {
+      if (!darkTicking) { darkTicking = true; requestAnimationFrame(darkPaint); }
+    }
+
+    window.addEventListener('scroll', darkQueue, { passive: true });
+    window.addEventListener('resize', darkQueue);
+
+    if (darkWide.addEventListener) { darkWide.addEventListener('change', darkQueue); }
+
+    darkPaint();
+  }
+
+
+  /* The video row's cards come up one after another when the row arrives.
+     Once only: the row is scrolled sideways, not up and down past. */
+  var vidRail = document.querySelector('.vid__rail');
+
+  if (vidRail) {
+    if ('IntersectionObserver' in window) {
+      var vidSeen = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) {
+          vidRail.classList.add('is-in');
+          vidSeen.disconnect();
+        }
+      }, { rootMargin: '0px 0px -12% 0px' });
+
+      vidSeen.observe(vidRail);
+    } else {
+      vidRail.classList.add('is-in');
+    }
+  }
+
+
+  /* ------------------------------------------------------------------
+     What People Say
+
+     Three things: the dash indicator over the row, the drag puck that
+     replaces the cursor while the pointer is over it, and the entrance.
+
+     The puck follows the pointer by lerp rather than by writing the raw
+     position, so it trails the hand slightly instead of being welded to
+     it. It only exists on a fine pointer: on a touch screen there is no
+     cursor to replace and nothing to tell the visitor to drag with.
+     ------------------------------------------------------------------ */
+
+  var sayRail = document.getElementById('say-rail');
+
+  if (sayRail) {
+    var sayRow = sayRail.querySelector('[data-rail-row]');
+    var sayDashes = [].slice.call(document.querySelectorAll('[data-say-dash]'));
+    var sayItems = [].slice.call(sayRail.querySelectorAll('.say__item'));
+
+    /* ---- the dash indicator ---- */
+
+    /* Centres, not left edges. The row cannot scroll the last card's left
+       edge up to its own left edge - it runs out of scroll first - so a
+       left-edge test reports the second-to-last card as current even when
+       the last one is the only one properly on screen. */
+    function sayNearest() {
+      if (!sayRow || !sayItems.length) { return 0; }
+
+      var box = sayRow.getBoundingClientRect();
+      var mid = box.left + box.width / 2;
+      var best = 0;
+      var bestGap = Infinity;
+
+      for (var i = 0; i < sayItems.length; i++) {
+        var r = sayItems[i].getBoundingClientRect();
+        var gap = Math.abs((r.left + r.width / 2) - mid);
+
+        if (gap < bestGap) { bestGap = gap; best = i; }
+      }
+
+      return best;
+    }
+
+    function sayPaint() {
+      var at = sayNearest();
+
+      for (var i = 0; i < sayDashes.length; i++) {
+        sayDashes[i].classList.toggle('is-on', i === at);
+        sayDashes[i].setAttribute('aria-current', i === at ? 'true' : 'false');
+      }
+    }
+
+    if (sayRow) {
+      sayRow.addEventListener('scroll', sayPaint, { passive: true });
+      window.addEventListener('resize', sayPaint);
+      sayPaint();
+    }
+
+    for (var d = 0; d < sayDashes.length; d++) {
+      (function (index) {
+        sayDashes[index].addEventListener('click', function () {
+          if (!sayRow || !sayItems[index]) { return; }
+
+          sayRow.scrollTo({
+            left: sayItems[index].offsetLeft - sayItems[0].offsetLeft,
+            behavior: reducedMotion.matches ? 'auto' : 'smooth'
+          });
+        });
+      }(d));
+    }
+
+    /* ---- the drag puck ---- */
+
+    var sayCursor = document.getElementById('say-cursor');
+    var sayFine = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+    if (sayCursor && sayRow) {
+      var puckX = 0, puckY = 0, aimX = 0, aimY = 0;
+      var puckOn = false, puckRaf = 0;
+
+      function puckFrame() {
+        puckX += (aimX - puckX) * 0.18;
+        puckY += (aimY - puckY) * 0.18;
+
+        sayCursor.style.transform =
+          'translate3d(' + puckX.toFixed(1) + 'px, ' + puckY.toFixed(1) + 'px, 0) translate(-50%, -50%)';
+
+        if (puckOn) { puckRaf = requestAnimationFrame(puckFrame); }
+        else { puckRaf = 0; }
+      }
+
+      sayRow.addEventListener('pointerenter', function (event) {
+        if (event.pointerType !== 'mouse' || !sayFine.matches) { return; }
+
+        aimX = puckX = event.clientX;
+        aimY = puckY = event.clientY;
+        puckOn = true;
+        sayCursor.classList.add('is-on');
+        /* Hide the site's own cursor so there are never two */
+        document.body.classList.add('is-say-drag');
+
+        if (!puckRaf) { puckRaf = requestAnimationFrame(puckFrame); }
+      });
+
+      sayRow.addEventListener('pointermove', function (event) {
+        if (event.pointerType !== 'mouse') { return; }
+        aimX = event.clientX;
+        aimY = event.clientY;
+      });
+
+      sayRow.addEventListener('pointerleave', function (event) {
+        if (event.pointerType !== 'mouse') { return; }
+        puckOn = false;
+        sayCursor.classList.remove('is-on', 'is-held');
+        document.body.classList.remove('is-say-drag');
+      });
+
+      sayRow.addEventListener('pointerdown', function (event) {
+        if (event.pointerType === 'mouse') { sayCursor.classList.add('is-held'); }
+      });
+
+      window.addEventListener('pointerup', function () {
+        sayCursor.classList.remove('is-held');
+      });
+
+      if (sayFine.addEventListener) {
+        sayFine.addEventListener('change', function () {
+          if (!sayFine.matches) {
+            puckOn = false;
+            sayCursor.classList.remove('is-on', 'is-held');
+            document.body.classList.remove('is-say-drag');
+          }
+        });
+      }
+    }
+
+    /* ---- entrance ---- */
+
+    if ('IntersectionObserver' in window) {
+      var saySeen = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) {
+          sayRail.classList.add('is-in');
+          saySeen.disconnect();
+        }
+      }, { rootMargin: '0px 0px -12% 0px' });
+
+      saySeen.observe(sayRail);
+    } else {
+      sayRail.classList.add('is-in');
+    }
+  }
+
+
+  /* ------------------------------------------------------------------
+     The name divider, and the photo trail inside it
+
+     The letters are SVG text, and the clipPath uses those same nodes, so
+     the yellow you see and the window the photographs appear through can
+     never drift apart.
+
+     Sizing follows the hero's rule: both lines share one size, and the
+     longer word spans about 92% of the width. That is measured rather
+     than guessed - getComputedTextLength after the font has actually
+     loaded - so it holds at any width and survives a change of face.
+
+     The trail spawns on DISTANCE TRAVELLED, not on pointer events. A
+     pointermove can fire sixty times crossing ten pixels, and one image
+     per event would be a wall of pictures rather than a trail.
+     ------------------------------------------------------------------ */
+
+  var mb = document.getElementById('mb');
+  var mbSvg = document.getElementById('mb-svg');
+  var mbTrail = document.getElementById('mb-trail');
+
+  if (mb && mbSvg && mbTrail) {
+    var MB_VIEW_W = 1000;
+    var MB_VIEW_H = 420;
+
+    /* All sixteen files in assets/collages, listed rather than globbed,
+       and percent-encoded because that is how two of them are spelled on
+       disk: one has spaces, one is an emoji. Both were checked over HTTP
+       and both serve. CLAUDE.md forbids inventing or renaming asset
+       filenames, so they go in as they are. */
+    var MB_SHOTS = [
+      'assets/collages/download%20(26).jfif',
+      'assets/collages/download%20(27).jfif',
+      'assets/collages/download%20(28).jfif',
+      'assets/collages/download%20(29).jfif',
+      'assets/collages/download%20(30).jfif',
+      'assets/collages/download%20(31).jfif',
+      'assets/collages/download%20(32).jfif',
+      'assets/collages/download%20(33).jfif',
+      'assets/collages/download%20(34).jfif',
+      'assets/collages/download%20(44).jfif',
+      'assets/collages/download%20(45).jfif',
+      'assets/collages/download%20(46).jfif',
+      'assets/collages/download%20(47).jfif',
+      'assets/collages/download%20(48).jfif',
+      'assets/collages/_Faroe%20Islands_%20The%20Iconic%20Grass-Roofed%20Cottage_.jfif',
+      'assets/collages/%F0%9F%96%A4_.jfif'
+    ];
+
+    var mbT1 = document.getElementById('mb-t1');
+    var mbT2 = document.getElementById('mb-t2');
+    var mbFine = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+    /* ---- size the two lines so the longer one fills ~92% ---- */
+
+    /* MB_SIZE in style.css is the measured size that puts ELHAYYANY on 92%
+       of the viewBox with Inter loaded. It is a real number rather than a
+       starting guess: the viewBox is a fixed 1000 x 420 whatever the screen
+       does, so the right size in user units never changes with the window.
+       The page is therefore correct with no JavaScript, and correct on the
+       very first paint.
+
+       This only nudges it, for the case where Inter has not arrived and a
+       fallback face with different metrics is standing in. */
+    function mbFit() {
+      if (!mbT1 || !mbT2 || !mbT1.getComputedTextLength) { return; }
+
+      var target = MB_VIEW_W * 0.92;
+
+      /* Read the size actually in force rather than one this function put
+         there, so repeated calls cannot walk it anywhere. */
+      var size = parseFloat(window.getComputedStyle(mbT1).fontSize);
+
+      if (!size) { return; }
+
+      /* A layout read on the element itself. Writing style.fontSize on an
+         SVG <text> and calling getComputedTextLength straight afterwards
+         can hand back the PREVIOUS size's width: getBBox does not reliably
+         flush it. Measuring what is already there sidesteps the question. */
+      var widest = Math.max(mbT1.getComputedTextLength(), mbT2.getComputedTextLength());
+
+      /* A reading this far from the mark is not a font with different
+         metrics, it is a bad measurement, and acting on it is how the name
+         ends up two pixels tall. */
+      if (widest > target * 0.5 && widest < target * 2) {
+        size = size * (target / widest);
+        mbT1.style.fontSize = size + 'px';
+        mbT2.style.fontSize = size + 'px';
+      }
+
+      /* Two lines at 0.86 line-height, centred in the box. y is a baseline,
+         so each drops by roughly its own cap height. */
+      var lead = size * 0.86;
+      var top = (MB_VIEW_H - lead * 2) / 2;
+
+      mbT1.setAttribute('y', (top + lead * 0.78).toFixed(1));
+      mbT2.setAttribute('y', (top + lead + lead * 0.78).toFixed(1));
+    }
+
+    mbFit();
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(mbFit);
+    }
+
+    var mbResize = null;
+
+    window.addEventListener('resize', function () {
+      window.clearTimeout(mbResize);
+      mbResize = window.setTimeout(mbFit, 150);
+    });
+
+    /* ---- the trail ---- */
+
+    if (!reducedMotion.matches) {
+      var SPAWN_EVERY = 70;   /* viewBox units of travel between pictures */
+      var LIFE = 1200;        /* ms from spawn to gone */
+      var MAX_ALIVE = 14;     /* hard ceiling, so a fast scribble cannot pile up */
+      var SHOT_W = 300;
+      var SHOT_H = 210;
+
+      var mbLastX = null, mbLastY = null, mbRun = 0, mbPick = 0;
+      var mbAlive = [];
+
+      function mbPoint(event) {
+        var box = mbSvg.getBoundingClientRect();
+
+        if (!box.width || !box.height) { return null; }
+
+        /* preserveAspectRatio is meet, so the drawing is letterboxed inside
+           the element and the pointer has to be mapped through that box
+           rather than through the element's own edges. */
+        var scale = Math.min(box.width / MB_VIEW_W, box.height / MB_VIEW_H);
+        var drawnW = MB_VIEW_W * scale;
+        var drawnH = MB_VIEW_H * scale;
+        var offX = box.left + (box.width - drawnW) / 2;
+        var offY = box.top + (box.height - drawnH) / 2;
+
+        return {
+          x: (event.clientX - offX) / scale,
+          y: (event.clientY - offY) / scale
+        };
+      }
+
+      function mbSpawn(x, y) {
+        var img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+
+        img.setAttributeNS(null, 'href', MB_SHOTS[mbPick % MB_SHOTS.length]);
+        img.setAttributeNS(null, 'x', (x - SHOT_W / 2).toFixed(1));
+        img.setAttributeNS(null, 'y', (y - SHOT_H / 2).toFixed(1));
+        img.setAttributeNS(null, 'width', SHOT_W);
+        img.setAttributeNS(null, 'height', SHOT_H);
+        img.setAttributeNS(null, 'preserveAspectRatio', 'xMidYMid slice');
+        img.setAttribute('class', 'mb__shot');
+
+        mbPick++;
+        mbTrail.appendChild(img);
+        mbAlive.push(img);
+
+        /* Next frame, so the entrance transition has a value to run from */
+        requestAnimationFrame(function () { img.classList.add('is-in'); });
+
+        window.setTimeout(function () {
+          img.classList.remove('is-in');
+          window.setTimeout(function () {
+            if (img.parentNode) { img.parentNode.removeChild(img); }
+            var at = mbAlive.indexOf(img);
+            if (at > -1) { mbAlive.splice(at, 1); }
+          }, 420);
+        }, LIFE);
+
+        while (mbAlive.length > MAX_ALIVE) {
+          var old = mbAlive.shift();
+          if (old && old.parentNode) { old.parentNode.removeChild(old); }
+        }
+      }
+
+      mb.addEventListener('pointermove', function (event) {
+        if (event.pointerType !== 'mouse' || !mbFine.matches) { return; }
+
+        var p = mbPoint(event);
+
+        if (!p) { return; }
+
+        if (mbLastX === null) { mbLastX = p.x; mbLastY = p.y; return; }
+
+        mbRun += Math.sqrt((p.x - mbLastX) * (p.x - mbLastX) +
+                           (p.y - mbLastY) * (p.y - mbLastY));
+        mbLastX = p.x;
+        mbLastY = p.y;
+
+        if (mbRun >= SPAWN_EVERY) {
+          mbRun = 0;
+          mbSpawn(p.x, p.y);
+        }
+      });
+
+      mb.addEventListener('pointerleave', function () {
+        mbLastX = null;
+        mbLastY = null;
+        mbRun = 0;
+      });
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     STEP 9 - Contact: the typing scene
+
+     Replaces the magnetic links, which are gone from this file entirely.
+
+     The run is a chain of timeouts rather than one long keyframe, because
+     it is a sequence of unrelated things rather than one thing moving: a
+     lid, then text, then a cursor, then a fold, then three cards. Every
+     timer goes into ctTimers so Replay can cut the run off wherever it
+     happens to be, rather than leaving the tail of the old one to fire
+     over the top of the new one.
+
+     THE MARKUP IS THE FINISHED STATE. ctArm() is what winds it back, and
+     it only runs when the motion setting allows it, so no-JS and reduced
+     motion both land on a still picture of the ending rather than on a
+     shut laptop and a blank message.
+
+     The typing writes into a span that is aria-hidden, and a visually
+     hidden copy of the whole sentence is put beside it at init. A screen
+     reader reads one finished sentence; it never hears the message
+     arriving one character at a time.
+     ------------------------------------------------------------------ */
+
+  var ctDev = document.querySelector('[data-ct]');
+
+  if (ctDev) {
+    var ctScreen = ctDev.querySelector('.ct__screen');
+    var ctWin = ctDev.querySelector('[data-ct-win]');
+    var ctMsg = ctDev.querySelector('[data-ct-msg]');
+    var ctCaret = ctDev.querySelector('[data-ct-caret]');
+    var ctTypingLab = ctDev.querySelector('[data-ct-typing]');
+    var ctSend = ctDev.querySelector('[data-ct-send]');
+    var ctTick = ctDev.querySelector('[data-ct-tick]');
+    var ctPtr = ctDev.querySelector('[data-ct-ptr]');
+    var ctPlane = ctDev.querySelector('[data-ct-plane]');
+    var ctWake = ctDev.querySelector('[data-ct-wake]');
+    var ctDone = ctDev.querySelector('[data-ct-done]');
+    var ctKeys = ctDev.querySelectorAll('[data-key]');
+    var ctCards = document.querySelector('[data-ct-cards]');
+    var ctReplay = document.querySelector('[data-ct-replay]');
+    var ctNarrow = window.matchMedia('(max-width: 899px)');
+
+    /* 45ms a character, with a breath after the punctuation. A flat rate
+       reads as a machine printing; the pauses are most of what makes it
+       read as a person. */
+    var CT_CHAR = 45;
+    var CT_STOP = 340;
+    var CT_COMMA = 160;
+    var CT_KEY_DOWN = 90;
+
+    /* Collapsed, because the sentence is indented across the source */
+    var CT_FULL = (ctMsg.textContent || '').replace(/\s+/g, ' ').trim();
+
+    var ctSr = document.createElement('span');
+    ctSr.className = 'ct__sr';
+    ctSr.textContent = CT_FULL;
+
+    var ctTyped = document.createElement('span');
+    ctTyped.setAttribute('aria-hidden', 'true');
+
+    ctMsg.textContent = '';
+    ctMsg.appendChild(ctSr);
+    ctMsg.appendChild(ctTyped);
+    ctMsg.appendChild(ctCaret);
+
+    var ctTimers = [];
+    var ctPlayed = false;
+
+    function ctAt(ms, fn) {
+      ctTimers.push(setTimeout(fn, ms));
+    }
+
+    function ctStop() {
+      for (var s = 0; s < ctTimers.length; s++) {
+        clearTimeout(ctTimers[s]);
+      }
+
+      ctTimers = [];
+    }
+
+    /* Everything with a letter on it. Characters with no key drawn press
+       one of these at random, which is what the brief asks for and also
+       what a hand actually does: the apostrophe in "Let's" is a real
+       keystroke, it just is not one of the twenty-six. */
+    var ctLetterKeys = [];
+
+    for (var lk = 0; lk < ctKeys.length; lk++) {
+      if (ctKeys[lk].getAttribute('data-key') !== ' ') {
+        ctLetterKeys.push(ctKeys[lk]);
+      }
+    }
+
+    function ctPress(ch) {
+      var want = ch === ' ' ? ' ' : ch.toLowerCase();
+      var key = null;
+
+      for (var k = 0; k < ctKeys.length; k++) {
+        if (ctKeys[k].getAttribute('data-key') === want) {
+          key = ctKeys[k];
+          break;
+        }
+      }
+
+      if (!key && ctLetterKeys.length) {
+        key = ctLetterKeys[Math.floor(Math.random() * ctLetterKeys.length)];
+      }
+
+      if (!key) { return; }
+
+      key.classList.add('is-down');
+
+      ctAt(CT_KEY_DOWN, function () {
+        key.classList.remove('is-down');
+      });
+    }
+
+    function ctClearKeys() {
+      for (var ck = 0; ck < ctKeys.length; ck++) {
+        ctKeys[ck].classList.remove('is-down');
+      }
+    }
+
+    /* The ending, with nothing left in flight */
+    function ctFinal() {
+      ctStop();
+      ctClearKeys();
+      ctDev.classList.remove('is-shut');
+      ctDev.classList.remove('is-typing');
+      ctTyped.textContent = CT_FULL;
+      ctTypingLab.classList.add('is-off');
+      ctTick.classList.add('is-on');
+      ctWin.classList.remove('is-folding');
+      ctWin.classList.remove('is-sent');
+      ctPlane.classList.remove('is-flying');
+      ctPtr.classList.remove('is-on');
+      ctSend.classList.remove('is-pressed');
+      if (ctWake) { ctWake.classList.remove('is-drawn'); }
+      /* Not shown here. This is the ending for someone who never sees the
+         send happen, so the screen keeps the message on it rather than a
+         receipt for something they did not watch. */
+      if (ctDone) { ctDone.classList.remove('is-on'); }
+      ctCards.classList.add('is-in');
+    }
+
+    /* The beginning: lid shut, screen off, message empty, cards away */
+    function ctArm() {
+      ctStop();
+      ctClearKeys();
+      ctDev.classList.add('is-shut');
+      ctDev.classList.remove('is-typing');
+      ctTyped.textContent = '';
+      ctTypingLab.classList.remove('is-off');
+      ctTick.classList.remove('is-on');
+      ctWin.classList.remove('is-folding');
+      ctWin.classList.remove('is-sent');
+      ctPlane.classList.remove('is-flying');
+      ctPtr.classList.remove('is-on');
+      ctSend.classList.remove('is-pressed');
+      if (ctWake) { ctWake.classList.remove('is-drawn'); }
+      if (ctDone) { ctDone.classList.remove('is-on'); }
+      ctCards.classList.remove('is-in');
+      if (ctReplay) { ctReplay.hidden = true; }
+    }
+
+    function ctPtrTo(x, y, instant) {
+      if (instant) { ctPtr.classList.add('is-instant'); }
+
+      ctPtr.style.setProperty('--ct-px', x + 'px');
+      ctPtr.style.setProperty('--ct-py', y + 'px');
+
+      if (instant) {
+        /* Reading a layout property applies the jump before the
+           transition is handed back, so the arrow does not first travel
+           to its own starting point */
+        void ctPtr.offsetWidth;
+        ctPtr.classList.remove('is-instant');
+      }
+    }
+
+    function ctType(i, done) {
+      if (i > CT_FULL.length) {
+        done();
+        return;
+      }
+
+      ctTyped.textContent = CT_FULL.slice(0, i);
+
+      var prev = i > 0 ? CT_FULL.charAt(i - 1) : '';
+      var wait = CT_CHAR;
+
+      if (i > 0) { ctPress(prev); }
+
+      if (prev === '.' || prev === '!' || prev === '?') {
+        wait = CT_STOP;
+      } else if (prev === ',') {
+        wait = CT_COMMA;
+      }
+
+      ctAt(wait, function () {
+        ctType(i + 1, done);
+      });
+    }
+
+    function ctDeliver() {
+      ctCards.classList.add('is-in');
+
+      /* After the last card has landed, so the button is not competing
+         with the thing it would replay */
+      ctAt(760, function () {
+        if (ctReplay) { ctReplay.hidden = false; }
+      });
+    }
+
+    function ctAfterTyping() {
+      ctDev.classList.remove('is-typing');
+      ctTypingLab.classList.add('is-off');
+
+      /* A phone has no cursor to glide and no room for a flight path, so
+         the bubble sends itself and reports back with a tick */
+      if (ctNarrow.matches) {
+        ctAt(280, function () {
+          ctWin.classList.add('is-sent');
+          ctAt(320, function () { ctTick.classList.add('is-on'); });
+          ctAt(640, ctDeliver);
+        });
+
+        return;
+      }
+
+      var sRect = ctScreen.getBoundingClientRect();
+      var bRect = ctSend.getBoundingClientRect();
+
+      /* Measured now rather than written as percentages: the button sits
+         wherever the copy above it leaves it, and the arrow has to land
+         on the button rather than near it. */
+      ctPtrTo(sRect.width * 0.14, sRect.height * 0.88, true);
+      ctPtr.classList.add('is-on');
+
+      ctAt(180, function () {
+        ctPtrTo(bRect.left - sRect.left + bRect.width * 0.5,
+                bRect.top - sRect.top + bRect.height * 0.55, false);
+      });
+
+      /* The glide is 700ms; the click lands as it arrives */
+      ctAt(950, function () {
+        ctSend.classList.add('is-pressed');
+        ctAt(160, function () { ctSend.classList.remove('is-pressed'); });
+      });
+
+      ctAt(1200, function () {
+        ctPtr.classList.remove('is-on');
+        ctWin.classList.add('is-folding');
+
+        /* The plane leaves as the window finishes folding, so the two
+           read as one object changing shape rather than as one thing
+           disappearing and another appearing */
+        ctAt(230, function () {
+          ctPlane.classList.add('is-flying');
+          if (ctWake) { ctWake.classList.add('is-drawn'); }
+        });
+
+        /* Once the plane is clear of the screen, so the receipt does not
+           appear underneath it on its way out */
+        ctAt(830, function () {
+          if (ctDone) { ctDone.classList.add('is-on'); }
+        });
+
+        ctAt(880, ctDeliver);
+      });
+    }
+
+    function ctRun() {
+      ctArm();
+
+      /* Two frames: one for the wound-back state to be applied, one for
+         it to be painted. Released in the frame it was set, the browser
+         coalesces the two and the lid is simply open with nothing having
+         moved. */
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          ctDev.classList.remove('is-shut');
+
+          ctAt(900, function () {
+            ctDev.classList.add('is-typing');
+            ctType(0, ctAfterTyping);
+          });
+        });
+      });
+    }
+
+    if (reducedMotion.matches || !('IntersectionObserver' in window)) {
+      ctFinal();
+    } else {
+      ctArm();
+
+      var ctObs = new IntersectionObserver(function (entries) {
+        for (var ce = 0; ce < entries.length; ce++) {
+          if (!entries[ce].isIntersecting) { continue; }
+
+          ctObs.disconnect();
+
+          if (ctPlayed) { return; }
+
+          ctPlayed = true;
+          ctRun();
+        }
+      }, { threshold: 0.4 });
+
+      /* The device, not the section. The section is taller than a phone
+         screen, so 40% of IT can never be on screen at once and the run
+         would simply never start. */
+      ctObs.observe(ctDev);
+    }
+
+    /* Turning the setting on mid-visit stops the run where it is and
+       leaves the ending on screen, rather than freezing a half-typed
+       message and a lid at forty degrees */
+    if (reducedMotion.addEventListener) {
+      reducedMotion.addEventListener('change', function () {
+        if (reducedMotion.matches) { ctFinal(); }
+      });
+    }
+
+    if (ctReplay) {
+      ctReplay.addEventListener('click', function () {
+        ctReplay.hidden = true;
+        ctRun();
+      });
+    }
+
+    /* ---- copy to clipboard ---- */
+
+    function ctCopyFallback(text) {
+      var ta = document.createElement('textarea');
+
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.opacity = '0';
+
+      document.body.appendChild(ta);
+      ta.select();
+
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        /* Nothing further to try. The address is a live mailto link
+           beside the button either way, so the card still works. */
+      }
+
+      document.body.removeChild(ta);
+    }
+
+    function ctCopy(text) {
+      /* navigator.clipboard needs a secure context, and a page opened by
+         double-clicking index.html is not one, which is exactly how this
+         site is meant to be openable. The textarea is the path that
+         actually runs there, not a legacy afterthought. */
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).catch(function () {
+          ctCopyFallback(text);
+        });
+
+        return;
+      }
+
+      ctCopyFallback(text);
+    }
+
+    var ctCopyBtns = document.querySelectorAll('[data-ct-copy]');
+
+    for (var cb = 0; cb < ctCopyBtns.length; cb++) {
+      (function (btn) {
+        var label = btn.querySelector('[data-ct-copylabel]') || btn;
+        var resting = label.textContent;
+        var back = null;
+
+        btn.addEventListener('click', function () {
+          ctCopy(btn.getAttribute('data-ct-copy'));
+
+          label.textContent = 'Copied';
+
+          if (back) { clearTimeout(back); }
+
+          back = setTimeout(function () {
+            back = null;
+            label.textContent = resting;
+          }, 1500);
+        });
+      })(ctCopyBtns[cb]);
+    }
   }
 
 })();

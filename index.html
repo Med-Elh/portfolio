@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mohamed Elhayyany — Technical Customer Success</title>
-  <meta name="description" content="Mohamed Elhayyany, Technical Customer Success. Sales gets the customer. Support keeps them. Automation makes both scale. I've done all three.">
+  <title>Mohamed Elhayyany, Technical Customer Success</title>
+  <meta name="description" content="Mohamed Elhayyany, Technical Customer Success. Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
 
   <link rel="canonical" href="https://med-elh.github.io/portfolio/">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://med-elh.github.io/portfolio/">
-  <meta property="og:title" content="Mohamed Elhayyany — Technical Customer Success">
-  <meta property="og:description" content="Sales gets the customer. Support keeps them. Automation makes both scale. I've done all three.">
+  <meta property="og:title" content="Mohamed Elhayyany, Technical Customer Success">
+  <meta property="og:description" content="Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
   <meta property="og:image" content="https://med-elh.github.io/portfolio/assets/images/portrait.jpg">
   <meta property="og:image:alt" content="Mohamed Elhayyany, Technical Customer Success Manager">
   <meta property="og:locale" content="en_US">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Mohamed Elhayyany — Technical Customer Success">
-  <meta name="twitter:description" content="Sales gets the customer. Support keeps them. Automation makes both scale. I've done all three.">
+  <meta name="twitter:title" content="Mohamed Elhayyany, Technical Customer Success">
+  <meta name="twitter:description" content="Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
   <meta name="twitter:image" content="https://med-elh.github.io/portfolio/assets/images/portrait.jpg">
 
   <link rel="icon" type="image/jpeg" href="assets/images/portrait.jpg">
@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 
 </head>
 <body>
@@ -47,195 +47,655 @@
 
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="nav" id="nav">
-    <div class="wrap nav__inner">
+  <!-- Mobile only. Reuses #burger / #menu / .menu__link so the existing,
+       tested open-close-and-trap-focus module in script.js drives it with
+       no changes. -->
+  <header class="topbar" id="topbar">
+    <a class="logo-pill" href="#hero">Mohamed Elhayyany</a>
 
-      <a class="nav__brand" href="#hero">Mohamed Elhayyany</a>
-
-      <nav class="nav__links" aria-label="Main">
-        <ul class="nav__list">
-          <li><a class="nav__link" href="#profile">Profile</a></li>
-          <li><a class="nav__link" href="#work">Selected Work</a></li>
-          <li><a class="nav__link" href="#capabilities">Capabilities</a></li>
-          <li><a class="nav__link" href="#background">Background</a></li>
-          <li><a class="nav__link" href="#content">Content</a></li>
-          <li><a class="nav__link" href="#contact">Contact</a></li>
-          <li>
-            <a class="nav__resume" href="assets/docs/cv.pdf" download>Resume</a>
-          </li>
-        </ul>
-      </nav>
-
-      <button class="burger" id="burger" type="button"
-              aria-expanded="false" aria-controls="menu">
-        <span class="burger__label">Menu</span>
-        <span class="burger__icon" aria-hidden="true"></span>
-      </button>
-
-    </div>
+    <button class="burger" id="burger" type="button"
+            aria-expanded="false" aria-controls="menu">
+      <span class="burger__label">Menu</span>
+      <span class="burger__icon" aria-hidden="true"></span>
+    </button>
   </header>
 
   <div class="menu" id="menu">
-    <span class="menu__glow" aria-hidden="true"></span>
-
     <nav class="menu__nav" aria-label="Mobile">
       <ul>
-        <li class="menu__item">
-          <a class="menu__link" href="#profile">
-            <span class="label menu__num">01</span>
-            <span class="menu__text">Profile</span>
-          </a>
-        </li>
-        <li class="menu__item">
-          <a class="menu__link" href="#work">
-            <span class="label menu__num">02</span>
-            <span class="menu__text">Selected Work</span>
-          </a>
-        </li>
-        <li class="menu__item">
-          <a class="menu__link" href="#capabilities">
-            <span class="label menu__num">03</span>
-            <span class="menu__text">Capabilities</span>
-          </a>
-        </li>
-        <li class="menu__item">
-          <a class="menu__link" href="#background">
-            <span class="label menu__num">04</span>
-            <span class="menu__text">Background</span>
-          </a>
-        </li>
-        <li class="menu__item">
-          <a class="menu__link" href="#content">
-            <span class="label menu__num">05</span>
-            <span class="menu__text">Content</span>
-          </a>
-        </li>
-        <li class="menu__item">
-          <a class="menu__link" href="#contact">
-            <span class="label menu__num">06</span>
-            <span class="menu__text">Contact</span>
-          </a>
-        </li>
+        <li class="menu__item"><a class="menu__link" href="#work">Work</a></li>
+        <li class="menu__item"><a class="menu__link" href="#capabilities">What I Bring</a></li>
+        <li class="menu__item"><a class="menu__link" href="#help">How I Can Help</a></li>
+        <li class="menu__item"><a class="menu__link" href="#content">UGC Content</a></li>
+        <li class="menu__item"><a class="menu__link" href="#say">What People Say</a></li>
+        <li class="menu__item"><a class="menu__link" href="#contact">Contact</a></li>
       </ul>
-
-      <a class="btn btn--outline menu__resume" href="assets/docs/cv.pdf" download>Resume</a>
     </nav>
 
     <div class="menu__foot">
       <a class="menu__contact" href="mailto:mohamedelhayyany@gmail.com">mohamedelhayyany@gmail.com</a>
       <a class="menu__contact" href="tel:+212694561949">+212 694 561 949</a>
-      <p class="menu__place">Marrakech, Morocco</p>
+      <p class="menu__place">Based in Morocco. Working with the world.</p>
     </div>
   </div>
 
-  <!-- Section dots, right edge. Written out rather than generated so it
-       still works with JavaScript off, and ordered the way the page
-       actually scrolls — Content really does come before Background in
-       the markup, whatever their 04/05 numbering says. The hairline's
-       fill and the active dot are both driven from script.js. -->
-  <nav class="dots" id="dots" aria-label="Sections">
-    <span class="dots__line" aria-hidden="true">
-      <span class="dots__fill" id="dots-fill"></span>
-    </span>
+  <!-- The sidebar. Present in the DOM from the first frame because it is
+       the destination the hero's pieces are measured against — the FLIP in
+       script.js reads these boxes with getBoundingClientRect. It is hidden
+       from view until the transition starts. -->
+  <aside class="sb" id="sb" aria-label="Sidebar">
 
-    <ul class="dots__list">
-      <li>
-        <a class="dots__dot" href="#profile" aria-label="Profile">
-          <span class="dots__label" aria-hidden="true">Profile</span>
+    <div class="sb__panel sb__intro">
+      <div class="sb__brandrow">
+        <span class="sb__logo" id="sb-logo"><span class="sb__logoin"><span class="sb__ln">Mohamed</span><span class="sb__ln">Elhayyany</span></span></span>
+        <a class="sb__icon" href="https://www.linkedin.com/in/mohamed-elhayyany"
+           target="_blank" rel="noopener" aria-label="LinkedIn profile, opens in a new tab">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+            <path d="M6.94 5.5a1.94 1.94 0 1 1-3.88 0 1.94 1.94 0 0 1 3.88 0ZM3.2 8.4h3.5V21H3.2V8.4Zm5.7 0h3.35v1.72h.05c.47-.85 1.6-1.75 3.3-1.75 3.53 0 4.18 2.2 4.18 5.05V21h-3.5v-6.1c0-1.46-.03-3.33-2.06-3.33-2.06 0-2.38 1.58-2.38 3.22V21H8.9V8.4Z"/>
+          </svg>
         </a>
-      </li>
-      <li>
-        <a class="dots__dot" href="#work" aria-label="Selected Work">
-          <span class="dots__label" aria-hidden="true">Selected Work</span>
-        </a>
-      </li>
-      <li>
-        <a class="dots__dot" href="#capabilities" aria-label="Capabilities">
-          <span class="dots__label" aria-hidden="true">Capabilities</span>
-        </a>
-      </li>
-      <li>
-        <a class="dots__dot" href="#content" aria-label="Content">
-          <span class="dots__label" aria-hidden="true">Content</span>
-        </a>
-      </li>
-      <li>
-        <a class="dots__dot" href="#background" aria-label="Background">
-          <span class="dots__label" aria-hidden="true">Background</span>
-        </a>
-      </li>
-      <li>
-        <a class="dots__dot" href="#contact" aria-label="Contact">
-          <span class="dots__label" aria-hidden="true">Contact</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+      </div>
+      <p class="sb__blurb">Technical Customer Success Manager helping teams
+        keep customers, grow revenue and win new business.</p>
+    </div>
+
+    <div class="sb__panel sb__stats" id="sb-stats">
+      <div class="sb__stat"><span class="sb__num">100+</span><span class="sb__lab">Accounts managed</span></div>
+      <div class="sb__stat"><span class="sb__num">50+</span><span class="sb__lab">Sales closed</span></div>
+      <div class="sb__stat"><span class="sb__num">250+</span><span class="sb__lab">Posters sold</span></div>
+      <div class="sb__stat"><span class="sb__num">15%</span><span class="sb__lab">Revenue growth in 2 months</span></div>
+    </div>
+
+    <nav class="sb__panel sb__nav" id="sb-nav" aria-label="Main">
+      <a class="sb__link" href="#work" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18v12H3zM8 8V5h8v3"/></svg><span class="sb__txt">Work</span></a>
+      <a class="sb__link" href="#capabilities" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 14l9 5 9-5"/></svg><span class="sb__txt">What I Bring</span></a>
+      <a class="sb__link" href="#help" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v5M12 16h.01"/></svg><span class="sb__txt">How I Can Help</span></a>
+      <a class="sb__link" href="#content" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4zM10 9l5 3-5 3z"/></svg><span class="sb__txt">UGC Content</span></a>
+      <a class="sb__link" href="#say" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg><span class="sb__txt">What People Say</span></a>
+      <a class="sb__link" href="#contact" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><span class="sb__txt">Contact</span></a>
+    </nav>
+
+    <!-- Same marquee mechanics as the page's other strips: the track holds
+         the chips twice and slides exactly half its own width, so the loop
+         has no seam. .marquee is what the existing IntersectionObserver
+         already looks for, so it pauses off screen with no new code. -->
+    <div class="sb__panel sb__ticker marquee" aria-hidden="true">
+      <div class="marquee__track sb__track">
+        <ul class="marquee__group sb__chips">
+          <li class="sb__chip">Team Leadership</li><li class="sb__chip">Sales</li>
+          <li class="sb__chip">Retention</li><li class="sb__chip">Business Development</li>
+          <li class="sb__chip">SaaS</li><li class="sb__chip">Account Management</li>
+          <li class="sb__chip">Partnerships</li><li class="sb__chip">Client Onboarding</li>
+        </ul>
+        <ul class="marquee__group sb__chips">
+          <li class="sb__chip">Team Leadership</li><li class="sb__chip">Sales</li>
+          <li class="sb__chip">Retention</li><li class="sb__chip">Business Development</li>
+          <li class="sb__chip">SaaS</li><li class="sb__chip">Account Management</li>
+          <li class="sb__chip">Partnerships</li><li class="sb__chip">Client Onboarding</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sb__panel sb__mail">
+      <span class="sb__addr">mohamedelhayyany@gmail.com</span>
+      <button class="sb__copy" id="sb-copy" type="button"
+              data-copy="mohamedelhayyany@gmail.com">
+        <span class="sb__copy-text">Copy</span>
+      </button>
+    </div>
+
+    <!-- Two labels stacked in the same box: this button starts the morph
+         wearing the hero's "Get in touch" and crossfades to its own name
+         partway across, so the shape never has to change. -->
+    <a class="sb__resume" id="sb-resume" href="assets/docs/cv.pdf" download>
+      <span class="sb__rin">
+        <span class="sb__r1" aria-hidden="true">Get in touch</span>
+        <span class="sb__r2">Resume</span>
+      </span>
+    </a>
+
+  </aside>
 
   <main id="main">
 
-    <section class="hero" id="hero">
-      <div class="wrap hero__inner">
+    <!-- The pin zone. From 900px up it is taller than the hero inside it
+         and the hero sticks to the top, so the hero holds still while the
+         extra height scrolls past — that scrolled distance IS the
+         transition. Below 900px it has no height of its own. -->
+    <div class="hz" id="hz">
+      <section class="hx" id="hero">
 
-        <div class="hero__intro">
+        <!-- Behind everything, and the thing the intro shows first -->
+        <span class="hx__word" id="hx-word" aria-hidden="true"><span class="hx__wordin"><span class="hx__ln">Mohamed</span><span class="hx__ln">Elhayyany</span></span></span>
 
-          <p class="label" data-rise>Technical Customer Success manager</p>
+        <img class="hx__portrait" id="hx-portrait"
+             src="assets/images/portrait-cutout.png"
+             alt="Mohamed Elhayyany, Technical Customer Success Manager"
+             width="900" height="1200">
 
-          <h1 class="hero__name" data-rise>Mohamed Elhayyany<span class="hero__stop">.</span></h1>
+        <!-- Nav row, sitting on the wordmark's baseline and split around
+             the portrait. These are the elements the FLIP carries into the
+             sidebar's vertical nav: data-fly-nav is the index of the
+             sidebar row each one lands on, so the two lists have to stay in
+             the same order. Six here, six there, none left over. -->
+        <nav class="hx__nav hx__nav--left" aria-label="Main">
+          <a class="hx__navlink" href="#work" data-fly-nav="0"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18v12H3zM8 8V5h8v3"/></svg>Work</a>
+          <span class="hx__div" aria-hidden="true"></span>
+          <a class="hx__navlink" href="#capabilities" data-fly-nav="1"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 14l9 5 9-5"/></svg>What I Bring</a>
+          <span class="hx__div" aria-hidden="true"></span>
+          <a class="hx__navlink" href="#help" data-fly-nav="2"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v5M12 16h.01"/></svg>Help</a>
+        </nav>
 
-          <p class="hero__pitch" data-rise>
-            Sales gets the customer. <strong>Support keeps them.</strong>
-            Automation makes both scale. I've done all three.
-          </p>
+        <nav class="hx__nav hx__nav--right" aria-label="More">
+          <a class="hx__navlink" href="#content" data-fly-nav="3"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4zM10 9l5 3-5 3z"/></svg>UGC</a>
+          <span class="hx__div" aria-hidden="true"></span>
+          <a class="hx__navlink" href="#say" data-fly-nav="4"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>Reviews</a>
+          <span class="hx__div" aria-hidden="true"></span>
+          <a class="hx__navlink" href="#contact" data-fly-nav="5"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg>Contact</a>
+        </nav>
 
+        <div class="hx__stats">
+          <div class="hx__stat" data-fly-stat="0">
+            <span class="hx__num">100+</span>
+            <span class="hx__lab">Accounts managed</span>
+          </div>
+          <div class="hx__stat" data-fly-stat="1">
+            <span class="hx__num">50+</span>
+            <span class="hx__lab">Sales closed</span>
+          </div>
+          <div class="hx__stat" data-fly-stat="2">
+            <span class="hx__num">250+</span>
+            <span class="hx__lab">Posters sold</span>
+          </div>
+          <div class="hx__stat" data-fly-stat="3">
+            <span class="hx__num">15%</span>
+            <span class="hx__lab">Revenue growth in 2 months</span>
+          </div>
         </div>
 
-        <div class="hero__media" data-rise>
-          <span class="hero__glow" aria-hidden="true"></span>
-          <img class="portrait"
-               id="portrait"
-               src="assets/images/portrait.jpg"
-               alt="Mohamed Elhayyany, Technical Customer Success Manager"
-               width="928"
-               height="1152">
+        <ul class="hx__traits" id="hx-traits">
+          <li class="hx__trait"><span class="hx__badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+          </span>Multilingual</li>
+          <li class="hx__trait"><span class="hx__badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 17-5-5 5-5M16 7l5 5-5 5"/></svg>
+          </span>Technical</li>
+          <li class="hx__trait"><span class="hx__badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>
+          </span>Revenue-driven</li>
+          <li class="hx__trait"><span class="hx__badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 6.5a4 4 0 0 1-5.3 5.3L4 16.5V20h3.5l4.7-4.7A4 4 0 0 0 17.5 10l-2.4 2.4-2.1-2.1z"/></svg>
+          </span>Builder</li>
+          <li class="hx__trait"><span class="hx__badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 4 14h6l-1 7 9-11h-6z"/></svg>
+          </span>Automation-minded</li>
+        </ul>
+
+        <div class="hx__lead" id="hx-lead">
+          <h1 class="hx__head">Customers Stay.<br>Revenue Grows.</h1>
+          <div class="hx__btns">
+            <a class="hx__btn hx__btn--go" href="#contact" data-fly-btn="0">Get in touch</a>
+            <a class="hx__btn hx__btn--alt" href="#work" data-fly-btn="1">View work</a>
+          </div>
         </div>
 
-        <div class="hero__actions" data-rise>
-          <a class="btn btn--filled" href="#contact" data-magnetic>Get in touch</a>
-          <a class="btn btn--outline" href="#work">View work</a>
-          <a class="btn btn--ghost" href="assets/docs/cv.pdf" download data-magnetic>Resume</a>
-        </div>
-
-        <dl class="stats" data-rise>
-          <div class="stat">
-            <dt class="stat__value" data-count="100" data-suffix="+">100+</dt>
-            <dd class="stat__label label">Customers managed</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat__value" data-count="50" data-suffix="+">50+</dt>
-            <dd class="stat__label label">Sales closed in 2 months</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat__value" data-count="250" data-suffix="+">250+</dt>
-            <dd class="stat__label label">Posters sold in 3 months</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat__value" data-count="15" data-suffix="%">15%</dt>
-            <dd class="stat__label label">Revenue growth in 2 months</dd>
-          </div>
-        </dl>
-
-        <p class="hero__availability label" data-rise>
-          <span class="hero__dot" aria-hidden="true"></span>
-          Open to new roles · Marrakech, Morocco
+        <p class="hx__tag" id="hx-tag">
+          <span>Technical Customer Success Manager.</span>
+          <span>That's Mohamed.</span>
         </p>
+
+        <p class="hx__desc" id="hx-desc">I keep customers happy, bring new ones
+          in, and build the automations that let both scale.</p>
+
+      </section>
+    </div>
+
+    <!-- 01 — Journey. The old Profile section and the old Background
+         section are both folded into this one: the education, the
+         certificates and the languages now belong to the year they
+         happened in rather than sitting in a list of their own. -->
+    <section class="section" id="work">
+
+      <div class="wrap">
+
+        <p class="section__marker" data-reveal>
+          <span class="section__num">01</span> / <span>Work</span>
+        </p>
+
+        <p class="jr__lead" data-reveal>
+          A customer-facing operator who turns <em>friction</em> into retention.
+        </p>
+
+        <p class="jr__intro" data-reveal>
+          Customer success keeps clients. Business development brings new ones.
+          Marketing gets them through the door. I do all three.
+        </p>
+
+        <!-- The four strengths the timeline below is evidence for. Each
+             proof line carries its number on the yellow marker, and the
+             number inside the marker counts up when the row arrives. -->
+        <ul class="st" id="st">
+
+          <li class="st__item" data-st-item>
+            <span class="st__ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11l2 2 4-4"/></svg>
+            </span>
+            <h3 class="st__name">Customer Success</h3>
+            <p class="st__proof"><mark class="jr__hl"><span data-st-count="100">100</span>+ accounts</mark>
+              managed from onboarding to renewal</p>
+          </li>
+
+          <li class="st__item" data-st-item>
+            <span class="st__ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
+            </span>
+            <h3 class="st__name">Business Development</h3>
+            <p class="st__proof"><mark class="jr__hl"><span data-st-count="50">50</span>+ sales</mark>
+              closed and B2B clients like Experience Morocco</p>
+          </li>
+
+          <li class="st__item" data-st-item>
+            <span class="st__ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 8a5 5 0 0 1 0 8"/></svg>
+            </span>
+            <h3 class="st__name">Marketing</h3>
+            <p class="st__proof">Meta ad campaigns and a brand that sold
+              <mark class="jr__hl"><span data-st-count="250">250</span>+ posters</mark></p>
+          </li>
+
+          <li class="st__item" data-st-item>
+            <span class="st__ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v2M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a3 3 0 0 0-2.3-2.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
+            </span>
+            <h3 class="st__name">Team Leadership</h3>
+            <p class="st__proof">Team Lead at Majorel with
+              <mark class="jr__hl"><span data-st-count="98">98</span>% accuracy</mark></p>
+          </li>
+
+        </ul>
 
       </div>
 
-      <a class="scroll-cue" href="#profile">
-        <span class="label">Scroll</span>
-        <span class="scroll-cue__line" aria-hidden="true"></span>
-      </a>
+      <!-- The timeline. The SVG is empty markup: script.js measures where
+           the cards actually landed and writes the path through them, so
+           the curve survives any change to the copy, the type or the
+           window. The dots are real elements placed on the same points the
+           path is built from, which is why they sit ON the line rather
+           than near it. -->
+      <div class="jr" id="jr">
+
+        <svg class="jr__svg" id="jr-svg" aria-hidden="true" focusable="false"
+             preserveAspectRatio="none">
+          <path class="jr__line" id="jr-line" fill="none"></path>
+          <path class="jr__tail" id="jr-tail" fill="none"></path>
+        </svg>
+
+        <!-- Yellow appears in exactly one role here: a <mark> behind a key
+             fact. Everything that used to be yellow — the year, the dots,
+             the tool badge — is violet now. Two marks per card at most. -->
+        <ol class="jr__list">
+
+          <li class="jr__item jr__item--r jr__item--o1" data-jr-item>
+            <span class="jr__dot" data-jr-dot aria-hidden="true"></span>
+
+            <article class="jr__card" data-jr-card>
+              <span class="jr__rule" aria-hidden="true"></span>
+
+              <button class="jr__close" type="button" data-jr-close
+                      aria-label="Close 2021">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                     aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+              </button>
+
+              <p class="jr__year" data-jr-year="21" data-jr-full="2021"
+                 aria-hidden="true">'21</p>
+
+              <h3 class="jr__title">First customers</h3>
+
+              <div class="jr__sum"><div class="jr__sumin">
+                <p class="jr__short">Phone support at Terrain 360 and freelance
+                  design for Webhelp. Where I learned what customers need.</p>
+                <ul class="jr__tags">
+                  <li class="jr__tag">Customer Success</li>
+                  <li class="jr__tag">Communication</li>
+                </ul>
+              </div>
+              </div>
+
+              <div class="jr__foot">
+                <span class="jr__badges" aria-hidden="true">
+                  <span class="jr__badge jr__badge--co">T3</span>
+                  <span class="jr__badge jr__badge--tool">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true"><path d="M4 14v-3a8 8 0 0 1 16 0v3M4 14h3v5H6a2 2 0 0 1-2-2zM20 14h-3v5h1a2 2 0 0 0 2-2z"/></svg>
+                  </span>
+                </span>
+
+                <p class="jr__label">Terrain 360 · Webhelp · 2021 - 2022</p>
+
+                <button class="jr__more" type="button" data-jr-more
+                        aria-expanded="false" aria-controls="jr-p1">Read more</button>
+              </div>
+
+              <div class="jr__panel" id="jr-p1" data-jr-panel>
+                <div class="jr__panelin">
+                  <p class="jr__text">Customer Service Advisor at Terrain 360,
+                    solving customer issues by phone every day. In parallel,
+                    freelance graphic design for Webhelp Agency, which taught me
+                    how to present an offer clearly.</p>
+
+                  <p class="jr__broughtlab">What I brought</p>
+                  <ul class="jr__brought">
+                    <li>Patience with difficult customers</li>
+                    <li>Clear visual communication</li>
+                  </ul>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <li class="jr__item jr__item--l jr__item--o2" data-jr-item>
+            <span class="jr__dot" data-jr-dot aria-hidden="true"></span>
+
+            <article class="jr__card" data-jr-card>
+              <span class="jr__rule" aria-hidden="true"></span>
+
+              <button class="jr__close" type="button" data-jr-close
+                      aria-label="Close 2022">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                     aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+              </button>
+
+              <p class="jr__year" data-jr-year="22" data-jr-full="2022"
+                 aria-hidden="true">'22</p>
+
+              <h3 class="jr__title">Leading a team</h3>
+
+              <div class="jr__sum"><div class="jr__sumin">
+                <p class="jr__short">Content Moderator, then
+                  <mark class="jr__hl">Team Lead</mark> at Majorel, with
+                  <mark class="jr__hl">98% accuracy</mark>.</p>
+                <ul class="jr__tags">
+                  <li class="jr__tag">Team Leadership</li>
+                  <li class="jr__tag">Quality</li>
+                </ul>
+              </div>
+              </div>
+
+              <div class="jr__foot">
+                <span class="jr__badges" aria-hidden="true">
+                  <span class="jr__badge jr__badge--co">MJ</span>
+                  <span class="jr__badge jr__badge--tool">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.9-8 9-4.8-1.1-8-4.5-8-9V6z"/></svg>
+                  </span>
+                </span>
+
+                <p class="jr__label">Majorel · 2022 - 2024</p>
+
+                <button class="jr__more" type="button" data-jr-more
+                        aria-expanded="false" aria-controls="jr-p2">Read more</button>
+              </div>
+
+              <div class="jr__panel" id="jr-p2" data-jr-panel>
+                <div class="jr__panelin">
+                  <p class="jr__text">Reviewed content at scale against strict
+                    policies with 98% accuracy, then moved up to Team Lead:
+                    training new moderators, mentoring the team and keeping
+                    quality high.</p>
+
+                  <p class="jr__broughtlab">What I brought</p>
+                  <ul class="jr__brought">
+                    <li>Coaching new team members</li>
+                    <li>Consistent quality at scale</li>
+                  </ul>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <li class="jr__item jr__item--r jr__item--o3" data-jr-item>
+            <span class="jr__dot" data-jr-dot aria-hidden="true"></span>
+
+            <article class="jr__card" data-jr-card>
+              <span class="jr__rule" aria-hidden="true"></span>
+
+              <button class="jr__close" type="button" data-jr-close
+                      aria-label="Close 2024">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                     aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+              </button>
+
+              <p class="jr__year" data-jr-year="24" data-jr-full="2024"
+                 aria-hidden="true">'24</p>
+
+              <h3 class="jr__title">Degree &amp; marketing foundations</h3>
+
+              <div class="jr__sum"><div class="jr__sumin">
+                <p class="jr__short">Economics degree, Google Digital Marketing,
+                  and English C2.</p>
+                <ul class="jr__tags">
+                  <li class="jr__tag">Marketing</li>
+                  <li class="jr__tag">Languages</li>
+                </ul>
+              </div>
+              </div>
+
+              <div class="jr__foot">
+                <span class="jr__badges" aria-hidden="true">
+                  <span class="jr__badge jr__badge--co jr__badge--3">UCA</span>
+                  <span class="jr__badge jr__badge--tool">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/></svg>
+                  </span>
+                </span>
+
+                <p class="jr__label">Cadi Ayyad University · 2022 - 2024</p>
+
+                <button class="jr__more" type="button" data-jr-more
+                        aria-expanded="false" aria-controls="jr-p3">Read more</button>
+              </div>
+
+              <div class="jr__panel" id="jr-p3" data-jr-panel>
+                <div class="jr__panelin">
+                  <p class="jr__text">Bachelor's in Economics at Cadi Ayyad
+                    University. Google Fundamentals of Digital Marketing and
+                    EF SET English C2. I work in Arabic, English, French and
+                    Spanish.</p>
+
+                  <p class="jr__broughtlab">What I brought</p>
+                  <ul class="jr__brought">
+                    <li>Marketing fundamentals</li>
+                    <li>Four working languages</li>
+                  </ul>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <li class="jr__item jr__item--l jr__item--o4" data-jr-item>
+            <span class="jr__dot" data-jr-dot aria-hidden="true"></span>
+
+            <article class="jr__card" data-jr-card>
+              <span class="jr__rule" aria-hidden="true"></span>
+
+              <button class="jr__close" type="button" data-jr-close
+                      aria-label="Close 2025">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                     aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+              </button>
+
+              <p class="jr__year" data-jr-year="25" data-jr-full="2025"
+                 aria-hidden="true">'25</p>
+
+              <h3 class="jr__title">Customer Success &amp; Sales</h3>
+
+              <div class="jr__sum"><div class="jr__sumin">
+                <p class="jr__short"><mark class="jr__hl">100+ accounts</mark>,
+                  50+ sales and <mark class="jr__hl">+15% revenue</mark> in
+                  2 months at SafeApps.</p>
+                <ul class="jr__tags">
+                  <li class="jr__tag">Customer Success</li>
+                  <li class="jr__tag">Business Development</li>
+                  <li class="jr__tag">Marketing</li>
+                </ul>
+              </div>
+              </div>
+
+              <div class="jr__foot">
+                <span class="jr__badges" aria-hidden="true">
+                  <span class="jr__badge jr__badge--co jr__badge--live">SA
+                    <span class="jr__live"></span>
+                  </span>
+                  <span class="jr__badge jr__badge--tool">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-7"/></svg>
+                  </span>
+                </span>
+
+                <p class="jr__label">SafeApps (eGrow) · 2025 - Present</p>
+
+                <button class="jr__more" type="button" data-jr-more
+                        aria-expanded="false" aria-controls="jr-p4">Read more</button>
+              </div>
+
+              <div class="jr__panel" id="jr-p4" data-jr-panel>
+                <div class="jr__panelin">
+                  <p class="jr__text">I own the full client lifecycle for SaaS
+                    accounts, from onboarding to renewal, and I close new
+                    business: 50+ sales so far. I run Meta ad campaigns
+                    (targeting, creative, conversion optimisation) and set up
+                    the tracking and messaging flows that keep clients
+                    engaged. I also script, film and edit UGC videos for the
+                    brand.</p>
+
+                  <p class="jr__broughtlab">What I brought</p>
+                  <ul class="jr__brought">
+                    <li>Client retention from day one</li>
+                    <li>New revenue through sales</li>
+                    <li>Ad campaigns that convert</li>
+                  </ul>
+                </div>
+              </div>
+            </article>
+          </li>
+
+          <li class="jr__item jr__item--r jr__item--o5" data-jr-item>
+            <span class="jr__dot" data-jr-dot aria-hidden="true"></span>
+
+            <article class="jr__card" data-jr-card>
+              <span class="jr__rule" aria-hidden="true"></span>
+
+              <button class="jr__close" type="button" data-jr-close
+                      aria-label="Close 2026">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                     aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+              </button>
+
+              <p class="jr__year" data-jr-year="26" data-jr-full="2026"
+                 aria-hidden="true">'26</p>
+
+              <h3 class="jr__title">Founded Postry</h3>
+
+              <div class="jr__sum"><div class="jr__sumin">
+                <p class="jr__short"><mark class="jr__hl">250+ posters</mark>
+                  sold in 3 months, B2B clients, zero outside funding.</p>
+                <ul class="jr__tags">
+                  <li class="jr__tag">Business Development</li>
+                  <li class="jr__tag">Marketing</li>
+                  <li class="jr__tag">Founder</li>
+                </ul>
+              </div>
+              </div>
+
+              <div class="jr__foot">
+                <span class="jr__badges" aria-hidden="true">
+                  <span class="jr__badge jr__badge--co jr__badge--live">P
+                    <span class="jr__live"></span>
+                  </span>
+                  <span class="jr__badge jr__badge--tool">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7zM9 8V6a3 3 0 0 1 6 0v2"/></svg>
+                  </span>
+                </span>
+
+                <p class="jr__label">Postry · 2026 - Present</p>
+
+                <button class="jr__more" type="button" data-jr-more
+                        aria-expanded="false" aria-controls="jr-p5">Read more</button>
+              </div>
+
+              <div class="jr__panel" id="jr-p5" data-jr-panel>
+                <div class="jr__panelin">
+                  <p class="jr__text">A DTC wall art brand on Shopify that I run
+                    end to end, from product to marketing. I sourced B2B clients
+                    including <mark class="jr__hl">Experience Morocco</mark>,
+                    plus artist and creator commissions. Profitable with zero
+                    outside funding.</p>
+
+                  <p class="jr__broughtlab">What I brought</p>
+                  <ul class="jr__brought">
+                    <li>Sourcing B2B partners</li>
+                    <li>Building a brand from zero</li>
+                    <li>Profitable without funding</li>
+                  </ul>
+                </div>
+              </div>
+            </article>
+          </li>
+
+        </ol>
+      </div>
+    </section>
+
+    <!-- The pitch, moved out from under the name and given a screen of
+         its own. Placed directly after the hero zone on purpose: it is
+         the line the hero was building to, and it is also what arrives as
+         the sidebar finishes forming — script.js measures the run against
+         the first revealable thing below the hero, which is this. Not a
+         <blockquote>: it is his own line, not a quotation of anyone. -->
+    <section class="pitch-band">
+      <div class="wrap">
+
+        <p class="pitch-band__line" data-reveal>
+          Marketing opens the door. Business development closes the deal.
+          <mark class="jr__hl">Customer success makes it last.</mark>
+          I've done all three.
+        </p>
+
+        <!-- The portrait is already introduced, with its own alt text, in
+             the hero above — here it is a face beside a status line, so it
+             is decorative and takes an empty alt rather than repeating the
+             same description to a screen reader twice. -->
+        <div class="pitch-band__row" data-reveal>
+          <img class="pitch-band__avatar"
+               src="assets/images/portrait.jpg"
+               alt=""
+               width="928"
+               height="1152">
+
+          <span class="pitch-band__status">
+            <span class="pitch-band__dot" aria-hidden="true"></span>
+            Working with the world
+          </span>
+
+          <!-- Plain in-page anchor: the delegated handler in script.js
+               smooth-scrolls any same-document link, so this behaves
+               exactly like the hero's own Get in touch button. -->
+          <a class="btn btn--filled" href="#contact">Get in touch</a>
+        </div>
+
+      </div>
     </section>
 
     <!-- The track holds the keywords twice. Sliding it exactly half its
@@ -246,507 +706,301 @@
 
         <ul class="marquee__group">
           <li class="marquee__item">Customer Success</li>
-          <li class="marquee__item">Account Management</li>
-          <li class="marquee__item">Full-Cycle Sales</li>
-          <li class="marquee__item">Onboarding</li>
+          <li class="marquee__item">Business Development</li>
+          <li class="marquee__item">Marketing</li>
+          <li class="marquee__item">Sales</li>
           <li class="marquee__item">Retention</li>
-          <li class="marquee__item">Workflow Automation</li>
-          <li class="marquee__item">AI Agents</li>
-          <li class="marquee__item">Data Analysis</li>
-          <li class="marquee__item">Content Strategy</li>
+          <li class="marquee__item">Team Leadership</li>
+          <li class="marquee__item">Account Management</li>
+          <li class="marquee__item">Partnerships</li>
         </ul>
 
         <ul class="marquee__group" aria-hidden="true">
           <li class="marquee__item">Customer Success</li>
-          <li class="marquee__item">Account Management</li>
-          <li class="marquee__item">Full-Cycle Sales</li>
-          <li class="marquee__item">Onboarding</li>
+          <li class="marquee__item">Business Development</li>
+          <li class="marquee__item">Marketing</li>
+          <li class="marquee__item">Sales</li>
           <li class="marquee__item">Retention</li>
-          <li class="marquee__item">Workflow Automation</li>
-          <li class="marquee__item">AI Agents</li>
-          <li class="marquee__item">Data Analysis</li>
-          <li class="marquee__item">Content Strategy</li>
+          <li class="marquee__item">Team Leadership</li>
+          <li class="marquee__item">Account Management</li>
+          <li class="marquee__item">Partnerships</li>
         </ul>
 
       </div>
     </section>
 
-    <section class="section" id="profile">
-      <div class="wrap">
-
-        <p class="section__marker" data-reveal>
-          <span class="section__num">01</span> — <span>Profile</span>
-        </p>
-
-        <div class="about">
-
-          <div class="about__copy">
-            <p class="about__lead" data-reveal>
-              A customer-facing operator who turns <em>friction</em> into retention.
-            </p>
-
-            <p data-reveal>
-              Over four years I've worked every side of the customer relationship
-              — answering calls at Terrain 360, moderating content at scale for
-              Majorel, and now owning the full client lifecycle at SafeApps.
-              Support taught me how customers fail. Data taught me why.
-              Automation is how I stop it happening twice.
-            </p>
-
-            <p data-reveal>
-              Today I manage high-priority SaaS accounts from onboarding through
-              renewal, run full-cycle outreach that converts prospects into
-              long-term subscribers, and build the automated workflows that
-              remove manual work from my clients' operations. On the side I
-              founded <strong>Postry</strong>, a wall art brand I run end to end
-              — which is where I learned what retention costs when the customer
-              is paying you directly. I also trade financial markets
-              independently — <strong>funded by Funding Pips and Funded
-              Next</strong> — which sharpened the analytical discipline I bring
-              to client data and revenue decisions. I work in Arabic, English,
-              and French.
-            </p>
-          </div>
-
-          <dl class="facts" data-reveal>
-            <div class="fact">
-              <dt class="label">Role</dt>
-              <dd class="fact__value">Technical Customer Success Manager</dd>
-            </div>
-            <div class="fact">
-              <dt class="label">Based in</dt>
-              <dd class="fact__value">Marrakech, Morocco</dd>
-            </div>
-            <div class="fact">
-              <dt class="label">Focus</dt>
-              <dd class="fact__value">Retention · Revenue · Automation</dd>
-            </div>
-            <div class="fact">
-              <dt class="label">Languages</dt>
-              <dd class="fact__value">Arabic · English · French · Spanish</dd>
-            </div>
-            <div class="fact">
-              <dt class="label">Also</dt>
-              <dd class="fact__value">Founder, Postry (DTC wall art)</dd>
-            </div>
-            <div class="fact">
-              <dt class="label">Status</dt>
-              <dd class="fact__value">Open to work</dd>
-            </div>
-          </dl>
-
-        </div>
-
-        <dl class="counters" data-reveal>
-          <div class="counter">
-            <dt class="counter__value" data-count="4" data-suffix="+">4+</dt>
-            <dd class="counter__label label">Years customer-facing</dd>
-          </div>
-          <div class="counter">
-            <dt class="counter__value" data-count="250" data-suffix="+">250+</dt>
-            <dd class="counter__label label">Posters sold in three months</dd>
-          </div>
-          <div class="counter">
-            <dt class="counter__value" data-count="98" data-suffix="%">98%</dt>
-            <dd class="counter__label label">Accuracy at review scale</dd>
-          </div>
-          <div class="counter">
-            <dt class="counter__value" data-count="4" data-suffix="">4</dt>
-            <dd class="counter__label label">Languages</dd>
-          </div>
-        </dl>
-
-      </div>
-    </section>
-
-    <!-- A statement standing on its own between two sections: no number,
-         no heading, just the line. A <section> element rather than a div
-         so the existing scroll-reveal observer (which watches sections
-         and reveals their [data-reveal] children) picks it up — but
-         deliberately without the .section class or an id, so it stays
-         out of the reading-highlight dimming and the dot navigation. An
-         unnamed section exposes no landmark, so it adds nothing for a
-         screen reader to step through either. -->
-    <section class="impact">
-      <p class="impact__line" data-reveal>
-        <span class="impact__figure">15%</span>
-        <span class="impact__rest">Revenue growth in 2 months.</span>
-      </p>
-    </section>
-
-    <!-- The right column scrolls horizontally on its own — mouse wheel,
-         click-and-drag, touch swipe, and the arrow buttons below, all set
-         up in script.js. Nothing pins and nothing hijacks the page's own
-         vertical scroll; .work__intro (the left column) is a plain
-         position: sticky element that stays beside the cards only for as
-         long as the section is taller than the column, same as any other
-         sticky sidebar. -->
-    <section class="section" id="work">
-      <div class="work">
-        <div class="work__layout">
-
-          <div class="work__intro" data-reveal>
-            <p class="section__marker">
-              <span class="section__num">02</span> — <span>Selected Work</span>
-            </p>
-            <h2 class="work__heading" data-split-reveal>Selected Work</h2>
-            <!-- Written for this layout, not quoted from CLAUDE.md — purely
-                 a wayfinding line (what the cards are, how to move through
-                 them), no claims about outcomes or scope. -->
-            <p class="work__intro-copy">
-              Five case studies — the account, the problem, what I built.
-              Scroll →
-            </p>
-          </div>
-
-          <div class="work__viewport" data-reveal>
-            <ol class="work__row" id="work-row" tabindex="0"
-                role="region" aria-label="Selected work — scroll sideways to browse">
-
-                <li class="card">
-                  <span class="card__ghost" aria-hidden="true">01</span>
-                  <p class="card__date label">2025 — Present</p>
-                  <p class="card__context">Current role</p>
-                  <h3 class="card__title">
-                    <span class="card__role">Automation &amp; AI Agent Delivery</span>
-                    <span class="card__org">SafeApps (eGrow)</span>
-                  </h3>
-                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
-                  <!-- Absolutely positioned, so it can sit anywhere in the
-                       card; keeping it next to the content it opens keeps
-                       the two together in the source. -->
-                  <button class="card__toggle" type="button"
-                          aria-label="Details" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                      <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                  </button>
-
-                  <div class="card__body">
-                  <div class="card__detail">
-                  <ul class="card__points">
-                    <li>Built custom automated workflows and AI-driven agents for
-                      client operations, tailored per account rather than sold as
-                      a template.</li>
-                    <li>Designed the automations around what each client's team
-                      was actually doing manually, then removed that work.</li>
-                    <li>Built WhatsApp automations for the moments customers
-                      actually care about: automatic order confirmation on
-                      purchase, and delivery tracking updates pushed to the
-                      customer as the parcel moves.</li>
-                    <li>Built transactional email flows alongside them so
-                      clients reach customers on whichever channel they respond
-                      to.</li>
-                    <li>Implemented Facebook Conversions API integrations,
-                      sending server-side conversion events so clients' ad
-                      targeting and attribution stop depending on browser
-                      tracking.</li>
-                  </ul>
-                  <ul class="card__tags">
-                    <li class="chip">Zapier</li>
-                    <li class="chip">AI Agents</li>
-                    <li class="chip">Workflow Design</li>
-                    <li class="chip">Client Discovery</li>
-                  </ul>
-                  </div>
-                  </div>
-                </li>
-
-                <li class="card">
-                  <span class="card__ghost" aria-hidden="true">02</span>
-                  <p class="card__date label">2025 — Present</p>
-                  <p class="card__context">Current role</p>
-                  <h3 class="card__title">
-                    <span class="card__role">Account Ownership &amp; Retention</span>
-                    <span class="card__org">SafeApps (eGrow)</span>
-                  </h3>
-                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
-                  <button class="card__toggle" type="button"
-                          aria-label="Details" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                      <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                  </button>
-
-                  <div class="card__body">
-                  <div class="card__detail">
-                  <ul class="card__points">
-                    <li>Contributed to a 15% increase in company revenue within
-                      two months through structured outreach and account
-                      expansion.</li>
-                    <li>Manage a portfolio of over 100 active customer accounts
-                      across onboarding, technical support, and renewal.</li>
-                    <li>Troubleshoot complex platform errors directly with users
-                      rather than handing them to a queue.</li>
-                    <li>Closed over 100 sales through structured outreach and
-                      qualification and turned them into long term
-                      subscribers.</li>
-                  </ul>
-                  <ul class="card__tags">
-                    <li class="chip">Onboarding</li>
-                    <li class="chip">Technical Support</li>
-                    <li class="chip">Renewals</li>
-                    <li class="chip">Cold Outreach</li>
-                  </ul>
-                  </div>
-                  </div>
-                </li>
-
-                <li class="card">
-                  <span class="card__ghost" aria-hidden="true">03</span>
-                  <p class="card__date label">2025 — Present</p>
-                  <p class="card__context">Current role</p>
-                  <h3 class="card__title">
-                    <span class="card__role">Brand Content &amp; Customer Education</span>
-                    <span class="card__org">SafeApps (eGrow)</span>
-                  </h3>
-                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
-                  <button class="card__toggle" type="button"
-                          aria-label="Details" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                      <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                  </button>
-
-                  <div class="card__body">
-                  <div class="card__detail">
-                  <ul class="card__points">
-                    <li>On-camera face of the brand across marketing campaigns
-                      and product advertising.</li>
-                    <li>Run Meta ad campaigns for clients, managing audience
-                      targeting, ad creative, and conversion optimisation
-                      through the Conversions API integrations.</li>
-                    <li>Produce educational tutorials that reduce the support
-                      load by answering common questions before they become
-                      tickets.</li>
-                    <li>Own the content end to end — scripting, filming, editing,
-                      publishing.</li>
-                  </ul>
-                  <ul class="card__tags">
-                    <li class="chip">Video Production</li>
-                    <li class="chip">Product Education</li>
-                    <li class="chip">Premiere Pro</li>
-                    <li class="chip">CapCut</li>
-                  </ul>
-                  </div>
-                  </div>
-                </li>
-
-                <li class="card">
-                  <span class="card__ghost" aria-hidden="true">04</span>
-                  <p class="card__date label">2022 — 2024</p>
-                  <p class="card__context">Majorel Outsourcing</p>
-                  <h3 class="card__title">
-                    <span class="card__role">Moderation at Scale &amp; Team Enablement</span>
-                    <span class="card__org">Majorel Outsourcing</span>
-                  </h3>
-                  <p class="card__place">Marrakech <span class="card__arrow" aria-hidden="true">↗</span></p>
-                  <button class="card__toggle" type="button"
-                          aria-label="Details" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                      <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                  </button>
-
-                  <div class="card__body">
-                  <div class="card__detail">
-                  <ul class="card__points">
-                    <li>Reviewed hundreds of user posts and advertisements daily
-                      against detailed platform policy, sustaining a 98% accuracy
-                      rate.</li>
-                    <li>Trained and mentored incoming moderators on tools and
-                      workflows, shortening ramp-up time for the team.</li>
-                    <li>Escalated high-risk cases — illegal activity, credible
-                      threats — to internal teams and authorities under time
-                      pressure.</li>
-                    <li>Analysed moderation data to surface recurring patterns
-                      and recommend process changes rather than only enforcing
-                      case by case.</li>
-                  </ul>
-                  <ul class="card__tags">
-                    <li class="chip">Policy Enforcement</li>
-                    <li class="chip">Training</li>
-                    <li class="chip">Escalation</li>
-                    <li class="chip">Data Analysis</li>
-                  </ul>
-                  </div>
-                  </div>
-                </li>
-
-                <li class="card">
-                  <span class="card__ghost" aria-hidden="true">05</span>
-                  <p class="card__date label">January 2026 — Present</p>
-                  <p class="card__context">Current role</p>
-                  <h3 class="card__title">
-                    <span class="card__role">Postry — Founder</span>
-                    <span class="card__org">Independent venture</span>
-                  </h3>
-                  <p class="card__place">Morocco <span class="card__arrow" aria-hidden="true">↗</span></p>
-                  <button class="card__toggle" type="button"
-                          aria-label="Details" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-                         stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                      <path d="M6 9l6 6 6-6"/>
-                    </svg>
-                  </button>
-
-                  <div class="card__body">
-                  <div class="card__detail">
-                  <ul class="card__points">
-                    <li>Founded and run Postry, a self-printed wall art brand
-                      selling A4 and A3 prints direct to customers in Morocco.</li>
-                    <li>Built the storefront end to end on Shopify — product
-                      catalogue, theme customisation, and a bundle selector
-                      driving tiered pricing that lifts average order value.</li>
-                    <li>Run the whole operation solo: printing, product
-                      photography and mockups, pricing, listings, and customer
-                      conversations.</li>
-                    <li>Chose a deliberately low-overhead stack, avoiding
-                      recurring app subscriptions so margin stays in the
-                      business.</li>
-                    <li>Sold over 250 posters in the first three months, moving
-                      from launch to a consistently profitable operation without
-                      outside funding.</li>
-                    <li>Won business clients alongside individual buyers,
-                      including Experience Morocco, plus commissions from
-                      artists and content creators.</li>
-                  </ul>
-                  <ul class="card__tags">
-                    <li class="chip">Shopify</li>
-                    <li class="chip">DTC E-commerce</li>
-                    <li class="chip">Pricing Strategy</li>
-                    <li class="chip">Product Photography</li>
-                    <li class="chip">Customer Support</li>
-                  </ul>
-                  </div>
-                  </div>
-                </li>
-
-            </ol>
-
-            <div class="work__controls">
-              <button class="work__arrow" id="work-prev"
-                      type="button" aria-label="Previous case study">←</button>
-
-              <div class="work__progress" aria-hidden="true">
-                <span class="work__progress-bar" id="work-progress-bar"></span>
-              </div>
-
-              <button class="work__arrow" id="work-next"
-                      type="button" aria-label="Next case study">→</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
+    <!-- 02 — What I Bring. One sentence that says the whole thing, with a
+         chip on each capability. The chips are buttons, not hover-only
+         decorations: a card that can only be reached with a mouse is a
+         card half the visitors cannot read. -->
     <section class="section" id="capabilities">
+
       <div class="wrap">
         <p class="section__marker" data-reveal>
-          <span class="section__num">03</span> — <span>Capabilities</span>
+          <span class="section__num">02</span> / <span>What I Bring</span>
         </p>
 
-        <div class="capabilities">
+        <h2 class="wib__head" data-reveal>
+          <span class="wib__headln">What</span>
+          <span class="wib__headln">I Bring?</span>
+        </h2>
 
-          <div class="capability" data-reveal>
-            <h3 class="label capability__label">Customer Success</h3>
-            <ul class="chip-row">
-              <li class="chip">Account Management</li>
-              <li class="chip">Onboarding</li>
-              <li class="chip">Retention</li>
-              <li class="chip">Renewals</li>
-              <li class="chip">Escalation</li>
-              <li class="chip">De-escalation</li>
-              <li class="chip">Technical Support</li>
-            </ul>
-          </div>
+        <p class="wib__kicker" data-reveal>Capabilities overview</p>
+      </div>
 
-          <div class="capability" data-reveal>
-            <h3 class="label capability__label">Sales</h3>
-            <ul class="chip-row">
-              <li class="chip">Full-Cycle Sales</li>
-              <li class="chip">Lead Qualification</li>
-              <li class="chip">Cold Outreach</li>
-              <li class="chip">Upselling</li>
-              <li class="chip">Pipeline Management</li>
-            </ul>
-          </div>
+      <!-- The pin zone. Its extra height IS the reveal: script.js turns how
+           far through it you have scrolled into how many words have come
+           into focus, so scrolling back up puts them out of focus again. -->
+      <div class="wib" id="wib">
+        <div class="wib__sticky">
+          <p class="wib__line" id="wib-line">
 
-          <div class="capability" data-reveal>
-            <h3 class="label capability__label">Technical</h3>
-            <ul class="chip-row">
-              <li class="chip">Workflow Automation</li>
-              <li class="chip">AI Agents</li>
-              <li class="chip">Troubleshooting</li>
-              <li class="chip">Data Analysis</li>
-              <li class="chip">Reporting</li>
-              <li class="chip">Financial Markets Analysis</li>
-              <li class="chip">Risk Management</li>
-              <li class="chip">TradingView</li>
-              <li class="chip">MetaTrader 4 &amp; 5</li>
-            </ul>
-          </div>
+            <span class="wib__w">Customer</span>
+            <span class="wib__w">success<span class="wib__slot">
+              <button class="wib__chip" type="button" data-wib-chip
+                      aria-expanded="false" aria-controls="wib-c1">
+                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11l2 2 4-4"/></svg>
+                <span class="wib__sr">Customer Success</span>
+                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <span class="wib__card" id="wib-c1" data-wib-card>
+                <span class="wib__cardico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11l2 2 4-4"/></svg>
+                </span>
+                <span class="wib__cardtitle">Customer Success</span>
+                <span class="wib__cardtext">I own the client lifecycle from
+                  onboarding to renewal for <mark class="jr__hl">100+ SaaS
+                  accounts</mark>.</span>
+              </span>
+            </span>,</span>
 
-          <div class="capability" data-reveal>
-            <h3 class="label capability__label">Meta Ads</h3>
-            <ul class="chip-row">
-              <li class="chip">Ad Campaign Management</li>
-              <li class="chip">Facebook Conversions API</li>
-            </ul>
-          </div>
+            <span class="wib__w">business</span>
+            <span class="wib__w">development<span class="wib__slot">
+              <button class="wib__chip" type="button" data-wib-chip
+                      aria-expanded="false" aria-controls="wib-c2">
+                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
+                <span class="wib__sr">Business Development</span>
+                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <span class="wib__card" id="wib-c2" data-wib-card>
+                <span class="wib__cardico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
+                </span>
+                <span class="wib__cardtitle">Business Development</span>
+                <span class="wib__cardtext">I source partnerships and new
+                  accounts, from B2B clients like <mark class="jr__hl">Experience
+                  Morocco</mark> to creator collaborations.</span>
+              </span>
+            </span></span>
 
-          <div class="capability" data-reveal>
-            <h3 class="label capability__label">Tools</h3>
-            <ul class="chip-row">
-              <li class="chip">Zapier</li>
-              <li class="chip">Power BI</li>
-              <li class="chip">Excel</li>
-              <li class="chip">Google Sheets</li>
-              <li class="chip">Claude Code</li>
-              <li class="chip">Canva</li>
-              <li class="chip">Adobe Premiere Pro</li>
-              <li class="chip">Adobe Illustrator</li>
-              <li class="chip">CapCut</li>
-              <li class="chip">Microsoft Office</li>
-            </ul>
-          </div>
+            <span class="wib__w">and</span>
+            <span class="wib__w">marketing<span class="wib__slot">
+              <button class="wib__chip" type="button" data-wib-chip
+                      aria-expanded="false" aria-controls="wib-c3">
+                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 8a5 5 0 0 1 0 8"/></svg>
+                <span class="wib__sr">Marketing</span>
+                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <span class="wib__card" id="wib-c3" data-wib-card>
+                <span class="wib__cardico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 8a5 5 0 0 1 0 8"/></svg>
+                </span>
+                <span class="wib__cardtitle">Marketing</span>
+                <span class="wib__cardtext">I run <mark class="jr__hl">Meta ad
+                  campaigns</mark>: audience targeting, creative and conversion
+                  optimisation. I also create UGC videos that explain the
+                  product and drive sign-ups.</span>
+              </span>
+            </span></span>
 
-          <div class="capability" data-reveal>
-            <h3 class="label capability__label">E-commerce</h3>
-            <ul class="chip-row">
-              <li class="chip">Shopify</li>
-              <li class="chip">Storefront Build</li>
-              <li class="chip">Pricing &amp; Bundling</li>
-              <li class="chip">Product Photography</li>
-              <li class="chip">Order Fulfilment</li>
-            </ul>
-          </div>
+            <span class="wib__w">combined,</span>
+            <span class="wib__w">keeping</span>
+            <span class="wib__w">every</span>
+            <span class="wib__w">client<span class="wib__slot">
+              <button class="wib__chip" type="button" data-wib-chip
+                      aria-expanded="false" aria-controls="wib-c4">
+                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
+                <span class="wib__sr">Retention</span>
+                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <span class="wib__card" id="wib-c4" data-wib-card>
+                <span class="wib__cardico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
+                </span>
+                <span class="wib__cardtitle">Retention</span>
+                <span class="wib__cardtext">Clear onboarding, fast answers and
+                  regular check-ins, so <mark class="jr__hl">clients stay</mark>
+                  and grow.</span>
+              </span>
+            </span>,</span>
 
-          <div class="capability" data-reveal>
-            <h3 class="label capability__label">Practices</h3>
-            <ul class="chip-row">
-              <li class="chip">Client Discovery</li>
-              <li class="chip">Process Improvement</li>
-              <li class="chip">Team Training</li>
-              <li class="chip">Multilingual Support</li>
-            </ul>
-          </div>
+            <span class="wib__w">winning</span>
+            <span class="wib__w">new</span>
+            <span class="wib__w">ones<span class="wib__slot">
+              <button class="wib__chip" type="button" data-wib-chip
+                      aria-expanded="false" aria-controls="wib-c5">
+                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H6"/></svg>
+                <span class="wib__sr">Sales</span>
+                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <span class="wib__card" id="wib-c5" data-wib-card>
+                <span class="wib__cardico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H6"/></svg>
+                </span>
+                <span class="wib__cardtitle">Sales</span>
+                <span class="wib__cardtext">Full-cycle outreach that turned
+                  prospects into <mark class="jr__hl">50+ closed sales</mark>
+                  and +15% revenue in 2 months.</span>
+              </span>
+            </span>,</span>
 
+            <span class="wib__w">and</span>
+            <span class="wib__w">leading</span>
+            <span class="wib__w">the</span>
+            <span class="wib__w">people<span class="wib__slot">
+              <button class="wib__chip" type="button" data-wib-chip
+                      aria-expanded="false" aria-controls="wib-c6">
+                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20v-2a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v2M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a3 3 0 0 0-2.3-2.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
+                <span class="wib__sr">Team Leadership</span>
+                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <span class="wib__card" id="wib-c6" data-wib-card>
+                <span class="wib__cardico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v2M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a3 3 0 0 0-2.3-2.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
+                </span>
+                <span class="wib__cardtitle">Team Leadership</span>
+                <span class="wib__cardtext">As Team Lead at Majorel I trained and
+                  mentored moderators while keeping <mark class="jr__hl">98%
+                  accuracy</mark>.</span>
+              </span>
+            </span></span>
+
+            <span class="wib__w">who</span>
+            <span class="wib__w">make</span>
+            <span class="wib__w">it</span>
+            <span class="wib__w">happen,</span>
+            <span class="wib__w">in</span>
+            <span class="wib__w">four</span>
+            <span class="wib__w">languages<span class="wib__slot">
+              <button class="wib__chip" type="button" data-wib-chip
+                      aria-expanded="false" aria-controls="wib-c7">
+                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+                <span class="wib__sr">Languages</span>
+                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <span class="wib__card" id="wib-c7" data-wib-card>
+                <span class="wib__cardico" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+                </span>
+                <span class="wib__cardtitle">Languages</span>
+                <span class="wib__cardtext"><mark class="jr__hl">Arabic, English, French and Spanish</mark>. I work with clients in their own language.</span>
+              </span>
+            </span>.</span>
+
+          </p>
         </div>
       </div>
     </section>
 
-    <!-- The second of the page's two marquees. Same mechanics as the
-         keyword strip after the hero — the track holds the phrases twice
-         and slides exactly half its own width, so the loop has no seam —
-         but set large and in the accent. The .marquee class is what the
-         IntersectionObserver in script.js already looks for, so this
-         pauses off screen without any new JavaScript. -->
+    <section class="section" id="help">
+      <div class="wrap">
+
+        <p class="section__marker" data-reveal>
+          <span class="section__num">03</span> / <span>How I Can Help</span>
+        </p>
+
+        <h2 class="hlp__head" data-reveal>
+          <span class="hlp__headln">Where I Make</span>
+          <span class="hlp__headln hlp__headln--soft">The Difference</span>
+        </h2>
+
+        <p class="hlp__intro" data-reveal>
+          Three areas, one goal: more customers who stay longer and spend more.
+        </p>
+
+        <!-- One panel holding three cards. The highlight is a single element
+             that slides between them rather than three backgrounds fading in
+             and out: one thing moving reads as one thing moving, and three
+             crossfades read as a flicker. -->
+        <div class="hlp" id="hlp">
+          <span class="hlp__glide" data-hlp-glide aria-hidden="true"></span>
+
+          <article class="hlp__card" data-hlp-card>
+            <p class="hlp__top">
+              <span class="hlp__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11l2 2 4-4"/></svg>
+              </span>
+              <span class="hlp__title">Customer Success</span>
+            </p>
+
+            <p class="hlp__result"><mark class="jr__hl">100+ accounts</mark> managed</p>
+
+            <p class="hlp__text">I take clients from onboarding to renewal, so
+              they get value fast and stay.</p>
+
+            <p class="hlp__getlab">What you get</p>
+            <ul class="hlp__get">
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Smooth onboarding</li>
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Proactive check-ins</li>
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Fewer churned accounts</li>
+            </ul>
+          </article>
+
+          <article class="hlp__card" data-hlp-card>
+            <p class="hlp__top">
+              <span class="hlp__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
+              </span>
+              <span class="hlp__title">Business Development</span>
+            </p>
+
+            <p class="hlp__result"><mark class="jr__hl">50+ sales</mark> closed</p>
+
+            <p class="hlp__text">I find the right partners and accounts, then
+              turn conversations into signed deals.</p>
+
+            <p class="hlp__getlab">What you get</p>
+            <ul class="hlp__get">
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Qualified leads</li>
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Full-cycle outreach</li>
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>New B2B partnerships</li>
+            </ul>
+          </article>
+
+          <article class="hlp__card" data-hlp-card>
+            <p class="hlp__top">
+              <span class="hlp__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 8a5 5 0 0 1 0 8"/></svg>
+              </span>
+              <span class="hlp__title">Marketing</span>
+            </p>
+
+            <p class="hlp__result"><mark class="jr__hl">250+ posters</mark> sold with zero funding</p>
+
+            <p class="hlp__text">I run Meta ad campaigns and build brands that
+              turn attention into sales.</p>
+
+            <p class="hlp__getlab">What you get</p>
+            <ul class="hlp__get">
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Targeted ad campaigns</li>
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Clear messaging</li>
+              <li><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 12 5 5L20 6"/></svg>Conversion tracking</li>
+            </ul>
+          </article>
+        </div>
+
+        <!-- One call to action for the whole section. It used to sit three
+             times over, once per card, which said the same thing three times
+             and left the cards with an uneven bottom edge. -->
+        <p class="hlp__cta" data-reveal>
+          <a class="btn btn--filled hlp__btn" href="#contact">Let's talk
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </p>
+
+      </div>
+    </section>
+
     <section class="marquee marquee--cta" aria-label="Keep customers, grow revenue, automate the rest">
       <div class="marquee__track">
 
@@ -765,282 +1019,492 @@
       </div>
     </section>
 
-    <section class="section" id="content">
+    <!-- 04 - Content. The one dark band on the page. It runs the full width
+         and under the sidebar, which is why the sidebar switches to its own
+         dark style as this passes behind it (see the switch in script.js).
+         The topic pills are placeholders picked from a supplied list, not
+         the real video titles - those are not in the repo. -->
+    <section class="section vid" id="content">
       <div class="wrap">
-        <p class="section__marker" data-reveal>
-          <span class="section__num">05</span> — <span>Content</span>
+
+        <p class="section__marker vid__marker" data-reveal>
+          <span class="section__num">04</span> / <span>UGC Content</span>
         </p>
 
-        <!-- No card background, no border — the brief calls for these
-             floating free on the page. On desktop .video__float carries
-             the idle bob and the scroll parallax (script.js), kept
-             apart from .video__card so a hover transition there never
-             fights a transform written every frame. Below 900px this is
-             a swipeable deck instead — the active card at the front,
-             the rest stacked and peeking out behind it — driven by the
-             same --depth custom property script.js sets on each .video. -->
-        <ul class="videos" data-reveal>
+        <div class="vid__head">
+          <h2 class="vid__title" data-reveal>
+            <span class="vid__titleln">Content That</span>
+            <span class="vid__titleln vid__titleln--soft">Sells</span>
+          </h2>
 
-          <li class="video">
-            <div class="video__float">
-              <button class="video__card" type="button"
-                      data-video-id="ZDRf9FOJpMA" aria-label="Play video 1">
-                <img class="video__thumb"
-                     src="https://img.youtube.com/vi/ZDRf9FOJpMA/maxresdefault.jpg"
-                     data-fallback="https://img.youtube.com/vi/ZDRf9FOJpMA/hqdefault.jpg"
-                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
-                <span class="video__play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </span>
-              </button>
-            </div>
+          <p class="vid__intro" data-reveal>
+            UGC videos I created for SafeApps (eGrow): scripting, filming
+            and editing short-form content that explains the product and
+            drives sign-ups.
+          </p>
+
+          <ul class="vid__kinds" data-reveal>
+            <li class="vid__kind">Scripting</li>
+            <li class="vid__kind">Filming</li>
+            <li class="vid__kind">Editing</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Same [data-rail] contract the Capabilities carousel used: drag,
+           wheel, touch swipe and a progress bar, all from the one module in
+           script.js. Nothing new was written for it. -->
+      <div class="vid__rail cardrail" data-rail>
+        <ul class="vid__row cardrail__row" data-rail-row tabindex="0"
+            role="region" aria-label="Short videos, scroll sideways to browse">
+
+          <li class="vid__item">
+            <button class="vid__card" type="button"
+                    data-video-id="ZDRf9FOJpMA" aria-label="Play video 1">
+              <img class="vid__thumb"
+                   src="https://img.youtube.com/vi/ZDRf9FOJpMA/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/ZDRf9FOJpMA/hqdefault.jpg"
+                   alt="" loading="lazy" width="1280" height="720">
+              <span class="vid__num" aria-hidden="true">01</span>
+              <span class="vid__tags" aria-hidden="true">
+                <span class="vid__tag">UGC · eGrow</span>
+              </span>
+              <span class="vid__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </button>
           </li>
 
-          <li class="video">
-            <div class="video__float">
-              <button class="video__card" type="button"
-                      data-video-id="pGP2rb5e0_U" aria-label="Play video 2">
-                <img class="video__thumb"
-                     src="https://img.youtube.com/vi/pGP2rb5e0_U/maxresdefault.jpg"
-                     data-fallback="https://img.youtube.com/vi/pGP2rb5e0_U/hqdefault.jpg"
-                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
-                <span class="video__play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </span>
-              </button>
-            </div>
+          <li class="vid__item">
+            <button class="vid__card" type="button"
+                    data-video-id="pGP2rb5e0_U" aria-label="Play video 2">
+              <img class="vid__thumb"
+                   src="https://img.youtube.com/vi/pGP2rb5e0_U/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/pGP2rb5e0_U/hqdefault.jpg"
+                   alt="" loading="lazy" width="1280" height="720">
+              <span class="vid__num" aria-hidden="true">02</span>
+              <span class="vid__tags" aria-hidden="true">
+                <span class="vid__tag">UGC · eGrow</span>
+              </span>
+              <span class="vid__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </button>
           </li>
 
-          <li class="video">
-            <div class="video__float">
-              <button class="video__card" type="button"
-                      data-video-id="bJdhYTdqVE4" aria-label="Play video 3">
-                <img class="video__thumb"
-                     src="https://img.youtube.com/vi/bJdhYTdqVE4/maxresdefault.jpg"
-                     data-fallback="https://img.youtube.com/vi/bJdhYTdqVE4/hqdefault.jpg"
-                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
-                <span class="video__play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </span>
-              </button>
-            </div>
+          <li class="vid__item">
+            <button class="vid__card" type="button"
+                    data-video-id="bJdhYTdqVE4" aria-label="Play video 3">
+              <img class="vid__thumb"
+                   src="https://img.youtube.com/vi/bJdhYTdqVE4/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/bJdhYTdqVE4/hqdefault.jpg"
+                   alt="" loading="lazy" width="1280" height="720">
+              <span class="vid__num" aria-hidden="true">03</span>
+              <span class="vid__tags" aria-hidden="true">
+                <span class="vid__tag">UGC · eGrow</span>
+              </span>
+              <span class="vid__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </button>
           </li>
 
-          <li class="video">
-            <div class="video__float">
-              <button class="video__card" type="button"
-                      data-video-id="Mcrh3GoqDTk" aria-label="Play video 4">
-                <img class="video__thumb"
-                     src="https://img.youtube.com/vi/Mcrh3GoqDTk/maxresdefault.jpg"
-                     data-fallback="https://img.youtube.com/vi/Mcrh3GoqDTk/hqdefault.jpg"
-                     alt="Video thumbnail" loading="lazy" width="1280" height="720">
-                <span class="video__play" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                </span>
-              </button>
-            </div>
+          <li class="vid__item">
+            <button class="vid__card" type="button"
+                    data-video-id="Mcrh3GoqDTk" aria-label="Play video 4">
+              <img class="vid__thumb"
+                   src="https://img.youtube.com/vi/Mcrh3GoqDTk/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/Mcrh3GoqDTk/hqdefault.jpg"
+                   alt="" loading="lazy" width="1280" height="720">
+              <span class="vid__num" aria-hidden="true">04</span>
+              <span class="vid__tags" aria-hidden="true">
+                <span class="vid__tag">UGC · eGrow</span>
+              </span>
+              <span class="vid__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </button>
+          </li>
+
+          <li class="vid__item">
+            <button class="vid__card" type="button"
+                    data-video-id="Ww1czn0Qe0s" aria-label="Play video 5">
+              <img class="vid__thumb"
+                   src="https://img.youtube.com/vi/Ww1czn0Qe0s/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/Ww1czn0Qe0s/hqdefault.jpg"
+                   alt="" loading="lazy" width="1280" height="720">
+              <span class="vid__num" aria-hidden="true">05</span>
+              <span class="vid__tags" aria-hidden="true">
+                <span class="vid__tag">UGC · eGrow</span>
+              </span>
+              <span class="vid__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </button>
+          </li>
+
+          <li class="vid__item">
+            <button class="vid__card" type="button"
+                    data-video-id="nIiiE35wzrE" aria-label="Play video 6">
+              <img class="vid__thumb"
+                   src="https://img.youtube.com/vi/nIiiE35wzrE/maxresdefault.jpg"
+                   data-fallback="https://img.youtube.com/vi/nIiiE35wzrE/hqdefault.jpg"
+                   alt="" loading="lazy" width="1280" height="720">
+              <span class="vid__num" aria-hidden="true">06</span>
+              <span class="vid__tags" aria-hidden="true">
+                <span class="vid__tag">UGC · eGrow</span>
+              </span>
+              <span class="vid__play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+            </button>
           </li>
 
         </ul>
 
-        <!-- Mobile only — which card the deck below has at the front,
-             and a direct way to jump to any of the four -->
-        <div class="videos__dots" id="videos-dots"></div>
+        <div class="vid__progress cardrail__progress" aria-hidden="true">
+          <span class="vid__bar cardrail__bar" data-rail-fill></span>
+        </div>
       </div>
     </section>
 
-    <section class="section" id="background">
+    <!-- 05 / What People Say. Three real lines that were actually said to
+         him. Nothing here is invented: no names, no photographs, no company
+         logos, no fourth card. The speakers are identified by role only,
+         because that is all he supplied. -->
+    <section class="section" id="say">
+
       <div class="wrap">
         <p class="section__marker" data-reveal>
-          <span class="section__num">04</span> — <span>Background</span>
+          <span class="section__num">05</span> / <span>What People Say</span>
         </p>
 
-        <div class="background">
+        <div class="say__head">
+          <h2 class="say__title" data-reveal>
+            <span class="say__titleln">From People</span>
+            <span class="say__titleln say__titleln--soft">I've Worked With</span>
+          </h2>
 
-          <div class="background__group" data-reveal>
-            <h3 class="label background__label">Education</h3>
-            <ul class="education">
-              <li class="education__item">
-                <p class="education__title">Professional Foundations & Data Analytics</p>
-                <p class="education__meta">ALX Africa · 2024–2025</p>
-              </li>
-              <li class="education__item">
-                <p class="education__title">Bachelor's Degree in Economics</p>
-                <p class="education__meta">Cadi Ayyad University, Marrakech · 2022–2024</p>
-              </li>
-              <li class="education__item">
-                <p class="education__title">Baccalaureate</p>
-                <p class="education__meta">Ibn Toumert High School, Marrakech · 2022</p>
-              </li>
-            </ul>
+          <div class="say__dashes" id="say-dashes" data-reveal>
+            <button class="say__dash" type="button" data-say-dash
+                    aria-label="Show what the manager said"></button>
+            <button class="say__dash" type="button" data-say-dash
+                    aria-label="Show what the first coworker said"></button>
+            <button class="say__dash" type="button" data-say-dash
+                    aria-label="Show what the second coworker said"></button>
           </div>
-
-          <div class="background__group" data-reveal>
-            <h3 class="label background__label">Certifications</h3>
-            <ul class="education">
-              <li class="education__item">
-                <p class="education__title">Funded Futures Trader</p>
-                <p class="education__meta">Funded Next · 2026</p>
-              </li>
-              <li class="education__item">
-                <p class="education__title">Funded Forex Trader</p>
-                <p class="education__meta">Funding Pips · 2025</p>
-              </li>
-              <li class="education__item">
-                <p class="education__title">Professional Foundations & Data Analytics</p>
-                <p class="education__meta">ALX Africa · 2025</p>
-              </li>
-              <li class="education__item">
-                <p class="education__title">English C2 — EF SET Certificate</p>
-                <p class="education__meta">EF SET · 2024</p>
-              </li>
-              <li class="education__item">
-                <p class="education__title">Fundamentals of Digital Marketing</p>
-                <p class="education__meta">Google · 2024</p>
-              </li>
-            </ul>
-
-            <!-- The href is the full image, so with JavaScript off (or before
-                 script.js runs) tapping a certificate still opens it. The
-                 lightbox intercepts the click when it can. -->
-            <ul class="certs">
-              <li class="cert">
-                <a class="cert__link" data-cert
-                   href="assets/images/cert-funding-pips.png"
-                   target="_blank" rel="noopener noreferrer">
-                  <img class="cert__img"
-                       src="assets/images/cert-funding-pips.png"
-                       alt="Funded Forex Trader certificate issued to Mohamed Elhayyany by Funding Pips"
-                       width="1280" height="905"
-                       loading="lazy" decoding="async">
-                </a>
-                <p class="cert__caption">Funded Forex Trader — Funding Pips</p>
-              </li>
-              <li class="cert">
-                <a class="cert__link" data-cert
-                   href="assets/images/cert-funded-next.png"
-                   target="_blank" rel="noopener noreferrer">
-                  <img class="cert__img"
-                       src="assets/images/cert-funded-next.png"
-                       alt="Funded Futures Trader certificate issued to Mohamed Elhayyany by Funded Next"
-                       width="1241" height="857"
-                       loading="lazy" decoding="async">
-                </a>
-                <p class="cert__caption">Funded Futures Trader — Funded Next</p>
-              </li>
-              <li class="cert">
-                <a class="cert__link" data-cert
-                   href="assets/images/cert-alx.png"
-                   target="_blank" rel="noopener noreferrer">
-                  <img class="cert__img"
-                       src="assets/images/cert-alx.png"
-                       alt="Professional Foundations and Data Analytics certificate issued to Mohamed Elhayyany by ALX Africa"
-                       width="1280" height="905"
-                       loading="lazy" decoding="async">
-                </a>
-                <p class="cert__caption">Professional Foundations — ALX Africa</p>
-              </li>
-              <li class="cert">
-                <a class="cert__link" data-cert
-                   href="assets/images/cert-efset.png"
-                   target="_blank" rel="noopener noreferrer">
-                  <img class="cert__img"
-                       src="assets/images/cert-efset.png"
-                       alt="English C2 Proficiency certificate issued to Mohamed Elhayyany by EF SET"
-                       width="1280" height="905"
-                       loading="lazy" decoding="async">
-                </a>
-                <p class="cert__caption">English C2 — EF SET</p>
-              </li>
-            </ul>
-          </div>
-
-          <div class="background__group" data-reveal>
-            <h3 class="label background__label">Languages</h3>
-            <dl class="languages">
-              <div class="language">
-                <dt class="language__name">Arabic</dt>
-                <dd class="language__level">Native</dd>
-              </div>
-              <div class="language">
-                <dt class="language__name">English</dt>
-                <dd class="language__level">C2 — EF SET</dd>
-              </div>
-              <div class="language">
-                <dt class="language__name">French</dt>
-                <dd class="language__level">C1</dd>
-              </div>
-              <div class="language">
-                <dt class="language__name">Spanish</dt>
-                <dd class="language__level">B1</dd>
-              </div>
-            </dl>
-          </div>
-
         </div>
       </div>
+
+      <!-- Drag only. data-rail-nowheel keeps the shared carousel's wheel
+           handler off this one, so a vertical wheel over the cards scrolls
+           the page as it should; data-rail-momentum adds the throw and the
+           snap on release. -->
+      <div class="say cardrail" id="say-rail" data-rail data-rail-nowheel data-rail-momentum>
+        <ul class="say__row cardrail__row" data-rail-row tabindex="0"
+            role="region" aria-label="What people say, drag sideways to browse">
+
+          <li class="say__item">
+            <article class="say__card">
+              <span class="say__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7.5 6C5 6 3 8 3 10.5S5 15 7.5 15c.3 0 .6 0 .9-.1-.6 1.6-2 2.8-3.7 3.2v1.8c3.9-.6 6.8-4 6.8-8.1V10.5C11.5 8 9.9 6 7.5 6zm9 0C14 6 12 8 12 10.5S14 15 16.5 15c.3 0 .6 0 .9-.1-.6 1.6-2 2.8-3.7 3.2v1.8c3.9-.6 6.8-4 6.8-8.1V10.5C20.5 8 18.9 6 16.5 6z"/></svg>
+              </span>
+
+              <h3 class="say__cardtitle">So many skills in one person.</h3>
+
+              <blockquote class="say__quote">
+                <p>"How can one person have all these skills?"</p>
+              </blockquote>
+
+              <footer class="say__foot">
+                <span class="say__avatar" aria-hidden="true">M</span>
+                <span class="say__who">
+                  <span class="say__role">Manager</span>
+                  <span class="say__note">Direct manager</span>
+                </span>
+              </footer>
+            </article>
+          </li>
+
+          <li class="say__item">
+            <article class="say__card">
+              <span class="say__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7.5 6C5 6 3 8 3 10.5S5 15 7.5 15c.3 0 .6 0 .9-.1-.6 1.6-2 2.8-3.7 3.2v1.8c3.9-.6 6.8-4 6.8-8.1V10.5C11.5 8 9.9 6 7.5 6zm9 0C14 6 12 8 12 10.5S14 15 16.5 15c.3 0 .6 0 .9-.1-.6 1.6-2 2.8-3.7 3.2v1.8c3.9-.6 6.8-4 6.8-8.1V10.5C20.5 8 18.9 6 16.5 6z"/></svg>
+              </span>
+
+              <h3 class="say__cardtitle">Can really do it all.</h3>
+
+              <blockquote class="say__quote">
+                <p>"I didn't believe it at first, but you really can do a lot
+                  of things."</p>
+              </blockquote>
+
+              <footer class="say__foot">
+                <span class="say__avatar" aria-hidden="true">C</span>
+                <span class="say__who">
+                  <span class="say__role">Coworker</span>
+                  <span class="say__note">Team member</span>
+                </span>
+              </footer>
+            </article>
+          </li>
+
+          <li class="say__item">
+            <article class="say__card">
+              <span class="say__badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7.5 6C5 6 3 8 3 10.5S5 15 7.5 15c.3 0 .6 0 .9-.1-.6 1.6-2 2.8-3.7 3.2v1.8c3.9-.6 6.8-4 6.8-8.1V10.5C11.5 8 9.9 6 7.5 6zm9 0C14 6 12 8 12 10.5S14 15 16.5 15c.3 0 .6 0 .9-.1-.6 1.6-2 2.8-3.7 3.2v1.8c3.9-.6 6.8-4 6.8-8.1V10.5C20.5 8 18.9 6 16.5 6z"/></svg>
+              </span>
+
+              <h3 class="say__cardtitle">Brings life to the office.</h3>
+
+              <blockquote class="say__quote">
+                <p>"You bring so much life to the office."</p>
+              </blockquote>
+
+              <footer class="say__foot">
+                <span class="say__avatar" aria-hidden="true">C</span>
+                <span class="say__who">
+                  <span class="say__role">Coworker</span>
+                  <span class="say__note">Team member</span>
+                </span>
+              </footer>
+            </article>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- Desktop pointer only. The site's own cursor is hidden while this
+           is up, so there is never a cursor and a puck on screen at once. -->
+      <span class="say__cursor" id="say-cursor" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m14 6-6 6 6 6"/></svg>
+        <span class="say__cursortext">Drag</span>
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m10 6 6 6-6 6"/></svg>
+      </span>
+    </section>
+
+    <!-- A visual beat before the closing section: the full name, filled
+         yellow, with a trail of photographs that appears only inside the
+         letterforms as the pointer crosses them.
+
+         Drawn as one SVG on purpose. The clip and the visible letters are
+         the SAME <text> nodes, so they cannot drift apart the way a CSS
+         clip-path built from a duplicate copy of the text would once a
+         web font loads or a clamp() changes the size.
+
+         aria-hidden: the name is already the page title, the hero wordmark
+         and the sidebar logo. A fourth reading of it helps nobody. -->
+    <section class="mb" id="mb" aria-hidden="true">
+      <svg class="mb__svg" id="mb-svg" viewBox="0 0 1000 420"
+           preserveAspectRatio="xMidYMid meet" focusable="false">
+        <defs>
+          <clipPath id="mb-clip">
+            <text class="mb__t" id="mb-t1" x="500" y="176" text-anchor="middle">MOHAMED</text>
+            <text class="mb__t" id="mb-t2" x="500" y="376" text-anchor="middle">ELHAYYANY</text>
+          </clipPath>
+        </defs>
+
+        <!-- Everything below is inside the letters. The yellow is the floor;
+             the trail paints over it and never outside it. -->
+        <g clip-path="url(#mb-clip)">
+          <rect x="0" y="0" width="1000" height="420" fill="#f5e500"></rect>
+          <g id="mb-trail"></g>
+        </g>
+      </svg>
     </section>
 
     <section class="section contact" id="contact">
       <span class="contact__glow" aria-hidden="true"></span>
       <div class="wrap">
-        <p class="label contact__eyebrow" data-reveal>— Contact —</p>
-
-        <h2 class="contact__heading" data-reveal data-split-reveal>
-          Let's keep your<br>
-          customers
-          <em>around</em>
-        </h2>
-
-        <p class="contact__line" data-reveal>
-          Open to work. Marrakech, Morocco — or remote.
+        <p class="section__marker contact__eyebrow" data-reveal>
+          <span class="section__num">06</span> / <span>Contact</span>
         </p>
 
-        <!-- Far stronger than the hero buttons: these two are the whole
-             point of the section, so they reach for the cursor hard.
-             The phone is tuned down to suit its smaller text.
-             data-magnet-max-y caps vertical travel at 16px each: they sit
-             56px apart, so even both leaning fully toward each other
-             closes only 32px and they can never overlap. Sideways travel
-             is left uncapped, which is where the reaching actually reads. -->
-        <a class="contact__email" href="mailto:mohamedelhayyany@gmail.com"
-           data-reveal data-magnetic
-           data-magnet-radius="45vw" data-magnet-strength="180"
-           data-magnet-max-y="16">
-          <!-- The slow ambient glow behind the address on touch screens.
-               Its own element because ::before and ::after are already
-               the tap ripple and the underline. Empty and aria-hidden,
-               so the link still announces as just the address. -->
-          <span class="contact__pulse" aria-hidden="true"></span>
-          mohamedelhayyany@gmail.com
-        </a>
+        <h2 class="ct__head" data-reveal>
+          <span class="ct__headln">Let's Work</span>
+          <span class="ct__headln ct__headln--soft">Together</span>
+        </h2>
 
-        <a class="contact__phone" href="tel:+212694561949"
-           data-reveal data-magnetic
-           data-magnet-radius="40vw" data-magnet-strength="120"
-           data-magnet-max-y="16">
-          +212 694 561 949
-        </a>
+        <p class="ct__line" data-reveal>
+          Based in Morocco. <mark class="jr__hl">Working with the world</mark>.
+        </p>
 
-        <!-- The only one of the three that leaves the page, so it says so
-             twice: the arrow carries it visually, and the aria-label
-             carries it for a screen reader, which would otherwise reach a
-             link named "LinkedIn" with no warning it opens elsewhere.
-             Same magnet tuning as the phone, being the same size. -->
-        <a class="contact__linkedin"
-           href="https://www.linkedin.com/in/mohamed-elhayyany"
-           target="_blank" rel="noopener noreferrer"
-           aria-label="LinkedIn profile, opens in a new tab"
-           data-reveal data-magnetic
-           data-magnet-radius="40vw" data-magnet-strength="120"
-           data-magnet-max-y="16">
-          LinkedIn
-          <svg class="contact__arrow" viewBox="0 0 24 24" width="14" height="14"
-               fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M7 17 17 7M9 7h8v8"/>
-          </svg>
-        </a>
+        <!-- The scene and the three cards.
+
+             One device, two skins. .ct__lid is the laptop lid above 900px
+             and the whole phone body below it, and .ct__deck (which holds
+             the keyboard) moves from "the laptop base under the lid" to
+             "an on-screen keyboard inside the phone". That is why the
+             message text and the keys each exist once rather than twice:
+             two scenes would mean two copies of the same sentence, and
+             the one a screen reader found would be a coin toss.
+
+             Everything here degrades to a still picture. The lid's open
+             angle, the full sentence and the cards are the CSS default;
+             it is script.js that winds them back in order to play them,
+             and only after checking the motion setting. -->
+        <div class="ct">
+          <div class="ct__scene">
+            <div class="ct__dev" data-ct>
+
+              <div class="ct__lid">
+                <span class="ct__cam" aria-hidden="true"></span>
+
+                <div class="ct__screen">
+                  <div class="ct__win" data-ct-win>
+                    <div class="ct__winhead">
+                      <img class="ct__avatar" src="assets/images/portrait-cutout.png"
+                           alt="" width="36" height="36" loading="lazy" decoding="async">
+                      <span class="ct__who">Mohamed Elhayyany</span>
+                      <span class="ct__typing" data-ct-typing>
+                        is typing<span class="ct__tdot" aria-hidden="true"></span>
+                      </span>
+                    </div>
+
+                    <p class="ct__msg" data-ct-msg>Hi! Looking for someone who keeps customers, closes deals and grows the brand? Let's talk.<span class="ct__caret" data-ct-caret aria-hidden="true"></span></p>
+
+                    <p class="ct__sendrow">
+                      <span class="ct__send" data-ct-send>
+                        Send
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
+                             stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                             stroke-linejoin="round" aria-hidden="true">
+                          <path d="M4 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                      </span>
+                      <span class="ct__tick" data-ct-tick aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none"
+                             stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                             stroke-linejoin="round"><path d="m4 12 5 5L20 6"/></svg>
+                        Sent
+                      </span>
+                    </p>
+                  </div>
+
+                  <!-- The plane's dotted wake. Drawn with a dash offset so
+                       it appears behind the plane rather than all at once. -->
+                  <svg class="ct__wake" viewBox="0 0 320 200"
+                       aria-hidden="true" focusable="false">
+                    <path class="ct__wakeline" data-ct-wake
+                          d="M96 132 C140 126 196 106 236 70 C262 46 286 28 308 18"/>
+                  </svg>
+
+                  <span class="ct__plane" data-ct-plane aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"
+                         focusable="false"><path d="M21.6 2.4 2.7 10.2c-.7.3-.7 1.3.1 1.5l5.3 1.6 2 5.5c.3.8 1.3.8 1.6.1l2-4 4.3 3.2c.6.4 1.4.1 1.6-.6l3-13.5c.2-.8-.6-1.4-1-1.6zM9.4 13.6l8.1-6.9-6.3 7.7-.1 3z"/></svg>
+                  </span>
+
+                  <!-- What the screen is left showing once the plane has
+                       gone. Without it the laptop ends the run as a blank
+                       beige rectangle, which reads as something having
+                       failed rather than as the message having been sent. -->
+                  <p class="ct__done" data-ct-done aria-hidden="true">
+                    <span class="ct__doneico">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+                           stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                           stroke-linejoin="round" focusable="false"><path d="m4 12 5 5L20 6"/></svg>
+                    </span>
+                    Message sent
+                  </p>
+
+                  <span class="ct__ptr" data-ct-ptr aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="20" height="20" focusable="false">
+                      <path d="M5 2.5 18.5 11 12 12.3 9.4 18.6z" fill="#111111"
+                            stroke="#f4f1ea" stroke-width="1.4" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Decorative: a screen reader gaining nothing from
+                   twenty-seven letters read out one at a time. -->
+              <div class="ct__deck" aria-hidden="true">
+                <div class="ct__keys">
+                  <span class="ct__krow">
+                    <span class="ct__key" data-key="q">Q</span><span class="ct__key" data-key="w">W</span><span class="ct__key" data-key="e">E</span><span class="ct__key" data-key="r">R</span><span class="ct__key" data-key="t">T</span><span class="ct__key" data-key="y">Y</span><span class="ct__key" data-key="u">U</span><span class="ct__key" data-key="i">I</span><span class="ct__key" data-key="o">O</span><span class="ct__key" data-key="p">P</span>
+                  </span>
+                  <span class="ct__krow ct__krow--b">
+                    <span class="ct__key" data-key="a">A</span><span class="ct__key" data-key="s">S</span><span class="ct__key" data-key="d">D</span><span class="ct__key" data-key="f">F</span><span class="ct__key" data-key="g">G</span><span class="ct__key" data-key="h">H</span><span class="ct__key" data-key="j">J</span><span class="ct__key" data-key="k">K</span><span class="ct__key" data-key="l">L</span>
+                  </span>
+                  <span class="ct__krow ct__krow--c">
+                    <span class="ct__key" data-key="z">Z</span><span class="ct__key" data-key="x">X</span><span class="ct__key" data-key="c">C</span><span class="ct__key" data-key="v">V</span><span class="ct__key" data-key="b">B</span><span class="ct__key" data-key="n">N</span><span class="ct__key" data-key="m">M</span>
+                  </span>
+                  <span class="ct__krow">
+                    <span class="ct__key ct__key--space" data-key=" "></span>
+                  </span>
+                </div>
+                <span class="ct__lip" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <p class="ct__replaywrap">
+              <button class="ct__replay" type="button" data-ct-replay hidden>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none"
+                     stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 12a9 9 0 1 0 2.6-6.4M3 4v5h5"/>
+                </svg>
+                Replay
+              </button>
+            </p>
+          </div>
+
+          <ul class="ct__cards" data-ct-cards>
+            <li class="ct__card">
+              <span class="ct__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="m3.5 7.5 8.5 6 8.5-6"/></svg>
+              </span>
+              <p class="ct__lab">Email</p>
+              <!-- The address is one unbreakable 26-character run and the
+                   card is narrower than that in the three-across layout.
+                   <wbr> gives the browser a break point it would rather
+                   use than the middle of "gmail". -->
+              <a class="ct__val" href="mailto:mohamedelhayyany@gmail.com">mohamedelhayyany<wbr>@gmail.com</a>
+              <button class="ct__act" type="button"
+                      data-ct-copy="mohamedelhayyany@gmail.com">
+                <span data-ct-copylabel aria-live="polite">Copy</span>
+              </button>
+            </li>
+
+            <li class="ct__card">
+              <span class="ct__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                     stroke-linejoin="round"><path d="M6.5 3h3l1.5 4-2 1.5a12 12 0 0 0 6.5 6.5L17 13l4 1.5v3a2 2 0 0 1-2.2 2A16.5 16.5 0 0 1 4 5.2 2 2 0 0 1 6 3z"/></svg>
+              </span>
+              <p class="ct__lab">Phone</p>
+              <a class="ct__val" href="tel:+212694561949">+212 694 561 949</a>
+              <a class="ct__act" href="https://wa.me/212694561949"
+                 target="_blank" rel="noopener noreferrer"
+                 aria-label="WhatsApp, opens in a new tab">WhatsApp</a>
+            </li>
+
+            <li class="ct__card">
+              <span class="ct__ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4v11H3zM10 9.5h3.8v1.5a4.2 4.2 0 0 1 3.7-1.9c3 0 4.5 1.9 4.5 5.2v6.2h-4v-5.6c0-1.5-.5-2.5-1.9-2.5-1.1 0-1.8.7-2 1.5v6.6h-4z"/></svg>
+              </span>
+              <p class="ct__lab">LinkedIn</p>
+              <!-- The URL is gone from the face of the card: nobody reads a
+                   profile slug, and it was the one value long enough to
+                   break over two lines. The name says whose profile it is
+                   and the button says what happens. -->
+              <p class="ct__val">Mohamed Elhayyany</p>
+              <a class="ct__act ct__act--stretch"
+                 href="https://www.linkedin.com/in/mohamed-elhayyany"
+                 target="_blank" rel="noopener noreferrer"
+                 aria-label="LinkedIn profile of Mohamed Elhayyany, opens in a new tab">
+                View profile
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none"
+                     stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+                     stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 17 17 7M9 7h8v8"/>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -1050,7 +1514,7 @@
     <div class="wrap footer__inner">
       <p class="footer__name">Mohamed Elhayyany</p>
       <p class="footer__meta">
-        Technical Customer Success Manager · Marrakech, Morocco ·
+        Technical Customer Success Manager ·
         <span id="footer-year"></span>
       </p>
     </div>
@@ -1099,6 +1563,6 @@
 
   </div>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>
