@@ -17,6 +17,357 @@
      revealable content hidden. Without this class it stays visible. */
   document.documentElement.classList.add('js');
 
+  /* ------------------------------------------------------------------
+     STEP 10 - theme
+
+     First, because the rest of the file reads the theme (the particle
+     field picks its colours from it) and because the toggle should work
+     from the first frame a visitor can reach it.
+
+     The attribute on <html> is already correct by the time this runs: the
+     inline block in <head> set it before the stylesheet was requested,
+     which is what stops the page flashing light before it turns dark.
+     What is left here is the button, the saving, and keeping the page in
+     step with the system setting for anyone who has not chosen yet.
+     ------------------------------------------------------------------ */
+
+  /* Filled in by the atmosphere block far below, which is inside an `if`
+     and therefore cannot expose a function declaration to this scope in
+     strict mode. Null until then, and null forever on a device that never
+     starts the canvas at all, which is why every call site checks. */
+  var applyParticleTheme = null;
+
+  var root = document.documentElement;
+  var themeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  var themeToggles = document.querySelectorAll('[data-theme-toggle]');
+  var themeTimer = null;
+
+  /* Whether the visitor has made a choice, as opposed to being shown the
+     system's. Read once: after the first toggle it is true for good. */
+  var themeChosen = false;
+
+  try {
+    var saved = localStorage.getItem('theme');
+    themeChosen = saved === 'dark' || saved === 'light';
+  } catch (err) {
+    /* Storage can throw outright, not just return null, in a locked-down
+       browser. Nothing breaks: the page follows the system setting and
+       the toggle still works for the length of the visit. */
+    themeChosen = false;
+  }
+
+  function currentTheme() {
+    return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  /* The button always offers the other one, so its label is the opposite
+     of what is on screen */
+  function labelThemeToggles(theme) {
+    var label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+
+    for (var i = 0; i < themeToggles.length; i++) {
+      themeToggles[i].setAttribute('aria-label', label);
+      themeToggles[i].setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+    }
+  }
+
+  function applyTheme(theme, animate) {
+    if (animate) {
+      /* On for the length of the crossfade and then off again, so no
+         element on the page is left carrying a transition it did not ask
+         for. See the .is-theming block in style.css. */
+      root.classList.add('is-theming');
+
+      if (themeTimer) { clearTimeout(themeTimer); }
+
+      themeTimer = setTimeout(function () {
+        themeTimer = null;
+        root.classList.remove('is-theming');
+      }, 320);
+    }
+
+    root.setAttribute('data-theme', theme);
+    labelThemeToggles(theme);
+
+    /* The canvas is painted, not styled, so it cannot inherit any of
+       this. It is told. */
+    if (applyParticleTheme) { applyParticleTheme(); }
+  }
+
+  labelThemeToggles(currentTheme());
+
+  for (var tg = 0; tg < themeToggles.length; tg++) {
+    themeToggles[tg].addEventListener('click', function () {
+      var next = currentTheme() === 'dark' ? 'light' : 'dark';
+
+      themeChosen = true;
+
+      try {
+        localStorage.setItem('theme', next);
+      } catch (err) {
+        /* Same as above: the choice holds for this visit and is forgotten
+           on the next one, which beats the button not working at all. */
+      }
+
+      applyTheme(next, true);
+    });
+  }
+
+  /* The system setting no longer drives anything. The site opens dark on
+     a first visit whatever the device says, so following that setting
+     mid-visit would move the page out from under someone who never asked
+     for it. themeQuery is kept only so the media query object still
+     exists for anything that reads it. */
+
+  /* ------------------------------------------------------------------
+     STEP 11 - the phone intro
+
+     Two jobs: hold the hero back until it can be measured, then play it.
+
+     THE HOLD. The inline block in <head> put .is-loading on <html> and
+     armed a 1600ms fallback of its own, so a failure in this file cannot
+     leave the page covered. This does the proper version: uncover once
+     the fonts are in AND the portrait has decoded, because both of those
+     move the hero's layout and an intro that plays against reflowing text
+     is the thing it was added to replace.
+
+     THE SPLIT. The wordmark's letters are wrapped one at a time so they
+     can rise out of a clip box. That happens ONLY below 900px and only
+     once: on desktop the wordmark is the element the hero-to-sidebar FLIP
+     measures and morphs, and inline-block letters do not carry the same
+     text metrics as a plain run, which would put that landing off. The
+     desktop markup stays exactly as it was.
+
+     Everything here is written to the iOS rules in CLAUDE.md: var only,
+     no optional chaining, no nullish coalescing, no template literals,
+     rAF rather than timers for anything that paints.
+     ------------------------------------------------------------------ */
+
+  var miMobile = window.matchMedia('(max-width: 899px)');
+  var miDone = false;
+
+  function miSplitWordmark() {
+    var word = document.getElementById('hx-word');
+
+    if (!word || word.getAttribute('data-mi-split') === '1') { return; }
+
+    var linesList = word.querySelectorAll('.hx__ln');
+    var total = 0;
+
+    for (var l = 0; l < linesList.length; l++) {
+      var line = linesList[l];
+      var text = line.textContent;
+      var frag = document.createDocumentFragment();
+
+      for (var c = 0; c < text.length; c++) {
+        /* Each letter is its own clip box with the glyph inside it. A
+           single overflow:hidden on the LINE would clip sideways too, and
+           at -0.02em tracking the outer letters sit right on that edge. */
+        var clip = document.createElement('span');
+        clip.className = 'mi__letter';
+        clip.style.animationDelay = (total * 30) + 'ms';
+
+        var glyph = document.createElement('i');
+        glyph.textContent = text.charAt(c);
+
+        clip.appendChild(glyph);
+        frag.appendChild(clip);
+        total++;
+      }
+
+      line.textContent = '';
+      line.appendChild(frag);
+    }
+
+    word.setAttribute('data-mi-split', '1');
+  }
+
+  function miStart() {
+    if (miDone) { return; }
+    miDone = true;
+
+    if (miMobile.matches) { miSplitWordmark(); }
+
+    document.documentElement.classList.remove('is-loading');
+
+    /* Next frame, so the uncovering and the first animation frame are not
+       the same paint. Released together, the browser coalesces them and
+       the intro starts already part-way through. */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        document.documentElement.classList.add('is-intro');
+
+        /* The intro's animations are filled, so they own transform,
+           opacity and filter for good and any inline write is ignored
+           while they are on. Dropping them once the run is over is what
+           lets the scroll parallax take over. 2100ms is the last beat
+           (the top bar at 1600 plus its 380) with a margin. */
+        window.setTimeout(function () {
+          document.documentElement.classList.add('is-settled');
+        }, 2100);
+      });
+    });
+  }
+
+  /* The safety net. 1500ms as briefed, and deliberately shorter than the
+     inline fallback so this is normally the one that fires. */
+  var miTimer = window.setTimeout(miStart, 1500);
+
+  function miReady() {
+    var waits = [];
+
+    if (document.fonts && document.fonts.ready) {
+      waits.push(document.fonts.ready);
+    }
+
+    var portrait = document.getElementById('hx-portrait');
+
+    if (portrait) {
+      if (portrait.decode) {
+        /* decode() rejects on a broken image, and a broken portrait is no
+           reason to keep the hero hidden */
+        waits.push(portrait.decode().catch(function () { return null; }));
+      } else if (!portrait.complete) {
+        waits.push(new Promise(function (resolve) {
+          portrait.addEventListener('load', resolve);
+          portrait.addEventListener('error', resolve);
+        }));
+      }
+    }
+
+    if (!waits.length || !window.Promise) { return; }
+
+    Promise.all(waits).then(function () {
+      window.clearTimeout(miTimer);
+      miStart();
+    });
+  }
+
+  miReady();
+
+  /* Once per page load. A theme toggle or a resize crossing 900px must
+     not replay it, which is why miDone is checked rather than the class:
+     the class is what CSS animates from and re-adding it would restart
+     every keyframe. */
+
+  /* ------------------------------------------------------------------
+     STEP 13 - the phone's hero parallax
+
+     Everything in the hero is carried out of the way on scroll, at
+     different rates, so the layers come apart instead of sliding off as
+     one picture. The portrait lags the page, the name outruns it, and
+     the copy leaves first.
+
+     Read from scrollY on a rAF rather than played on a timer, which is
+     what makes it exact in both directions: scrolling back up runs it
+     backwards through the same numbers rather than replaying an
+     animation in reverse.
+
+     transform and opacity only, plus a blur on the portrait. Nothing here
+     can move the layout: the hero is a fixed height and every element
+     keeps its box. -------------------------------------------------- */
+
+  var hxPortrait = document.getElementById('hx-portrait');
+  var hxWord = document.getElementById('hx-word');
+  var hxLead = document.getElementById('hx-lead');
+  var hxHero = document.querySelector('.hx');
+
+  if (hxPortrait && hxHero) {
+    var hxTicking = false;
+    var hxOn = false;
+
+    /* The shadow has to be repeated in every filter this writes, for the
+       same reason the keyframes carry it: whatever sets `filter` last
+       owns the whole property. */
+    var HX_SHADOW = 'drop-shadow(0 12px 28px var(--shadow-2))';
+
+    function hxClamp(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+    function hxClear(el) {
+      if (!el) { return; }
+      el.style.transform = '';
+      el.style.opacity = '';
+      el.style.filter = '';
+    }
+
+    function hxDraw() {
+      hxTicking = false;
+
+      /* Desktop has the morph, which owns these same properties. The two
+         must never both be writing. */
+      if (!miMobile.matches) {
+        if (hxOn) {
+          hxOn = false;
+          hxClear(hxPortrait);
+          hxClear(hxWord);
+          hxClear(hxLead);
+        }
+        return;
+      }
+
+      hxOn = true;
+
+      var run = hxHero.offsetHeight || window.innerHeight || 1;
+      var p = hxClamp(window.scrollY / run);
+      var soft = reducedMotion.matches;
+
+      /* The intro normally hands these properties back on a timer. If the
+         visitor scrolls before that timer fires, they want the parallax
+         more than they want the rest of the intro, so the handover
+         happens here instead. Belt and braces: whichever comes first. */
+      if (p > 0.01) { document.documentElement.classList.add('is-settled'); }
+
+      /* The copy goes first and is gone by 0.6, so the portrait is alone
+         on screen for the second half of the hero rather than everything
+         leaving together. */
+      var leadOut = hxClamp(p / 0.6);
+      /* The portrait holds its opacity until halfway, then fades out. */
+      var fade = hxClamp((p - 0.5) / 0.5);
+
+      if (soft) {
+        /* Fade only: no parallax, no blur, no scale. The layers still
+           leave in order, they just do not travel to do it. */
+        hxPortrait.style.transform = '';
+        hxPortrait.style.filter = HX_SHADOW;
+        hxPortrait.style.opacity = (1 - fade).toFixed(3);
+
+        if (hxWord) { hxWord.style.transform = ''; hxWord.style.opacity = (1 - leadOut * 0.85).toFixed(3); }
+        if (hxLead) { hxLead.style.transform = ''; hxLead.style.opacity = (1 - leadOut).toFixed(3); }
+        return;
+      }
+
+      /* -15% of the distance scrolled, so it lags the page by that much */
+      var pShift = -(p * run * 0.15);
+      var pScale = 1 + p * 0.06;
+
+      hxPortrait.style.transform =
+        'translate3d(0, ' + pShift.toFixed(1) + 'px, 0) scale(' + pScale.toFixed(4) + ')';
+      hxPortrait.style.opacity = (1 - fade).toFixed(3);
+      hxPortrait.style.filter = HX_SHADOW + ' blur(' + (fade * 10).toFixed(2) + 'px)';
+
+      /* Twice the portrait's rate, so the two visibly come apart rather
+         than travelling together */
+      if (hxWord) {
+        hxWord.style.transform = 'translate3d(0, ' + (-(p * run * 0.3)).toFixed(1) + 'px, 0)';
+        hxWord.style.opacity = (1 - leadOut * 0.85).toFixed(3);
+      }
+
+      if (hxLead) {
+        hxLead.style.transform = 'translate3d(0, ' + (-(leadOut * 60)).toFixed(1) + 'px, 0)';
+        hxLead.style.opacity = (1 - leadOut).toFixed(3);
+      }
+    }
+
+    function hxQueue() {
+      if (!hxTicking) { hxTicking = true; requestAnimationFrame(hxDraw); }
+    }
+
+    window.addEventListener('scroll', hxQueue, { passive: true });
+    window.addEventListener('resize', hxQueue);
+    if (miMobile.addEventListener) { miMobile.addEventListener('change', hxQueue); }
+    hxQueue();
+  }
+
   /* Read once and shared by everything below */
   var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   /* Deliberately not the same as finePointer above — this mirrors the
@@ -376,6 +727,43 @@
 
     var sbLogo = document.getElementById('sb-logo');
     var sbLogoIn = sb.querySelector('.sb__logoin');
+
+    /* The colour the flying pill's text starts from: whatever --name is
+       for the current theme. Cached, and only re-read when data-theme
+       actually changes, so the per-frame cost is one string compare
+       rather than a getComputedStyle. */
+    var nameRGB = [245, 229, 0];
+    var nameInk = '#111111';
+    var nameSW = 0;      /* --name-sw in em, 0 in dark */
+    var nameTheme = null;
+
+    function readNameRGB() {
+      var th = document.documentElement.getAttribute('data-theme');
+
+      if (th === nameTheme) { return; }
+
+      nameTheme = th;
+
+      var cs = getComputedStyle(document.documentElement);
+      var v = cs.getPropertyValue('--name').trim();
+      var m = v.match(/^#([0-9a-fA-F]{6})$/);
+
+      if (m) {
+        nameRGB = [
+          parseInt(m[1].slice(0, 2), 16),
+          parseInt(m[1].slice(2, 4), 16),
+          parseInt(m[1].slice(4, 6), 16)
+        ];
+      }
+
+      /* The rim. Read in em and kept in em: the pill is scaled by a CSS
+         transform for the whole flight, so an em-based stroke rides that
+         scale for free and stays a hairline relative to the letters at
+         every size on the way. A px value would have to be divided by the
+         scale on every frame. */
+      nameInk = cs.getPropertyValue('--name-ink').trim() || 'transparent';
+      nameSW = parseFloat(cs.getPropertyValue('--name-sw')) || 0;
+    }
     var sbLinks = [].slice.call(sb.querySelectorAll('[data-sb-link]'));
     var sbStats = [].slice.call(sb.querySelectorAll('.sb__stat'));
     var sbResume = document.getElementById('sb-resume');
@@ -592,6 +980,16 @@
           el.style.removeProperty('--bgo');
           el.style.removeProperty('--bgs');
           el.style.removeProperty('--pill');
+          /* The outline the morph wrote onto the flying copy. Left behind
+             it would keep a stale rim on the resting pill, which the brief
+             says must not change.
+
+             The SHORTHAND, not the two longhands it was written through:
+             setting style.webkitTextStrokeWidth serialises into
+             `-webkit-text-stroke`, and removing the longhands leaves that
+             shorthand sitting in the inline style. */
+          el.style.removeProperty('-webkit-text-stroke');
+          el.style.removeProperty('text-shadow');
         });
 
       var icons = sb.querySelectorAll('.sb__ico');
@@ -697,10 +1095,29 @@
         var shrunk = 1 / (sbLogo.__s || 1);
         var ink = win(shrunk, 0.33, 0.72);
 
+        /* This used to interpolate from a hard-coded 245,229,0. That was
+           the yellow that survived into light mode: the flying pill's
+           text started yellow whatever the page was, and only turned
+           near-black on the last third of the journey. It reads --name
+           now, so it starts as whatever the hero wordmark actually is.
+           In light mode that is the same near-black it ends on, so there
+           is no colour change left to see; in dark it is the yellow it
+           always was. */
+        readNameRGB();
+
         sbLogoIn.style.color = 'rgb(' +
-          Math.round(245 - 228 * ink) + ', ' +
-          Math.round(229 - 212 * ink) + ', ' +
-          Math.round(17 * ink) + ')';
+          Math.round(nameRGB[0] + (17 - nameRGB[0]) * ink) + ', ' +
+          Math.round(nameRGB[1] + (17 - nameRGB[1]) * ink) + ', ' +
+          Math.round(nameRGB[2] + (17 - nameRGB[2]) * ink) + ')';
+
+        /* The light-theme rim leaves on exactly the window the colour
+           arrives on. It has to: the rim exists because yellow on beige is
+           1.05:1, and the moment the letters turn to ink on a yellow pill
+           that problem is gone and a black rim round black letters is just
+           mud. In dark nameSW is 0 and the write is a no-op. */
+        sbLogoIn.style.webkitTextStrokeWidth =
+          (nameSW * (1 - ink)).toFixed(5) + 'em';
+        sbLogoIn.style.webkitTextStrokeColor = nameInk;
 
         sbLogo.style.setProperty('--pill', win(shrunk, 0.62, 0.97).toFixed(3));
       }
@@ -1097,7 +1514,13 @@
 
   var splitTargets = document.querySelectorAll('[data-split-reveal]');
 
-  if (splitTargets.length && !reducedMotion.matches && 'IntersectionObserver' in window) {
+  /* STEP 11: no longer gated on the motion setting. The character reveal
+     runs in both modes; under reduced motion the stylesheet caps each
+     character's rise to --rm-shift, so it fades in place rather than
+     climbing out of its clip box. (Nothing on the page currently carries
+     [data-split-reveal] since the old Contact heading was replaced, so
+     this is the contract for the next thing that does.) */
+  if (splitTargets.length && 'IntersectionObserver' in window) {
 
     function splitChars(el) {
       var index = 0;
@@ -1453,18 +1876,37 @@
         if (glideId) { cancelAnimationFrame(glideId); glideId = 0; }
       }
 
-      /* Settle on whichever card is nearest where the throw ran out */
+      /* Settle on whichever card is nearest where the throw ran out.
+
+         "Nearest card" is not the same as "nearest multiple of one card".
+         The run almost never divides by the card pitch: three 620px cards
+         with 20px gaps in a 1032px window give 908px of travel against a
+         640px pitch, so the last card's own start sits at 1280, which is
+         372px past the end of the scroll and can never be reached. Round
+         to the pitch alone and a drag that had already arrived at 908 was
+         sent back to 640 — the third card left two thirds off the screen,
+         the dash indicator stuck on the second, and dragging again did
+         nothing at all, because 908 always rounds back to the same place.
+
+         The end of the run is therefore a resting position in its own
+         right, and it wins whenever it is the closer of the two. That is
+         also what puts the last card fully on screen with the trailing
+         gutter behind it, which is the whole reason the gutter is
+         there. */
       function settle() {
         var card = row.firstElementChild;
 
         if (!card) { row.classList.remove('is-snap-suspended'); return; }
 
         var per = step();
-        var target = Math.round(row.scrollLeft / per) * per;
+        var at = row.scrollLeft;
         var max = maxScroll();
+        var target = Math.round(at / per) * per;
 
         if (target > max) { target = max; }
         if (target < 0) { target = 0; }
+
+        if (Math.abs(max - at) < Math.abs(target - at)) { target = max; }
 
         row.scrollTo({ left: target, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
 
@@ -2050,9 +2492,46 @@
     /* Violet and a warm dark grey. On the old near-black page these were
        violet and amber and worked by being brighter than the background;
        on beige they have to work by being darker than it, so the second
-       colour is a grey-brown rather than a second accent. */
-    var PARTICLE_RGB = ['124, 58, 237', '90, 84, 74'];
+       colour is a grey-brown rather than a second accent.
+
+       STEP 10: and on a dark page they have to go back to being lighter
+       than it, so there are two sets and a pair of alpha multipliers. The
+       brief asks for lower opacity in dark mode, which is also what the
+       physics of the thing wants: a light mote on near-black is far more
+       visible than a dark one on beige at the same alpha. */
+    var PARTICLE_SETS = {
+      light: ['124, 58, 237', '90, 84, 74'],
+      dark:  ['167, 139, 250', '190, 182, 168']
+    };
+    var PARTICLE_ALPHA = { light: 1, dark: 0.55 };
+
+    var PARTICLE_RGB = PARTICLE_SETS.light;
+    var particleAlpha = 1;
+
     var particles = [];
+
+    /* Assigned to the outer variable rather than declared, so the theme
+       module at the top of this file can reach it: this whole block sits
+       inside an `if`, and a function declaration in a block is scoped to
+       that block under strict mode.
+
+       Re-read on every theme change. The particles themselves are not
+       rebuilt: each keeps its position and drift and only its colour
+       string is swapped, so the field does not visibly restart. */
+    applyParticleTheme = function () {
+      var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var set = dark ? PARTICLE_SETS.dark : PARTICLE_SETS.light;
+
+      PARTICLE_RGB = set;
+      particleAlpha = dark ? PARTICLE_ALPHA.dark : PARTICLE_ALPHA.light;
+
+      for (var pi = 0; pi < particles.length; pi++) {
+        particles[pi].rgb = set[pi % set.length];
+      }
+    };
+
+    /* The page may have loaded straight into dark mode */
+    applyParticleTheme();
 
     var pointerX = -9999;
     var pointerY = -9999;
@@ -2268,7 +2747,7 @@
 
         atmosCtx.beginPath();
         atmosCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        atmosCtx.fillStyle = 'rgba(' + p.rgb + ', ' + drawAlpha + ')';
+        atmosCtx.fillStyle = 'rgba(' + p.rgb + ', ' + (drawAlpha * particleAlpha) + ')';
         atmosCtx.fill();
       }
 
@@ -2292,7 +2771,7 @@
 
         atmosCtx.beginPath();
         atmosCtx.arc(sp.x, sp.y, sparkleR, 0, Math.PI * 2);
-        atmosCtx.fillStyle = 'rgba(' + sp.rgb + ', ' + sparkleAlpha + ')';
+        atmosCtx.fillStyle = 'rgba(' + sp.rgb + ', ' + (sparkleAlpha * particleAlpha) + ')';
         atmosCtx.fill();
       }
     }
@@ -2527,6 +3006,22 @@
     var jrItems = [].slice.call(jr.querySelectorAll('[data-jr-item]'));
     var jrNarrow = window.matchMedia('(max-width: 899px)');
 
+    /* Lifted out of the cards into their own layer above the line. Taken
+       by reference first, so everything below still addresses them by
+       index and nothing has to go looking for them inside a card again. */
+    var jrDotLayer = document.getElementById('jr-dots');
+    var jrDots = [];
+
+    (function () {
+      for (var i = 0; i < jrItems.length; i++) {
+        var dot = jrItems[i].querySelector('[data-jr-dot]');
+
+        jrDots.push(dot || null);
+
+        if (dot && jrDotLayer) { jrDotLayer.appendChild(dot); }
+      }
+    })();
+
     var anchors = [];      /* {x, y} in .jr coordinates */
     var marks = [];        /* length along the path at each anchor */
     var mainLen = 0;
@@ -2537,11 +3032,77 @@
 
     function win(p, from, to) { return clamp01((p - from) / (to - from)); }
 
+    /* ---- the curve's one construction -------------------------------
+       There is no table any more and nothing varies from segment to
+       segment. Every gap between two dots is ONE cubic bezier, built the
+       same way, which is what makes the line read as drawn by an
+       instrument rather than by a hand.
+
+       Both handles are the same vector: out of the first dot it is
+       +(hx, hy), and into the second dot it is the same vector subtracted
+       from the end point. Two things follow, and they are the whole
+       design:
+
+       SYMMETRY. The control polygon is A, A+h, B-h, B. Rotate that 180
+       degrees about the segment's midpoint and it maps onto itself, so
+       every S-curve is balanced about its own centre.
+
+       NO KINK. The tangent leaving a dot and the tangent arriving at it
+       are the same vector at every dot on the path, so they are collinear
+       by construction rather than by tuning. There is no seam to see
+       because there is no seam.
+
+         JR_HX  the horizontal half-reach of each sweep, as a fraction of
+                the content width. This is what makes the curve wide: a
+                handle longer than the gap between the two dots pushes the
+                curve out past both of them before it comes back.
+         JR_HY  the vertical part of the same handle, as a fraction of the
+                segment's height. It is what stops the sweep curling back
+                on itself and keeps the line travelling down the page.
+       ---------------------------------------------------------------- */
+    /* The handle is PURELY VERTICAL, and that is forced, not chosen.
+
+       Three things were asked of this curve at once: one symmetric cubic
+       per segment, tangents collinear through every dot, and the same
+       horizontal amplitude in every segment. Give the handle any
+       horizontal component and the third fails: the handle points one way
+       while the dots alternate sides, so the segment running with the
+       handle gets no overshoot and the segment running against it gets a
+       lot. Measured, that was 261px of reach on one segment and 648px on
+       the next, from an identical construction.
+
+       A vertical handle has no direction to disagree with. Every segment
+       then reaches exactly as far as the gap between its two dots, which
+       is the same gap every time now that the card indents are uniform.
+       The width comes from where the dots are, and the bezier only has to
+       be even. */
+    /* 0.72 rather than 0.5: the handle is most of the segment's height,
+       which holds the curve near vertical as it leaves a dot and puts all
+       of the crossing into the middle. At 0.55 the middle was long enough
+       to read as a straight diagonal with rounded ends rather than as a
+       sweep. */
+    var JR_HY = 0.72;
+    var JR_WAVE_H = 69;   /* gives the phone's wave a 40px reach */
+
+    /* Stroke half-width plus the dot's radius: the margin the curve has
+       to stay inside so it never reaches the page edge or adds a
+       horizontal scrollbar. */
+    var JR_WAVE = 20;      /* the phone's tail, per the brief */
+    /* How far below each card's centre the line runs. A translation, not
+       a stretch: every anchor moves by the same amount, so the path keeps
+       its length and the section keeps its height. */
+    var JR_DROP = 40;
+
+    /* With a vertical handle the curve can never leave the box its two
+       dots are in, so there is nothing left to clamp and nothing to
+       solve. The old fitter and its cubic-extreme solver went with the
+       horizontal handle that needed them. */
+
     /* ---- where the line has to pass ---------------------------------
-       Beside each card, on the side the line runs down: level with the
-       card's middle and just outside the thin rule. On a phone the cards
-       are a single column, so every anchor shares one x and the same
-       spline comes out as a straight rail. */
+       Beside each card, on the side facing the middle of the column:
+       level with the card's centre and just outside the thin rule. The
+       side is recorded here rather than worked out again later, because
+       it is what decides which way each sweep goes. */
     function readAnchors() {
       var box = jr.getBoundingClientRect();
       var narrow = jrNarrow.matches;
@@ -2555,60 +3116,127 @@
         var right = jrItems[i].classList.contains('jr__item--r');
 
         out.push({
-          x: narrow ? 22 : (right ? r.left - box.left - 22 : r.right - box.left + 22),
-          y: r.top - box.top + r.height / 2
+          /* The OUTER edge, not the inner one. The inner edges of two
+             540px cards in a 1028px column are only about 96px apart, and
+             the reach of a segment is exactly the distance between its two
+             dots, so anchoring there caps the sweep at 96px however the
+             bezier is built. On the outer edges they are most of the
+             column apart, which is where the width comes from. */
+          x: narrow ? 22 : (right ? r.right - box.left : r.left - box.left),
+          /* JR_DROP sits the whole path a little below the cards' centre
+             line. Adding it to every anchor moves the curve and the dots
+             together, so the dots stay on the path by construction rather
+             than needing their own correction, and the path is translated
+             rather than stretched: same length, same section height. */
+          y: r.top - box.top + r.height / 2 + JR_DROP,
+          side: right ? 1 : -1
         });
       }
 
       return out;
     }
 
-    /* ---- Catmull-Rom through the anchors, emitted as cubic beziers ----
-       The tension is under 1 on purpose: at full strength a spline
-       through points this far apart swings out past the cards on the
-       turns. */
-    function spline(pts) {
+    /* ---- the curve ----------------------------------------------------
+       One symmetric cubic per gap, every gap built identically. The
+       handle vector is the same at both ends of every segment and at
+       every dot on the path, which is what gives continuous tangents
+       with nothing to tune.
+
+       The line runs BEHIND the cards. Each card hides the stretch passing
+       under it and the curve reappears on the other side, so the sweeps
+       read as one continuous route glimpsed between the cards rather than
+       as a ribbon laid over them. That is why it is back at full opacity:
+       the cards do the hiding, so the line does not have to apologise for
+       being there.
+       ------------------------------------------------------------------ */
+    function ribbon(pts) {
       if (pts.length < 2) { return ''; }
 
-      var k = 0.72;
+      var box = jr.getBoundingClientRect();
+      var W = box.width;
+      var narrow = jrNarrow.matches;
       var d = 'M' + pts[0].x.toFixed(1) + ',' + pts[0].y.toFixed(1);
+      var i;
 
-      for (var i = 0; i < pts.length - 1; i++) {
-        var p0 = pts[i - 1] || pts[i];
-        var p1 = pts[i];
-        var p2 = pts[i + 1];
-        var p3 = pts[i + 2] || p2;
+      /* The phone keeps a rail with a lean on it: the same one-cubic
+         construction, with the horizontal reach cut to 20px so it reads
+         as a gentle wave down the left rather than a sweep across. */
+      /* The phone is the one place a horizontal handle is safe: both dots
+         share an x, so there is no direction for it to disagree with and
+         both alternating segments come out identical anyway. 69 is the
+         handle that yields the 20px each way the brief asks for. */
+      if (narrow) {
+        for (i = 0; i < pts.length - 1; i++) {
+          var na = pts[i];
+          var nb = pts[i + 1];
+          var nhy = (nb.y - na.y) * JR_HY;
 
-        d += ' C' + (p1.x + (p2.x - p0.x) * k / 6).toFixed(1) +
-             ',' + (p1.y + (p2.y - p0.y) * k / 6).toFixed(1) +
-             ' ' + (p2.x - (p3.x - p1.x) * k / 6).toFixed(1) +
-             ',' + (p2.y - (p3.y - p1.y) * k / 6).toFixed(1) +
-             ' ' + p2.x.toFixed(1) + ',' + p2.y.toFixed(1);
+          /* Mirrored, exactly like the desktop segments: +h out and -h in.
+             Both dots share an x here, so one mirrored pair is one full
+             wave, out to +20px and back through -20px. Two handles on the
+             SAME side would be a one-sided bulge instead, and a 52px one
+             at that. */
+          d += ' C' + (na.x + JR_WAVE_H).toFixed(1) + ',' + (na.y + nhy).toFixed(1) +
+               ' ' + (nb.x - JR_WAVE_H).toFixed(1) + ',' + (nb.y - nhy).toFixed(1) +
+               ' ' + nb.x.toFixed(1) + ',' + nb.y.toFixed(1);
+        }
+
+        return d;
+      }
+
+      for (i = 0; i < pts.length - 1; i++) {
+        var a = pts[i];
+        var b = pts[i + 1];
+        var hy = (b.y - a.y) * JR_HY;
+
+        /* A + (0, hy) and B - (0, hy). Nothing else: equal handles,
+           mirrored about the segment's midpoint, vertical at both ends,
+           so the tangent through every dot is the same line and the
+           segments meet with nothing to see. */
+        d += ' C' + a.x.toFixed(1) + ',' + (a.y + hy).toFixed(1) +
+             ' ' + b.x.toFixed(1) + ',' + (b.y - hy).toFixed(1) +
+             ' ' + b.x.toFixed(1) + ',' + b.y.toFixed(1);
       }
 
       return d;
     }
 
-    /* The dashed run-on past the last card, continuing in the direction
-       the line was already travelling rather than dropping straight down */
+    /* The short dashed run-on past the last card. It leaves on the same
+       handle vector the solid path arrives on, so the dashes carry on the
+       curve's direction rather than starting a new shape, then eases to a
+       stop. This is the only dashed thing on the path. */
     function tailPath(pts) {
-      if (pts.length < 2) { return ''; }
+      if (!pts.length) { return ''; }
 
       var last = pts[pts.length - 1];
-      var prev = pts[pts.length - 2];
-      var dx = last.x - prev.x;
-      var dy = last.y - prev.y;
-      var len = Math.sqrt(dx * dx + dy * dy) || 1;
-      var run = jrNarrow.matches ? 90 : 150;
+      var box = jr.getBoundingClientRect();
+      var W = box.width;
 
-      /* Damped sideways so the tail trails off downward rather than
-         shooting out toward the edge of the page */
-      var ux = (dx / len) * 0.35;
-      var uy = Math.abs(dy / len);
+      if (jrNarrow.matches) {
+        var nRun = 90;
+        return 'M' + last.x.toFixed(1) + ',' + last.y.toFixed(1) +
+               ' q' + JR_WAVE.toFixed(1) + ',' + (nRun * 0.55).toFixed(1) +
+               ' ' + (JR_WAVE * 0.4).toFixed(1) + ',' + nRun.toFixed(1);
+      }
+
+      /* The short dashed run-on, built on the same vertical handle so it
+         leaves the last dot on the curve's own tangent and eases to a
+         stop. It draws back toward the middle of the column, which is the
+         one direction that cannot run into the page edge. */
+      /* 260, not 150: the old tail stopped well short of the bottom of
+         the section and left the run-on looking cut off rather than
+         trailing away. There is room for it. Measured at 1440, the tail
+         used to end at y 2660 in a 2898px box, so this uses some of the
+         238px that was empty and still finishes inside. */
+      var run = 260;
+      var hy = run * JR_HY;
+      var endX = last.x - last.side * W * 0.16;
+      var endY = last.y + run;
 
       return 'M' + last.x.toFixed(1) + ',' + last.y.toFixed(1) +
-             ' q' + (ux * run * 0.5).toFixed(1) + ',' + (uy * run * 0.5).toFixed(1) +
-             ' ' + (ux * run).toFixed(1) + ',' + (uy * run).toFixed(1);
+             ' C' + last.x.toFixed(1) + ',' + (last.y + hy).toFixed(1) +
+             ' ' + endX.toFixed(1) + ',' + (endY - hy).toFixed(1) +
+             ' ' + endX.toFixed(1) + ',' + endY.toFixed(1);
     }
 
     /* Length along the path at each anchor. The path goes through every
@@ -2617,7 +3245,10 @@
        right however the spline bulges between them. */
     function measureMarks() {
       var total = jrLine.getTotalLength();
-      var steps = 480;
+      /* Raised from 480 with the wide version: the path is roughly twice
+         as long now and doubles back on itself, so a coarse walk could
+         land a dot's nearest hit on the wrong side of a U-turn. */
+      var steps = 900;
       var best = [];
       var i;
 
@@ -2640,21 +3271,18 @@
       mainLen = total;
     }
 
-    /* The anchors are in .jr's coordinates but each dot lives inside its
-       own item, which is position:relative — so the offset of the item
-       has to come back out again or every dot lands as far from the line
-       as its item is from the top of the timeline. */
+    /* The dots now live in one layer of their own directly inside .jr,
+       which is the same coordinate space the anchors are measured in, so
+       placing them is a straight copy. They used to sit inside their
+       cards and every position had to have the card's own offset
+       subtracted back out; that went when the line moved on top of the
+       cards, because a dot inside .jr__list can never paint above a
+       sibling of the list however high its z-index. */
     function placeDots() {
-      var box = jr.getBoundingClientRect();
-
-      for (var i = 0; i < jrItems.length; i++) {
-        var dot = jrItems[i].querySelector('[data-jr-dot]');
-
-        if (dot && anchors[i]) {
-          var item = jrItems[i].getBoundingClientRect();
-
-          dot.style.left = (anchors[i].x - (item.left - box.left)).toFixed(1) + 'px';
-          dot.style.top = (anchors[i].y - (item.top - box.top)).toFixed(1) + 'px';
+      for (var i = 0; i < jrDots.length; i++) {
+        if (jrDots[i] && anchors[i]) {
+          jrDots[i].style.left = anchors[i].x.toFixed(1) + 'px';
+          jrDots[i].style.top = anchors[i].y.toFixed(1) + 'px';
         }
       }
     }
@@ -2664,7 +3292,7 @@
        sliding and the line has to keep up with them. */
     function repath() {
       anchors = readAnchors();
-      jrLine.setAttribute('d', spline(anchors));
+      jrLine.setAttribute('d', ribbon(anchors));
       jrTail.setAttribute('d', tailPath(anchors));
       placeDots();
     }
@@ -2680,21 +3308,13 @@
 
       if (!mainLen) { return; }
 
-      /* No motion preference: the line is simply drawn, the dots are
-         simply there. Nothing is tied to the scroll. */
-      if (reducedMotion.matches) {
-        jrLine.style.strokeDasharray = 'none';
-        jrLine.style.strokeDashoffset = '0';
-        jrTail.style.opacity = '1';
-
-        for (var r = 0; r < jrItems.length; r++) {
-          jrItems[r].classList.add('is-in');
-          var rd = jrItems[r].querySelector('[data-jr-dot]');
-          if (rd) { rd.classList.add('is-on'); }
-        }
-
-        return;
-      }
+      /* STEP 11: this used to short-circuit under reduced motion and draw
+         the whole line at once. It draws normally now. The line is on the
+         brief's always-run list and it earns the place: the drawing IS
+         the content here, it is what says the five cards are one route
+         rather than five boxes, and a stroke length changing is not
+         movement across the viewport. The cards it brings in fade instead
+         of rising, which the stylesheet's movement cap handles. */
 
       var vh = window.innerHeight || 1;
       var box = jr.getBoundingClientRect();
@@ -2716,11 +3336,12 @@
 
       var drawn = mainLen * p;
 
-      for (var i = 0; i < jrItems.length; i++) {
-        var dot = jrItems[i].querySelector('[data-jr-dot]');
+      for (var i = 0; i < jrDots.length; i++) {
         /* The floor keeps the first dot, whose mark is 0, from sitting
            there lit before a single pixel of line has been drawn */
-        if (dot) { dot.classList.toggle('is-on', drawn > 0 && drawn >= marks[i] - 2); }
+        if (jrDots[i]) {
+          jrDots[i].classList.toggle('is-on', drawn > 0 && drawn >= marks[i] - 2);
+        }
       }
 
       jrTail.style.opacity = win(p, 0.9, 1).toFixed(3);
@@ -2759,7 +3380,9 @@
 
       function show(n) { el.textContent = "'" + (n < 10 ? '0' + n : String(n)); }
 
-      if (reducedMotion.matches) { show(target); return; }
+      /* STEP 11: the count-up runs under reduced motion too. Nothing
+         moves: the digits change in place, in a box whose size is fixed
+         by tabular figures. It is on the always-run list. */
 
       var token = (el.__run || 0) + 1;
       var start = 0;
@@ -2930,7 +3553,9 @@
     function stRun() {
       stRow.classList.add('is-in');
 
-      if (reducedMotion.matches) { return; }
+      /* STEP 11: the strength counters run under reduced motion too, for
+         the same reason as the year count-up: the number changes in
+         place, nothing travels. */
 
       for (var i = 0; i < stCounts.length; i++) {
         (function (el, delay) {
@@ -3008,7 +3633,15 @@
     function wibDraw() {
       wibTicking = false;
 
-      if (reducedMotion.matches || !wibWide.matches) {
+      /* STEP 11: the word-by-word reveal runs under reduced motion now,
+         as a fade only. The blur is what had to go, not the reveal: a
+         focus pull is one of the strongest triggers on the list, and the
+         opacity ramp on its own still reads the sentence left to right.
+         Below 900px there is no pin and no reveal at all, so the words
+         are simply left alone there. */
+      var wibFade = reducedMotion.matches;
+
+      if (!wibWide.matches) {
         for (var r = 0; r < wibWords.length; r++) {
           wibWords[r].style.opacity = '';
           wibWords[r].style.filter = '';
@@ -3042,7 +3675,11 @@
         var t = wibClamp((p - i * step) / (step * 2.2));
 
         wibWords[i].style.opacity = (0.15 + 0.85 * t).toFixed(3);
-        wibWords[i].style.filter = t >= 1 ? 'none' : 'blur(' + (4 * (1 - t)).toFixed(2) + 'px)';
+        /* Fade only under reduced motion. The word still comes into
+           focus, it just does it with opacity instead of a focus pull. */
+        wibWords[i].style.filter = (wibFade || t >= 1)
+          ? 'none'
+          : 'blur(' + (4 * (1 - t)).toFixed(2) + 'px)';
       }
     }
 
@@ -3579,6 +4216,10 @@
     var mbT2 = document.getElementById('mb-t2');
     var mbFine = window.matchMedia('(hover: hover) and (pointer: fine)');
 
+    /* There is nothing else to keep in step any more. The outline is a
+       stroke on these two nodes and the clip is a <use> of them, so sizing
+       them sizes everything the section draws. */
+
     /* ---- size the two lines so the longer one fills ~92% ---- */
 
     /* MB_SIZE in style.css is the measured size that puts ELHAYYANY on 92%
@@ -3620,7 +4261,6 @@
          so each drops by roughly its own cap height. */
       var lead = size * 0.86;
       var top = (MB_VIEW_H - lead * 2) / 2;
-
       mbT1.setAttribute('y', (top + lead * 0.78).toFixed(1));
       mbT2.setAttribute('y', (top + lead + lead * 0.78).toFixed(1));
     }
@@ -3638,97 +4278,278 @@
       mbResize = window.setTimeout(mbFit, 150);
     });
 
-    /* ---- the trail ---- */
+    /* ---- the trail ----
+
+       Rebuilt for frame rate. The old version created an <image> on every
+       spawn and removed it on two nested timers, so a fast scribble across
+       the name meant a dozen node insertions and removals a second, each
+       one a fresh image load, each one starting its own CSS transition,
+       all of it landing inside a clipped group. Four things fixed, in the
+       order they cost:
+
+       1. Nothing is created or destroyed while the animation runs. A pool
+          of eight <image> nodes is built once and reused for ever.
+       2. Every picture is fetched AND decoded before the section can be
+          reached, and the Image objects are kept in an array so nothing is
+          collected and re-decoded later. A decode on the first frame of a
+          gesture is the single most visible stall there is.
+       3. One requestAnimationFrame loop does all the work. pointermove is
+          passive and records two numbers.
+       4. Position is transform: translate3d only. x, y, width and height
+          are attributes written once at init, so a spawn never touches
+          geometry and never invalidates layout.
+
+       The clip is not rebuilt at all: it is the same two <text> nodes the
+       letters are drawn from, sitting in the markup. mbFit() resizes them
+       on font load and on resize, which is the only time they move. */
 
     if (!reducedMotion.matches) {
-      var SPAWN_EVERY = 70;   /* viewBox units of travel between pictures */
-      var LIFE = 1200;        /* ms from spawn to gone */
-      var MAX_ALIVE = 14;     /* hard ceiling, so a fast scribble cannot pile up */
+      var SPAWN_EVERY = 90;   /* SCREEN px of pointer travel between pictures */
+      var LIFE = 1200;        /* ms at full strength before the fade out */
+      var FADE_IN = 140;
+      var FADE_OUT = 420;
+      var POOL = 8;           /* fixed, created once, never added to */
       var SHOT_W = 300;
       var SHOT_H = 210;
 
       var mbLastX = null, mbLastY = null, mbRun = 0, mbPick = 0;
-      var mbAlive = [];
 
-      function mbPoint(event) {
+      /* ---- the pool ----
+         x and y are set to minus half the box, so translate3d(x, y) puts
+         the CENTRE of the picture on the pointer and the transform is the
+         only thing that ever changes. */
+      var mbPool = [];
+      var mbBorn = [];        /* spawn time per slot, 0 means free */
+      var mbSlot = 0;
+
+      (function () {
+        for (var i = 0; i < POOL; i++) {
+          var el = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+
+          el.setAttributeNS(null, 'x', (-SHOT_W / 2).toFixed(1));
+          el.setAttributeNS(null, 'y', (-SHOT_H / 2).toFixed(1));
+          el.setAttributeNS(null, 'width', SHOT_W);
+          el.setAttributeNS(null, 'height', SHOT_H);
+          el.setAttributeNS(null, 'preserveAspectRatio', 'xMidYMid slice');
+          el.setAttribute('class', 'mb__shot');
+          el.style.opacity = '0';
+
+          mbTrail.appendChild(el);
+          mbPool.push(el);
+          mbBorn.push(0);
+        }
+      }());
+
+      /* ---- warm every picture up before it is needed ----
+         new Image() gets it over the wire; decode() turns it into a bitmap
+         off the main thread. Both have to happen, and both have to happen
+         EARLY: an <image href> set for the first time mid-gesture pays for
+         the fetch and the decode on the frame it is set.
+
+         The array is not bookkeeping, it is the point. Drop the references
+         and the browser is free to throw the decoded bitmaps away, and the
+         second pass across the name stalls exactly like the first. */
+      var mbWarm = [];
+      var mbWarmed = false;
+
+      function mbWarmUp() {
+        if (mbWarmed) { return; }
+
+        mbWarmed = true;
+
+        for (var i = 0; i < MB_SHOTS.length; i++) {
+          var im = new Image();
+
+          im.decoding = 'async';
+          im.src = MB_SHOTS[i];
+          mbWarm.push(im);
+
+          /* A rejection here is a missing file or a file:// quirk, not
+             something to report: the trail simply has one fewer picture. */
+          if (im.decode) { im.decode()['catch'](function () {}); }
+        }
+      }
+
+      if (window.IntersectionObserver) {
+        /* Two viewports of warning. Far enough that the work is finished
+           long before the name is on screen, near enough that a visitor
+           who never scrolls down never pays for it. */
+        var mbIO = new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting) { mbWarmUp(); mbIO.disconnect(); }
+        }, { rootMargin: '200% 0px' });
+
+        mbIO.observe(mb);
+      } else {
+        window.addEventListener('load', mbWarmUp);
+      }
+
+      /* Client pixels to viewBox units. preserveAspectRatio is meet, so the
+         drawing is letterboxed inside the element and the pointer has to be
+         mapped through that box rather than through the element's own
+         edges. Called once a frame, from the frame, never from an event. */
+      function mbMap(cx, cy) {
         var box = mbSvg.getBoundingClientRect();
 
         if (!box.width || !box.height) { return null; }
 
-        /* preserveAspectRatio is meet, so the drawing is letterboxed inside
-           the element and the pointer has to be mapped through that box
-           rather than through the element's own edges. */
         var scale = Math.min(box.width / MB_VIEW_W, box.height / MB_VIEW_H);
-        var drawnW = MB_VIEW_W * scale;
-        var drawnH = MB_VIEW_H * scale;
-        var offX = box.left + (box.width - drawnW) / 2;
-        var offY = box.top + (box.height - drawnH) / 2;
+        var offX = box.left + (box.width - MB_VIEW_W * scale) / 2;
+        var offY = box.top + (box.height - MB_VIEW_H * scale) / 2;
 
-        return {
-          x: (event.clientX - offX) / scale,
-          y: (event.clientY - offY) / scale
-        };
+        return { x: (cx - offX) / scale, y: (cy - offY) / scale };
       }
 
-      function mbSpawn(x, y) {
-        var img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+      /* Take the next slot round. The oldest picture in the pool is the one
+         that goes, which is what a fixed pool means: scribble fast enough
+         and the tail is shorter, rather than the page filling with nodes.
+         At an ordinary mouse speed eight slots last about as long as one
+         picture's life, so the ceiling is never reached. */
+      function mbSpawn(x, y, now) {
+        var at = mbSlot;
+        var el = mbPool[at];
+        var src = MB_SHOTS[mbPick % MB_SHOTS.length];
 
-        img.setAttributeNS(null, 'href', MB_SHOTS[mbPick % MB_SHOTS.length]);
-        img.setAttributeNS(null, 'x', (x - SHOT_W / 2).toFixed(1));
-        img.setAttributeNS(null, 'y', (y - SHOT_H / 2).toFixed(1));
-        img.setAttributeNS(null, 'width', SHOT_W);
-        img.setAttributeNS(null, 'height', SHOT_H);
-        img.setAttributeNS(null, 'preserveAspectRatio', 'xMidYMid slice');
-        img.setAttribute('class', 'mb__shot');
-
+        mbSlot = (mbSlot + 1) % POOL;
         mbPick++;
-        mbTrail.appendChild(img);
-        mbAlive.push(img);
 
-        /* Next frame, so the entrance transition has a value to run from */
-        requestAnimationFrame(function () { img.classList.add('is-in'); });
-
-        window.setTimeout(function () {
-          img.classList.remove('is-in');
-          window.setTimeout(function () {
-            if (img.parentNode) { img.parentNode.removeChild(img); }
-            var at = mbAlive.indexOf(img);
-            if (at > -1) { mbAlive.splice(at, 1); }
-          }, 420);
-        }, LIFE);
-
-        while (mbAlive.length > MAX_ALIVE) {
-          var old = mbAlive.shift();
-          if (old && old.parentNode) { old.parentNode.removeChild(old); }
+        /* The href is the one attribute that still changes, and only when
+           this slot's turn comes round to a different picture. The bitmap
+           is already decoded, so it is a pointer swap, not a load. */
+        if (el.__src !== src) {
+          el.setAttributeNS(null, 'href', src);
+          el.__src = src;
         }
+
+        el.style.transform =
+          'translate3d(' + x.toFixed(1) + 'px, ' + y.toFixed(1) + 'px, 0)';
+
+        mbBorn[at] = now;
       }
 
+      /* ---- the one loop ----
+         Spawning and fading both live here. Nothing is on a timer, so
+         there is no drift between the two and no timer left running after
+         the pointer has gone. It stops itself the moment there is nothing
+         on screen and no pointer over the name, and costs nothing at all
+         for the rest of the visit. */
+      var mbRAF = 0;
+      var mbPX = 0, mbPY = 0, mbHave = false;
+
+      function mbFrame(now) {
+        var alive = 0;
+        var i;
+
+        mbRAF = 0;
+
+        if (mbHave) {
+          var p = mbMap(mbPX, mbPY);
+
+          if (p) {
+            if (mbLastX === null) { mbLastX = mbPX; mbLastY = mbPY; }
+
+            var dx = mbPX - mbLastX;
+            var dy = mbPY - mbLastY;
+
+            /* Distance travelled, not events fired. A pointermove can
+               report sixty times over ten pixels, and spawning per event
+               is how the old one buried itself. */
+            mbRun += Math.sqrt(dx * dx + dy * dy);
+            mbLastX = mbPX;
+            mbLastY = mbPY;
+
+            if (mbRun >= SPAWN_EVERY) {
+              mbRun = 0;
+              mbSpawn(p.x, p.y, now);
+            }
+          }
+        }
+
+        for (i = 0; i < POOL; i++) {
+          if (!mbBorn[i]) { continue; }
+
+          var age = now - mbBorn[i];
+
+          if (age >= LIFE + FADE_OUT) {
+            mbBorn[i] = 0;
+            mbPool[i].style.opacity = '0';
+            continue;
+          }
+
+          alive++;
+
+          mbPool[i].style.opacity = (age < FADE_IN ? age / FADE_IN
+            : age < LIFE ? 1
+            : 1 - (age - LIFE) / FADE_OUT).toFixed(3);
+        }
+
+        if (mbHave || alive) { mbRAF = requestAnimationFrame(mbFrame); }
+      }
+
+      function mbKick() {
+        if (!mbRAF) { mbRAF = requestAnimationFrame(mbFrame); }
+      }
+
+      /* Two writes and a boolean. Everything else waits for the frame. */
       mb.addEventListener('pointermove', function (event) {
         if (event.pointerType !== 'mouse' || !mbFine.matches) { return; }
 
-        var p = mbPoint(event);
-
-        if (!p) { return; }
-
-        if (mbLastX === null) { mbLastX = p.x; mbLastY = p.y; return; }
-
-        mbRun += Math.sqrt((p.x - mbLastX) * (p.x - mbLastX) +
-                           (p.y - mbLastY) * (p.y - mbLastY));
-        mbLastX = p.x;
-        mbLastY = p.y;
-
-        if (mbRun >= SPAWN_EVERY) {
-          mbRun = 0;
-          mbSpawn(p.x, p.y);
-        }
-      });
+        mbPX = event.clientX;
+        mbPY = event.clientY;
+        mbHave = true;
+        mbKick();
+      }, { passive: true });
 
       mb.addEventListener('pointerleave', function () {
+        mbHave = false;
         mbLastX = null;
         mbLastY = null;
         mbRun = 0;
-      });
+      }, { passive: true });
     }
+  }
+
+  /* ------------------------------------------------------------------
+     STEP 11 - the top bar hides going down and comes back going up
+
+     Phone only. The bar is 60px of a 844px screen, which is worth giving
+     back while someone is reading, and worth having within reach the
+     moment they turn round and head for the nav.
+
+     A threshold and a floor, because neither on its own behaves. Without
+     the 6px threshold the bar flickers on the sub-pixel jitter iOS
+     produces at the end of a flick; without the 80px floor it hides while
+     the hero is still on screen, which looks like a bug rather than a
+     behaviour. It never hides while the menu is open, or the close button
+     would go with it.
+     ------------------------------------------------------------------ */
+
+  var topbar = document.getElementById('topbar');
+
+  if (topbar) {
+    var tbLast = window.scrollY;
+    var tbTicking = false;
+    var TB_FLOOR = 80;
+    var TB_STEP = 6;
+
+    function tbApply() {
+      tbTicking = false;
+
+      var y = window.scrollY;
+      var delta = y - tbLast;
+
+      if (Math.abs(delta) < TB_STEP) { return; }
+
+      /* The menu owns the bar while it is open: the burger inside it is
+         the close button. */
+      var open = document.body.classList.contains('is-locked');
+
+      topbar.classList.toggle('is-tucked', delta > 0 && y > TB_FLOOR && !open);
+      tbLast = y;
+    }
+
+    window.addEventListener('scroll', function () {
+      if (!tbTicking) { tbTicking = true; requestAnimationFrame(tbApply); }
+    }, { passive: true });
   }
 
   /* ------------------------------------------------------------------
@@ -3864,6 +4685,7 @@
       ctTick.classList.add('is-on');
       ctWin.classList.remove('is-folding');
       ctWin.classList.remove('is-sent');
+      ctDev.classList.remove('is-keysgone');
       ctPlane.classList.remove('is-flying');
       ctPtr.classList.remove('is-on');
       ctSend.classList.remove('is-pressed');
@@ -3886,6 +4708,7 @@
       ctTick.classList.remove('is-on');
       ctWin.classList.remove('is-folding');
       ctWin.classList.remove('is-sent');
+      ctDev.classList.remove('is-keysgone');
       ctPlane.classList.remove('is-flying');
       ctPtr.classList.remove('is-on');
       ctSend.classList.remove('is-pressed');
@@ -3954,7 +4777,15 @@
         ctAt(280, function () {
           ctWin.classList.add('is-sent');
           ctAt(320, function () { ctTick.classList.add('is-on'); });
-          ctAt(640, ctDeliver);
+
+          /* The keyboard has nothing left to do once the message has
+             gone, so it slides down and out and gives its height back.
+             The contact rows then come up INTO that space rather than
+             appearing below it, which is what makes the reply read as
+             the answer to the message. */
+          ctAt(520, function () { ctDev.classList.add('is-keysgone'); });
+
+          ctAt(880, ctDeliver);
         });
 
         return;
@@ -4021,7 +4852,16 @@
       });
     }
 
-    if (reducedMotion.matches || !('IntersectionObserver' in window)) {
+    /* STEP 11: the scene now plays under reduced motion too. It is on the
+       always-run list, and it is the one animation on the page that is
+       genuinely content: it types out a sentence a visitor is meant to
+       read. What the stylesheet takes away under the setting is the lid
+       rotation, the cursor glide, the fold and the paper plane's flight;
+       what is left is the lid fading on, the typing, the key presses and
+       the cards arriving. No IntersectionObserver is a different matter:
+       with no way to know when the scene is on screen, the still ending
+       is the only honest answer. */
+    if (!('IntersectionObserver' in window)) {
       ctFinal();
     } else {
       ctArm();
@@ -4048,11 +4888,9 @@
     /* Turning the setting on mid-visit stops the run where it is and
        leaves the ending on screen, rather than freezing a half-typed
        message and a lid at forty degrees */
-    if (reducedMotion.addEventListener) {
-      reducedMotion.addEventListener('change', function () {
-        if (reducedMotion.matches) { ctFinal(); }
-      });
-    }
+    /* The setting changing mid-run no longer ends the scene: it plays in
+       both modes, and the stylesheet is what differs. A run already under
+       way simply finishes with whatever the new setting allows. */
 
     if (ctReplay) {
       ctReplay.addEventListener('click', function () {

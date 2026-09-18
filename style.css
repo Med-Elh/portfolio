@@ -70,7 +70,179 @@
           rgba(120, 105, 90, 0.06) 45%,
           transparent 70%);
 
-  /* Spacing */
+  /* ---- STEP 10: the rest of the light palette -------------------------
+     Everything below was a hard-coded value in a component until the dark
+     theme arrived. There are no colour literals left outside this block,
+     the STEP 2 block further down and the [data-theme="dark"] override.
+
+     Tokens come in three kinds and it matters which is which:
+
+     1. THEME tokens flip. --text, --surface, --border and the rest.
+     2. FIXED tokens do not, because they are a colour ON something whose
+        own colour never changes: white on violet, near-black on yellow,
+        white on a scrim over a photograph. Aliasing those to --text is
+        exactly how a dark theme ends up with yellow text on a yellow pill.
+     3. INVERTED tokens flip the other way. The --vid-* set is the UGC
+        band, which is the page's one reversed-out section: dark on a
+        light page, and therefore light on a dark one.
+     --------------------------------------------------------------- */
+
+  /* Surfaces */
+  --surface-strong: #d9d4c5;   /* a step up from --surface: glide, cards  */
+  --panel-soft:  rgba(227, 223, 211, 0.72);   /* hero stat and trait boxes */
+  --sink:        rgba(0, 0, 0, 0.05);         /* icon wells, chips         */
+  --sink-hi:     rgba(0, 0, 0, 0.10);         /* their hover               */
+
+  /* Ink */
+  --faint:       #6b665b;      /* one step below --muted; 4.54:1 on --bg   */
+
+  /* Lines. Three weights, because the page uses three. */
+  --hairline:    rgba(0, 0, 0, 0.07);
+  --hairline-2:  rgba(0, 0, 0, 0.12);
+  --rule:        rgba(0, 0, 0, 0.22);
+  --rule-2:      rgba(0, 0, 0, 0.18);
+
+  /* Shadows. They do not invert: a dark page needs a DEEPER shadow, not a
+     light one, or every card floats with no edge at all. */
+  --shadow-1:    rgba(0, 0, 0, 0.05);
+  --shadow-2:    rgba(0, 0, 0, 0.10);
+  --shadow-3:    rgba(0, 0, 0, 0.18);
+  --shadow-4:    rgba(0, 0, 0, 0.32);
+
+  /* Accent, at alpha */
+  --accent-ring: rgba(124, 58, 237, 0.4);
+  --accent-glow: rgba(124, 58, 237, 0.55);
+  --accent-wash: rgba(124, 58, 237, 0.10);
+
+  /* The violet a FILLED control is painted in, as opposed to the violet
+     text and icons are drawn in. They are the same here and differ in
+     dark mode: the brief's #8b5cf6 is right for icons and large type but
+     measures 4.23:1 under white text, just under the 4.5:1 floor, and
+     most of the white text on this site is small. Filled controls keep a
+     darker violet so the label on them stays legible. */
+  --accent-fill:    var(--accent);
+  --accent-fill-hi: var(--accent-soft);
+
+  /* FIXED: the violet inside the Contact laptop. The window is light in
+     both themes, so the accent on it has to be the light theme's dark cut
+     in both, or dark mode puts #a78bfa on #f4f1ea at 1.8:1. */
+  --ct-accent:   #5b21b6;
+
+  /* FIXED: these two are the whole reason the palette needs a category
+     for "does not flip". White always sits on violet; near-black always
+     sits on yellow. */
+  --on-accent:   #FFFFFF;
+  --on-accent-2: #111111;
+
+  /* The big name, wherever it appears at display size: the hero
+     wordmark, the copy of it that flies into the sidebar, and the
+     divider before Contact. Its own token because it is the ONE use of
+     the yellow that flips. The stat chips, the section numbers, the
+     markers and the logo pill's BACKGROUND all stay yellow in both
+     themes and must not follow this.
+
+     Yellow in BOTH themes. On the dark page it carries itself; on the
+     beige page it does not (#f5e500 on #d6d0c1 is 1.05:1, because a
+     bright yellow and a light beige sit at nearly the same luminance),
+     so in light it gets a hairline near-black outline and reads as a
+     drawn letter rather than as a wash. */
+  --name: #f5e500;
+
+  /* The outline, two tokens. One colour and one width, so every surface
+     that wears the name is tuned from one place and flips with the theme
+     on its own.
+
+     A HAIRLINE, deliberately. 0.006em is about 1.3px at the hero size
+     and a little under 1px at the divider, which is enough to separate
+     the yellow from the beige at every edge and not enough to read as a
+     border. The earlier 0.030em plus a hard offset shadow was a sticker;
+     this is a drawn letter.
+
+     At this width it no longer matters whether the stroke is centred on
+     the outline or painted behind it: half of 0.006em is a third of a
+     pixel, far below the point where Inter 800 looks thinned. The stroke
+     still goes behind, because it costs nothing and keeps the glyph
+     exact, but nothing depends on it any more.
+
+     There is NO shadow token. No offset copy, no glow, no second copy of
+     the text anywhere. */
+  --name-ink: #111111;
+  --name-sw:  0.006em;
+
+  /* FIXED: the stat chip is a dark plate carrying yellow numerals in both
+     themes. The brief's #0b0b0b in dark is a shade deeper than the page,
+     so the chip still reads as a plate rather than a hole. */
+  --chip-bg:     #111111;
+  --chip-border: transparent;
+
+  /* FIXED: circular avatar badges, dark plate with light initials */
+  --avatar-bg:   #111111;
+  --avatar-ink:  #f7f5f0;
+
+  /* FIXED: the hero heading sits on the portrait, not on the page */
+  --hx-head:     #f7f5f0;
+
+  /* The blurred page colour, at three strengths. Tracks --bg. */
+  --bg-blur-solid: rgba(214, 208, 193, 0.97);
+  --bg-blur-bar:   rgba(214, 208, 193, 0.92);
+
+  /* FIXED: overlays and scrims. A lightbox is dark in both themes, and
+     the scrim over a video thumbnail is dark because the thumbnail is a
+     photograph, not because the page is light. */
+  --overlay:        rgba(8, 8, 10, 0.92);
+  --overlay-btn:    rgba(8, 8, 10, 0.6);
+  --scrim:          rgba(0, 0, 0, 0.62);
+  --lightbox-frame: #000000;
+
+  /* FIXED: the availability dot */
+  --live:        #22c55e;
+  --live-ring:   rgba(34, 197, 94, 0.5);
+  --live-ring-0: rgba(34, 197, 94, 0);
+
+  /* The opened timeline card, which turns dark in place. In dark mode it
+     cannot go darker than the page, so it goes one step LIGHTER and takes
+     a hairline, which keeps "this card changed" legible either way. */
+  --jr-open-bg:     #1f1f1f;
+  --jr-open-ink:    #f7f5f0;
+  --jr-open-body:   #c9c4b8;
+  --jr-open-mute:   #9a958a;
+  --jr-open-year:   #a78bfa;
+  --jr-open-line:   rgba(255, 255, 255, 0.2);
+  --jr-open-btn:    rgba(255, 255, 255, 0.12);
+  --jr-open-border: transparent;
+
+  /* INVERTED: the UGC band and the sidebar panels while they pass over
+     it. Dark on a light page, light on a dark one, so the section stays
+     the one place on the site that reverses out of its surroundings. */
+  --vid-bg:       #111111;
+  --vid-panel:    #1f1f1f;
+  --vid-card:     #1a1a1a;
+  --vid-ink:      #eae8e3;
+  --vid-mute:     #b8b4aa;
+  --vid-soft:     #8a8578;
+  --vid-chip:     #2a2a2a;
+  --vid-chip-hi:  #3a3a3a;
+  --vid-track:    #333333;
+  --vid-line:     rgba(255, 255, 255, 0.08);
+  --vid-line-2:   rgba(255, 255, 255, 0.20);
+  --vid-line-3:   rgba(255, 255, 255, 0.24);
+
+  /* The Contact scene. The laptop body is dark and the screen is light in
+     BOTH themes, because it is a drawing of a laptop rather than a piece
+     of the page. In dark mode the body gains an outline so it does not
+     disappear into the background. */
+  --ct-body:     #111111;
+  --ct-screen:   #e3dfd3;
+  --ct-win:      #f4f1ea;
+  --ct-ink:      #1f1f1f;
+  --ct-key:      #2a2a2a;
+  --ct-key-down: #151515;
+  --ct-keylab:   #cfcabb;
+  --ct-cam:      #3a3a3a;
+  --ct-outline:  transparent;
+
+  /* Spacing (STEP 10's dark override sits just below the close of this
+     block; everything from here down is theme-independent) */
   --space-2xs: 0.375rem;
   --space-xs:  0.625rem;
   --space-sm:  1rem;
@@ -134,6 +306,139 @@
      cursor glow specifically. */
   --z-bg:          -2;
   --z-cursor-glow: -1;
+}
+
+/* --------------------------------------------------------------------------
+   1b. STEP 10 - the dark palette
+
+   One block, overriding colour tokens only. Nothing here touches spacing,
+   type or z-index, and nothing in a component knows the theme exists: the
+   whole switch happens in these declarations.
+
+   The attribute goes on <html>, written by an inline script in <head>
+   before this stylesheet is even requested, so the first paint is already
+   in the right theme and there is no flash.
+   -------------------------------------------------------------------------- */
+
+[data-theme="dark"] {
+  /* Warm near-black, not grey: the light theme is a warm beige and a
+     neutral #121212 under it reads as a different site rather than the
+     same one at night. */
+  --bg:          #141312;
+  --surface:     #1f1d1a;
+  --surface-strong: #2a2825;
+  --panel-soft:  rgba(42, 40, 37, 0.72);
+  --sink:        rgba(255, 255, 255, 0.06);
+  --sink-hi:     rgba(255, 255, 255, 0.11);
+
+  --text:        #eae8e3;
+  --body:        #c9c4b8;
+  --muted:       #b8b4aa;
+  --faint:       #8a8578;
+
+  --border:      rgba(255, 255, 255, 0.08);
+  --hairline:    rgba(255, 255, 255, 0.08);
+  --hairline-2:  rgba(255, 255, 255, 0.13);
+  --rule:        rgba(255, 255, 255, 0.22);
+  --rule-2:      rgba(255, 255, 255, 0.18);
+
+  /* Violet lifts. #7c3aed is 3.0:1 on this background and carries a lot
+     of small text; #8b5cf6 reaches 4.6:1 and the text cut #a78bfa 7.4:1. */
+  --accent:      #8b5cf6;
+  --accent-text: #a78bfa;
+  /* On a dark page the hover state is LIGHTER, the opposite of the light
+     theme, which is why this is a token and not a darken() somewhere. */
+  --accent-soft: #a78bfa;
+  --accent-ring: rgba(139, 92, 246, 0.5);
+  --accent-glow: rgba(167, 139, 250, 0.55);
+  --accent-wash: rgba(139, 92, 246, 0.14);
+
+  /* White on #8b5cf6 is 4.23:1, and a filled button's label is small
+     text. #6d28d9 takes it to 6.6:1, and the hover goes UP to #7c3aed at
+     5.3:1 rather than down, so the control still brightens on hover. */
+  --accent-fill:    #6d28d9;
+  --accent-fill-hi: #7c3aed;
+
+  /* Yellow does not move. It is the one constant across both themes, and
+     it still never carries text: #111111 sits on it in both. The name is
+     the single exception, and it goes the other way: yellow here.
+
+     No outline on the dark page. #f5e500 on #141312 is 14.2:1 with
+     nothing helping it, and a near-black rim on a near-black background
+     would only chew the letters back. Both tokens are neutralised rather
+     than the rules being duplicated per theme. */
+  --name: #f5e500;
+
+  --name-ink: transparent;
+  /* 0px, not a bare 0. The phone floors this with max(), and max() with a
+     unitless zero inside it is invalid, so the whole declaration would be
+     thrown away and the stroke width would fall back to the SVG initial
+     value of 1. It paints nothing either way because the ink is
+     transparent here, but an invalid declaration is a trap left lying
+     about for whoever gives this colour next. */
+  --name-sw:  0px;
+
+  /* A stamp a shade lighter than the page, the mirror of the light
+     theme's shade darker */
+  --wordmark:    #211f1c;
+
+  --bg-blur:        rgba(20, 19, 18, 0.86);
+  --bg-blur-solid:  rgba(20, 19, 18, 0.97);
+  --bg-blur-bar:    rgba(20, 19, 18, 0.94);
+
+  /* Deeper, not lighter. A light shadow on a dark page is a glow, and a
+     glow on every card is how a dark theme starts to look radioactive. */
+  --shadow-1:    rgba(0, 0, 0, 0.30);
+  --shadow-2:    rgba(0, 0, 0, 0.45);
+  --shadow-3:    rgba(0, 0, 0, 0.55);
+  --shadow-4:    rgba(0, 0, 0, 0.70);
+
+  /* The warm bloom, at the tint the brief asks for */
+  --glow: radial-gradient(circle at 50% 50%,
+          rgba(120, 105, 90, 0.18) 0%,
+          rgba(120, 105, 90, 0.06) 45%,
+          transparent 70%);
+  --glow-warm: radial-gradient(circle at 50% 50%,
+          rgba(120, 105, 90, 0.12) 0%,
+          rgba(120, 105, 90, 0.04) 45%,
+          transparent 70%);
+
+  /* The stat chip goes a shade below the page and takes a hairline, so it
+     is still a plate rather than a hole punched in the panel */
+  --chip-bg:     #0b0b0b;
+  --chip-border: rgba(255, 255, 255, 0.14);
+
+  --avatar-bg:   #0b0b0b;
+  --avatar-ink:  #eae8e3;
+
+  /* The opened timeline card goes one step LIGHTER than the page here,
+     since it cannot go darker, and takes an edge to say it changed */
+  --jr-open-bg:     #2a2825;
+  --jr-open-ink:    #eae8e3;
+  --jr-open-body:   #c9c4b8;
+  --jr-open-mute:   #b8b4aa;
+  --jr-open-border: rgba(255, 255, 255, 0.10);
+
+  /* INVERTED. The UGC band is the page's one reversed-out section, so on
+     a dark page it is the light one. The sidebar's switch code is
+     untouched: .is-dark still means "over the band", it is only these
+     values underneath it that swap. */
+  --vid-bg:       #e3dfd3;
+  --vid-panel:    #e3dfd3;
+  --vid-card:     #d9d4c5;
+  --vid-ink:      #111111;
+  --vid-mute:     #5c574c;
+  --vid-soft:     #6b665b;
+  --vid-chip:     rgba(0, 0, 0, 0.05);
+  --vid-chip-hi:  rgba(0, 0, 0, 0.10);
+  --vid-track:    #c2bcac;
+  --vid-line:     rgba(0, 0, 0, 0.07);
+  --vid-line-2:   rgba(0, 0, 0, 0.14);
+  --vid-line-3:   rgba(0, 0, 0, 0.16);
+
+  /* The laptop keeps its dark body and its light screen. Only the outline
+     appears, so the body has an edge against a near-black page. */
+  --ct-outline:  rgba(255, 255, 255, 0.14);
 }
 
 /* --------------------------------------------------------------------------
@@ -305,7 +610,7 @@ em {
   height: 400px;
   margin: -200px 0 0 -200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-wash) 0%, transparent 70%);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--fast) ease;
@@ -421,8 +726,8 @@ em {
   left: var(--space-xs);
   z-index: 100;
   padding: var(--space-2xs) var(--space-sm);
-  background-color: var(--accent);
-  color: #FFFFFF;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
   font-size: var(--text-label);
   font-weight: 500;
   letter-spacing: var(--tracking-label);
@@ -457,9 +762,9 @@ em {
 }
 
 .btn--filled {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: #FFFFFF;
+  background-color: var(--accent-fill);
+  border-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 .btn--outline {
@@ -475,7 +780,7 @@ em {
    stuck in its hovered state */
 @media (hover: hover) {
   .btn--filled:hover {
-    background-color: var(--accent-soft);
+    background-color: var(--accent-fill-hi);
     border-color: var(--accent-soft);
   }
 
@@ -698,7 +1003,7 @@ body.is-locked .nav.is-scrolled {
   gap: var(--space-lg);
   padding: calc(var(--nav-height) + var(--space-lg)) var(--space-md) var(--space-xl);
   overflow: hidden;
-  background-color: rgba(214, 208, 193, 0.97);
+  background-color: var(--bg-blur-solid);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   transform: translateX(100%);
@@ -1535,7 +1840,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: var(--space-xl) var(--space-md);
-  background-color: rgba(8, 8, 10, 0.92);
+  background-color: var(--overlay);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -1551,7 +1856,7 @@ body {
   width: min(72vw, calc(65vh * 9 / 16));
   aspect-ratio: 9 / 16;
   overflow: hidden;
-  background-color: #000000;
+  background-color: var(--lightbox-frame);
   border-radius: var(--radius-md);
   /* The dip-and-return when switching between videos */
   transition: opacity 200ms ease;
@@ -1578,7 +1883,7 @@ body {
   color: var(--body);
   border: 1px solid var(--border);
   border-radius: 50%;
-  background-color: rgba(8, 8, 10, 0.6);
+  background-color: var(--overlay-btn);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   transition: color var(--fast) ease,
@@ -1737,7 +2042,7 @@ body {
   overflow: hidden;
   /* The soft glow beneath. Neutral by default so it reads as depth
      rather than as colour, and only picks up the accent on hover. */
-  box-shadow: 0 12px 30px rgba(60, 52, 40, 0.18);
+  box-shadow: 0 12px 30px var(--shadow-3);
   transition: transform var(--slow) var(--ease),
               border-color var(--slow) var(--ease),
               box-shadow var(--slow) var(--ease);
@@ -1768,7 +2073,7 @@ body {
   .cert__link:focus-visible {
     transform: translateY(-8px);
     border-color: var(--accent);
-    box-shadow: 0 22px 44px rgba(124, 58, 237, 0.18);
+    box-shadow: 0 22px 44px var(--accent-glow);
   }
 
   .cert__link:hover .cert__img,
@@ -1798,7 +2103,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: var(--space-xl) var(--space-md);
-  background-color: rgba(8, 8, 10, 0.92);
+  background-color: var(--overlay);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -1826,7 +2131,7 @@ body {
   height: 44px;
   border: 1px solid var(--border);
   border-radius: 50%;
-  background-color: rgba(8, 8, 10, 0.6);
+  background-color: var(--overlay-btn);
   color: var(--muted);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
@@ -2003,7 +2308,7 @@ body.is-locked .dots {
   height: 11px;
   margin: -5.5px 0 0 -5.5px;
   background-color: var(--accent);
-  box-shadow: 0 0 10px rgba(124, 58, 237, 0.55);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 /* Sits to the left of the dot (the dots are already at the right edge)
@@ -2359,17 +2664,81 @@ body.is-locked .dots {
     scroll-behavior: auto;
   }
 
-  /* Everything off by default, so any motion added to the page later is
-     silent under this setting until it is deliberately let through. The
-     exceptions in the next section are motion that carries meaning
-     rather than atmosphere. */
+  /* STEP 11 replaced what used to be here.
+
+     This block used to read `animation-duration: 0.01ms !important` on
+     the universal selector: everything off, with a list of exceptions
+     clawed back one at a time. On iOS, where Reduce Motion is switched on
+     far more often than people realise, that meant most of the site did
+     not animate at all, and every new piece of motion was silent by
+     default until somebody remembered to add it to the exception list.
+
+     The policy now is SOFTEN, NOT REMOVE. Animations keep their durations
+     and their easing. What is taken away is the part of the motion that
+     actually causes trouble: distance, scale, rotation, blur, parallax,
+     pinning and momentum. A reveal that rose 24px and faded still fades,
+     and rises 6px instead. The trigger is large movement across the
+     viewport, not the existence of a transition.
+
+     scroll-behavior is the one thing still forced off, because a
+     smooth-scrolled jump across several screens IS large movement. */
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* ---- the movement cap ---------------------------------------------
+     --rm-shift is how far anything may travel. Every rule below that had
+     a bigger number is pulled back to it and the opacity in the same rule
+     is left alone to carry the reveal. */
+  :root {
+    --rm-shift: 6px;
+  }
+
+  .js [data-reveal],
+  .js [data-rise],
+  .jr__item,
+  .hlp__card,
+  .say__card,
+  .st__item {
+    transform: translateY(var(--rm-shift)) !important;
+  }
+
+  .js [data-reveal].is-revealed,
+  .js [data-rise].is-risen,
+  .jr__item.is-in,
+  .hlp.is-in .hlp__card,
+  .say__card.is-in,
+  .st__item.is-in,
+  .js .ct__cards.is-in .ct__card {
+    transform: none !important;
+  }
+
+  /* Scale entrances come in from 0.98 rather than 0.92: still an arrival,
+     a quarter of the movement. */
+  .js .ct__card {
+    transform: scale(0.98) !important;
+  }
+
+  /* No blur transitions. A blur that resolves is a focus pull, which is
+     one of the strongest triggers on the list, and the most expensive
+     thing on this page to composite besides. */
+  .hx__nav,
+  .hx__lead,
+  .hx__stats,
+  .hx__traits,
+  .hx__tag,
+  .hx__desc,
+  .wib__w {
+    filter: none !important;
+  }
+
+  /* The portrait is the exception: `filter: none` here would take its
+     drop-shadow with the blur, and the shadow is not motion. It keeps the
+     shadow and loses the blur. */
+  .hx__portrait {
+    filter: var(--hx-shadow) !important;
   }
 
   /* ---- Functional motion, deliberately kept ---------------------------
@@ -2990,9 +3359,9 @@ body.is-locked .dots {
     display: block;
     margin-top: var(--space-xs);
     padding: var(--space-xs) var(--space-sm);
-    background-color: var(--accent);
+    background-color: var(--accent-fill);
     border-radius: var(--radius-lg);
-    color: #FFFFFF;
+    color: var(--on-accent);
     font-size: var(--text-label);
     font-weight: 600;
     letter-spacing: var(--tracking-label);
@@ -3016,7 +3385,7 @@ body.is-locked .dots {
     }
 
     .rail__cta:hover {
-      background-color: var(--accent-soft);
+      background-color: var(--accent-fill-hi);
     }
   }
 
@@ -3471,7 +3840,7 @@ body.is-locked .dots {
 .stat__value,
 .rail__stat-value,
 .section__num {
-  color: var(--text);
+  color: var(--on-accent-2);
   background-color: var(--accent-2);
   border-radius: var(--radius);
 }
@@ -3514,11 +3883,15 @@ body.is-locked .dots {
 :root {
   --sb-w: clamp(240px, 20vw, 300px);
   --sb-gap: 1rem;
-  --yellow: #f5e500;
-  --panel: #e3dfd3;
-  --ink: #111111;
-  --violet: #7c3aed;
-  --violet-dark: #6d28d9;
+  /* STEP 2 gave these their own names before the palette had them. They
+     are aliases now rather than second copies, so the theme switch reaches
+     them too: a literal here would have left the whole sidebar and hero on
+     the light palette while the rest of the page turned. */
+  --yellow: var(--accent-2);
+  --panel: var(--surface);
+  --ink: var(--text);
+  --violet: var(--accent);
+  --violet-dark: var(--accent-soft);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   /* For something travelling ACROSS the screen rather than arriving on it
      or leaving it: the cursor gliding to the Send button in Contact. It
@@ -3584,7 +3957,7 @@ body.is-locked .dots {
   line-height: 0.8;
   letter-spacing: -0.045em;
   text-align: center;
-  color: var(--yellow);
+  color: var(--name);
   white-space: nowrap;
   pointer-events: none;
   -webkit-user-select: none;
@@ -3607,12 +3980,56 @@ body.is-locked .dots {
   object-fit: contain;
   object-position: bottom center;
   pointer-events: none;
-  /* The cut-out is transparent, but a soft horizontal fade guarantees no
-     straight side edge shows even if the PNG was trimmed square. */
-  -webkit-mask-image: linear-gradient(to right,
-      transparent 0%, #000 10%, #000 90%, transparent 100%);
-  mask-image: linear-gradient(to right,
-      transparent 0%, #000 10%, #000 90%, transparent 100%);
+  /* ---- the mask -----------------------------------------------------
+     The PNG is only half a cutout. Measured on portrait-cutout.png
+     (448x557): at face level the alpha row reads 0 0 0 0 255 255 255 0 0
+     0 0, so the head is properly cut out, but at shoulder level it reads
+     255 all the way across, 181 of the 557 pixels on the left edge are
+     fully opaque, 192 on the right, and all 448 along the bottom. The
+     lower third is a hard crop. That straight cut is the image, not the
+     mask, and short of a new asset the mask is what has to hide it.
+
+     Three layers, INTERSECTED. The default composite is `add`, which
+     unions them: every layer would only ever make the picture MORE
+     visible and the whole thing would do nothing. `intersect` means a
+     pixel survives only where all three agree, so each layer can take
+     something away.
+
+     The colours here are the only ones in this file outside the palette,
+     and deliberately: in a mask the colour is an opacity stop, not a
+     colour. Tokenising them would let the theme change how much of the
+     portrait is visible. It blends into whichever --bg is behind it
+     either way, because what fades is alpha, not ink. */
+  --hx-mask-x: linear-gradient(to right,
+      transparent 0%, #000 18%, #000 82%, transparent 100%);
+  /* The shoulders dissolve into the section below rather than stopping
+     on the image's own bottom edge */
+  --hx-mask-y: linear-gradient(to bottom,
+      #000 0%, #000 75%, transparent 100%);
+  /* Rounds the corners off. Centred at 38% down, which is the face, so
+     the falloff is symmetrical about the head rather than about the
+     middle of a box whose bottom third is shoulders. */
+  --hx-mask-r: radial-gradient(ellipse 80% 86% at 50% 38%,
+      #000 52%, rgba(0, 0, 0, 0.6) 76%, transparent 100%);
+
+  -webkit-mask-image: var(--hx-mask-x), var(--hx-mask-y), var(--hx-mask-r);
+  -webkit-mask-composite: source-in;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+
+  mask-image: var(--hx-mask-x), var(--hx-mask-y), var(--hx-mask-r);
+  mask-composite: intersect;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+
+  /* Depth rather than a cut. drop-shadow reads the MASKED alpha, so the
+     shadow follows the feathered silhouette instead of the image's
+     rectangle. --shadow-2 flips with the theme, so this deepens on the
+     dark page instead of glowing. Kept in a variable because the mobile
+     intro and the scroll animation both write `filter` and would
+     otherwise drop it. */
+  --hx-shadow: drop-shadow(0 12px 28px var(--shadow-2));
+  filter: var(--hx-shadow);
 }
 
 /* ---- Nav row, on the wordmark's baseline, split around the portrait ---- */
@@ -3645,7 +4062,7 @@ body.is-locked .dots {
 .hx__div {
   width: 1px;
   height: 0.85em;
-  background-color: rgba(0, 0, 0, 0.22);
+  background-color: var(--rule);
 }
 
 /* ---- Headline over the chest ---- */
@@ -3670,9 +4087,9 @@ body.is-locked .dots {
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.03em;
-  color: #f7f5f0;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45),
-               0 1px 3px rgba(0, 0, 0, 0.35);
+  color: var(--hx-head);
+  text-shadow: 0 2px 18px var(--shadow-4),
+               0 1px 3px var(--shadow-4);
 }
 
 .hx__btns { display: flex; flex-wrap: wrap; gap: 0.6rem; }
@@ -3691,7 +4108,7 @@ body.is-locked .dots {
   transition: background-color 160ms var(--ease-out);
 }
 
-.hx__btn--go  { background-color: var(--violet); color: #fff; }
+.hx__btn--go  { background-color: var(--accent-fill); color: var(--on-accent); }
 .hx__btn--alt { background-color: var(--panel); color: var(--ink); }
 
 /* ---- Stat cards, left of the portrait ---- */
@@ -3712,8 +4129,8 @@ body.is-locked .dots {
   flex-direction: column;
   gap: 0.3rem;
   padding: 0.9rem 1rem;
-  background-color: rgba(227, 223, 211, 0.72);
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  background-color: var(--panel-soft);
+  border: 1px solid var(--hairline);
   border-radius: 14px;
   transform-origin: 0 0;
   -webkit-backdrop-filter: blur(6px);
@@ -3726,7 +4143,7 @@ body.is-locked .dots {
   align-self: flex-start;
   padding: 0.1em 0.45em;
   border-radius: 7px;
-  background-color: var(--ink);
+  background-color: var(--chip-bg);
   color: var(--yellow);
   font-size: clamp(1.1rem, 1.7vw, 1.5rem);
   font-weight: 800;
@@ -3737,7 +4154,7 @@ body.is-locked .dots {
   font-size: clamp(0.6rem, 0.72vw, 0.72rem);
   font-weight: 600;
   letter-spacing: 0.05em;
-  color: #4a463d;
+  color: var(--body);
 }
 
 /* ---- Traits panel, right of the portrait ---- */
@@ -3754,8 +4171,8 @@ body.is-locked .dots {
   padding: 1rem 1.1rem;
   list-style: none;
   width: clamp(160px, 16vw, 215px);
-  background-color: rgba(227, 223, 211, 0.72);
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  background-color: var(--panel-soft);
+  border: 1px solid var(--hairline);
   border-radius: 16px;
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
@@ -3779,7 +4196,7 @@ body.is-locked .dots {
   height: 22px;
   border-radius: 7px;
   background-color: var(--yellow);
-  color: var(--ink);
+  color: var(--on-accent-2);
 }
 
 /* ---- Bottom rail ---- */
@@ -3806,13 +4223,13 @@ body.is-locked .dots {
   right: clamp(1rem, 3vw, 2.5rem);
   max-width: min(30ch, 28vw);
   text-align: right;
-  color: #4a463d;
+  color: var(--body);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .hx__navlink:hover { color: var(--violet); }
   .hx__btn--go:hover { background-color: var(--violet-dark); }
-  .hx__btn--alt:hover { background-color: #d8d3c6; }
+  .hx__btn--alt:hover { background-color: var(--surface-strong); }
 }
 
 /* --------------------------------------------------------------------------
@@ -3820,9 +4237,13 @@ body.is-locked .dots {
    thread is busiest; CSS animation runs off it, rAF does not.
    -------------------------------------------------------------------------- */
 
+/* The drop-shadow rides along in every keyframe that touches `filter`.
+   A filled animation owns the property outright, so leaving it out here
+   would silently delete the portrait's shadow for the length of the
+   intro and, with fill-mode both, for good afterwards. */
 @keyframes hx-rise {
-  from { opacity: 0; transform: translateX(-50%) translateY(40px); filter: blur(20px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0);    filter: blur(0); }
+  from { opacity: 0; transform: translateX(-50%) translateY(40px); filter: var(--hx-shadow) blur(20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0);    filter: var(--hx-shadow) blur(0); }
 }
 
 @keyframes hx-in {
@@ -3835,14 +4256,28 @@ body.is-locked .dots {
   to   { opacity: 1; transform: translateX(-50%) translateY(0);    filter: blur(0); }
 }
 
-.js .hx__portrait   { animation: hx-rise 700ms var(--ease-out) 600ms both; }
-.js .hx__nav--left  { animation: hx-in 450ms var(--ease-out) 1000ms both; }
-.js .hx__nav--right { animation: hx-in 450ms var(--ease-out) 1080ms both; }
-.js .hx__lead       { animation: hx-in-x 450ms var(--ease-out) 1160ms both; }
-.js .hx__stats      { animation: hx-in 450ms var(--ease-out) 1240ms both; }
-.js .hx__traits     { animation: hx-in 450ms var(--ease-out) 1320ms both; }
-.js .hx__tag        { animation: hx-in 450ms var(--ease-out) 1400ms both; }
-.js .hx__desc       { animation: hx-in 450ms var(--ease-out) 1480ms both; }
+/* STEP 11: scoped to the desktop hero, which is the only layout these
+   keyframes were ever written for.
+
+   hx-rise and hx-in-x carry `translateX(-50%)`, because on desktop the
+   portrait and the headline are absolutely positioned at left: 50% and
+   that offset IS their centring. On a phone both are ordinary flex items
+   centred by their container, so the same keyframe dragged them half
+   their own width to the left and held them there for the whole 1.9s of
+   the intro, then dropped them back when .is-ready killed the animation.
+   Measured at 390px: the portrait sat at x=48 and the headline at x=16
+   against a viewport centre of 195, then both jumped. That was the
+   side-to-centre jump. The phone has its own intro further down. */
+@media (min-width: 900px) {
+  .js .hx__portrait   { animation: hx-rise 700ms var(--ease-out) 600ms both; }
+  .js .hx__nav--left  { animation: hx-in 450ms var(--ease-out) 1000ms both; }
+  .js .hx__nav--right { animation: hx-in 450ms var(--ease-out) 1080ms both; }
+  .js .hx__lead       { animation: hx-in-x 450ms var(--ease-out) 1160ms both; }
+  .js .hx__stats      { animation: hx-in 450ms var(--ease-out) 1240ms both; }
+  .js .hx__traits     { animation: hx-in 450ms var(--ease-out) 1320ms both; }
+  .js .hx__tag        { animation: hx-in 450ms var(--ease-out) 1400ms both; }
+  .js .hx__desc       { animation: hx-in 450ms var(--ease-out) 1480ms both; }
+}
 
 /* animation-fill-mode: both keeps the keyframes owning opacity, filter and
    transform for good, and a filled animation outranks an inline style — so
@@ -3900,7 +4335,7 @@ body.is-locked .dots {
 .sb__panel {
   padding: 0.85rem 0.95rem;
   background-color: var(--panel);
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid var(--hairline);
   border-radius: 16px;
 }
 
@@ -3911,7 +4346,7 @@ body.is-locked .dots {
   padding: 0.3em 0.7em;
   border-radius: 999px;
   background-color: var(--yellow);
-  color: var(--ink);
+  color: var(--on-accent-2);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -3924,29 +4359,29 @@ body.is-locked .dots {
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--sink);
   color: var(--ink);
   transition: background-color 160ms var(--ease-out);
 }
 
-.sb__blurb { margin: 0.6rem 0 0; font-size: 0.66rem; line-height: 1.5; color: #4a463d; }
+.sb__blurb { margin: 0.6rem 0 0; font-size: 0.66rem; line-height: 1.5; color: var(--body); }
 
 .sb__stats { display: flex; align-items: stretch; gap: 0.6rem; }
 .sb__stat { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; min-width: 0; }
-.sb__stat + .sb__stat { padding-left: 0.6rem; border-left: 1px solid rgba(0, 0, 0, 0.09); }
+.sb__stat + .sb__stat { padding-left: 0.6rem; border-left: 1px solid var(--hairline); }
 
 .sb__num {
   align-self: flex-start;
   padding: 0.08em 0.4em;
   border-radius: 6px;
-  background-color: var(--ink);
+  background-color: var(--chip-bg);
   color: var(--yellow);
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.2;
 }
 
-.sb__lab { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.05em; color: #4a463d; }
+.sb__lab { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.05em; color: var(--body); }
 
 .sb__nav { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.5rem; }
 
@@ -3966,7 +4401,7 @@ body.is-locked .dots {
 
 /* Only lit once the morph has landed — a violet row appearing mid-flight
    would compete with the item still flying toward it. */
-.sb.is-live .sb__link.is-active { background-color: var(--violet); color: #fff; }
+.sb.is-live .sb__link.is-active { background-color: var(--accent-fill); color: var(--on-accent); }
 
 .sb__ticker { overflow: clip; padding: 0.6rem 0; }
 .sb__track { display: flex; width: max-content; }
@@ -3975,20 +4410,20 @@ body.is-locked .dots {
 .sb__chip {
   padding: 0.25em 0.6em;
   border-radius: 999px;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--sink);
   font-size: 0.56rem;
   font-weight: 600;
   white-space: nowrap;
-  color: #4a463d;
+  color: var(--body);
 }
 
 .sb__mail { display: flex; align-items: center; gap: 0.4rem; }
-.sb__addr { flex: 1; min-width: 0; font-size: 0.6rem; color: #4a463d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb__addr { flex: 1; min-width: 0; font-size: 0.6rem; color: var(--body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .sb__copy {
   flex-shrink: 0;
   padding: 0.3em 0.6em;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--hairline-2);
   border-radius: 7px;
   background: none;
   font-size: 0.56rem;
@@ -4004,8 +4439,8 @@ body.is-locked .dots {
   margin-top: auto;
   padding: 0.75rem;
   border-radius: 12px;
-  background-color: var(--violet);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -4015,8 +4450,8 @@ body.is-locked .dots {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .sb__icon:hover { background-color: rgba(0, 0, 0, 0.1); }
-  .sb.is-live .sb__link:not(.is-active):hover { background-color: rgba(0, 0, 0, 0.05); }
+  .sb__icon:hover { background-color: var(--sink-hi); }
+  .sb.is-live .sb__link:not(.is-active):hover { background-color: var(--sink); }
   .sb__copy:hover { border-color: var(--violet); color: var(--violet); }
   .sb__resume:hover { background-color: var(--violet-dark); }
 }
@@ -4051,17 +4486,17 @@ body.is-locked .dots {
     justify-content: space-between;
     gap: 1rem;
     padding: 0.6rem 1rem;
-    background-color: rgba(214, 208, 193, 0.92);
+    background-color: var(--bg-blur-bar);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    border-bottom: 1px solid var(--hairline);
   }
 
   .logo-pill {
     padding: 0.3em 0.7em;
     border-radius: 999px;
     background-color: var(--yellow);
-    color: var(--ink);
+    color: var(--on-accent-2);
     font-size: 0.7rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -4102,7 +4537,7 @@ body.is-locked .dots {
   .hx__trait {
     padding: 0.35em 0.7em;
     background-color: var(--panel);
-    border: 1px solid rgba(0, 0, 0, 0.07);
+    border: 1px solid var(--hairline);
     border-radius: 999px;
     font-size: 0.66rem;
   }
@@ -4325,7 +4760,7 @@ body.is-locked .dots {
   z-index: -1;
   inset: 0;
   box-sizing: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: 1px solid var(--hairline);
   border-radius: inherit;
   background-color: var(--panel);
   opacity: var(--bgo, 1);
@@ -4529,13 +4964,42 @@ body.is-locked .dots {
 @media (max-width: 899px) {
   .hx__word { font-size: 14vw; }
   .hx__nav, .hx__stats, .hx__traits { top: auto; }
-  .logo-pill { font-size: 0.62rem; letter-spacing: 0.04em; }
+  /* One line, whatever happens. The pill had no nowrap, so before Inter
+     arrives the wider fallback face could push "ELHAYYANY" onto a second
+     line and the bar would jump when the font landed. It also had
+     POSITIVE tracking, which is what made a name this long feel stretched
+     and cramped at the same time.
+
+     11.5px and -0.02em: bigger than the 9.92px it was, and still ~50px
+     clear of the theme toggle at 360px. width auto is the default for an
+     inline-block and is written out because this pill is the one element
+     the hero-to-sidebar morph does not touch, so nothing else guarantees
+     it. */
+  .logo-pill {
+    width: auto;
+    padding: 6px 12px;
+    font-size: 11.5px;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  /* Below 380px the name is the widest thing in the bar, so it gives up a
+     little more size rather than wrapping */
+  @media (max-width: 379px) {
+    .logo-pill { font-size: 10.5px; padding-inline: 10px; }
+  }
 
   /* `.hx.is-ready .hx__lead` restores the desktop centring offset when the
      intro finishes, and at two class names it outranks the stacked-hero
      reset above, which is only one. On a phone the headline is a normal
      block in a flex column, so half its own width to the left puts it off
-     the screen. It has to be beaten at its own specificity. */
+     the screen. It has to be beaten at its own specificity.
+
+     This used to be the only defence against the desktop keyframes, and
+     it only covered the END state: it put the headline back once the
+     intro had finished, having spent the whole intro off to the left.
+     The keyframes themselves are scoped to 900px and up now, so this is
+     belt and braces rather than the fix. */
   .hx.is-ready .hx__lead { transform: none; }
 }
 
@@ -4554,7 +5018,7 @@ body.is-locked .dots {
 
    Each tint is picked for the surface it sits on: #7c3aed reaches 6.5:1
    on the beige panel but only 1.2:1 on the opened card's near-black, so
-   the year steps up to #a78bfa there, which reaches 6:1.
+   the year steps up to var(--jr-open-year) there, which reaches 6:1.
    ========================================================================== */
 
 /* ---- the shortened intro ---- */
@@ -4574,7 +5038,7 @@ body.is-locked .dots {
    a key fact with the page's own ink on top of it. */
 .jr__lead em {
   font-style: italic;
-  color: var(--text);
+  color: var(--on-accent-2);
   background-color: var(--accent-2);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -4602,6 +5066,19 @@ body.is-locked .dots {
 }
 
 /* Sized and pathed by script.js from where the cards actually landed */
+/* Three layers inside .jr: the line at 0, the cards at 1, the dots at 3.
+
+   The line runs BEHIND the cards, so each card hides the stretch passing
+   under it and the curve reappears on the other side. That is the whole
+   effect, and it is why the line is at full opacity: the cards do the
+   hiding, so there is no fading and no mask to maintain. A mask would
+   also have had to be rebuilt every time a card opened or the column
+   reflowed; a card that is simply painted on top never goes out of date.
+
+   overflow: visible lets a sweep paint outside the SVG's own box, but
+   nothing relies on it: the handles are CLAMPED to the box in script.js,
+   so the widest sweep cannot reach the page edge. Clipping would have
+   hidden the problem; clamping means there is no problem to hide. */
 .jr__svg {
   position: absolute;
   inset: 0;
@@ -4620,8 +5097,41 @@ body.is-locked .dots {
   stroke-linejoin: round;
 }
 
+/* Only the TAIL is dotted. The line through the cards stays solid, and
+   keeps stroke-dasharray for its own scroll reveal, which is why the dot
+   pattern can only live down here: the tail fades in on opacity instead,
+   so its dasharray is free.
+
+   Dots, not dashes. With a 2px stroke and round caps, a dash LENGTH of
+   zero paints exactly one round cap per dash position, which is a 2px
+   circle. A 2px dash would paint a 4px pill once the two caps are added,
+   and read as a short dash. 0.01 rather than a bare 0 because some
+   engines drop a zero-length dash entirely. 10px between them, so the gap
+   is what the eye measures rather than the dot. */
 .jr__tail {
-  stroke-dasharray: 8 10;
+  stroke-dasharray: 0.01 10;
+}
+
+/* The dots stay above everything, at the card edge where the line meets
+   the card. They need a layer of their own: a dot left inside .jr__list
+   could never paint above a sibling of the list, however high its own
+   z-index, because the list has a z-index and therefore a stacking
+   context of its own. Same coordinate space as .jr, which is what the
+   anchors are measured in, so script.js writes left and top straight from
+   the anchor with no offset arithmetic. */
+.jr__dots {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* The dash pattern is set further up, with the dotted line it belongs
+   beside. What is left here is the tail's own reveal, which is opacity
+   rather than a dash offset: it fades in over the last tenth of the
+   scroll, so it never needed the dasharray the main line used and is
+   unaffected by that moving to a mask. */
+.jr__tail {
   opacity: 0;
 }
 
@@ -4645,12 +5155,25 @@ body.is-locked .dots {
 .jr__item--r { justify-content: flex-end; }
 .jr__item--l { justify-content: flex-start; }
 
-/* Varied, so the column reads as a wander rather than a zigzag */
-.jr__item--o1 { padding-right: 6%; }
-.jr__item--o2 { padding-left: 3%; }
-.jr__item--o3 { padding-right: 15%; }
-.jr__item--o4 { padding-left: 11%; }
-.jr__item--o5 { padding-right: 3%; }
+/* These used to be five different indents, so the column read as a wander
+   rather than a zigzag. They are one value now, mirrored left and right.
+
+   This is where "precise, not hand-drawn" actually gets decided. The
+   curve's horizontal reach between two dots IS the distance between those
+   dots, so five different indents meant five different sweeps however
+   uniformly the bezier itself was built. One indent, mirrored, and every
+   segment is the same shape as every other by construction.
+
+   The 4% pulls each card off its edge so the dot on the outer corner sits
+   inside the column rather than half over the boundary. */
+.jr__item--o1,
+.jr__item--o2,
+.jr__item--o3,
+.jr__item--o4,
+.jr__item--o5 { padding: 0; }
+
+.jr__item--r { padding-right: 4%; }
+.jr__item--l { padding-left: 4%; }
 
 /* --------------------------------------------------------------------------
    The dot on the line
@@ -4686,8 +5209,8 @@ body.is-locked .dots {
   padding: 36px;
   border-radius: 20px;
   background-color: var(--panel);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.10),
-              0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 18px 50px var(--shadow-2),
+              0 2px 6px var(--sink);
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 600ms var(--ease-out),
@@ -4702,12 +5225,20 @@ body.is-locked .dots {
 }
 
 /* The thin rule beside the card, on whichever side the line runs past */
+/* STEP 12: gone on desktop. This hairline existed to join the card to a
+   line that used to run straight down beside it, so the two read as
+   connected. The ribbon arrives at an angle now and crosses the card
+   outright, which leaves the rule as a stray vertical stub beside a
+   curve that is nowhere near it, and the brief's shape has no straight
+   vertical runs in it at all. It stays below 900px, where the line is
+   still a rail down the left. */
 .jr__rule {
+  display: none;
   position: absolute;
   top: 26px;
   bottom: 26px;
   width: 1px;
-  background-color: rgba(0, 0, 0, 0.16);
+  background-color: var(--rule);
 }
 
 .jr__item--r .jr__rule { left: -22px; }
@@ -4731,7 +5262,9 @@ body.is-locked .dots {
   padding: 0 0.16em;
   border-radius: 3px;
   background-color: var(--accent-2);
-  color: var(--text);
+  /* Not --text. The yellow does not flip, so the ink on it must not
+     either: following --text put near-white on near-yellow, 1.07:1. */
+  color: var(--on-accent-2);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 }
@@ -4813,8 +5346,8 @@ body.is-locked .dots {
 .jr__badge--co {
   position: relative;
   z-index: 1;
-  background-color: var(--ink);
-  color: #f7f5f0;
+  background-color: var(--avatar-bg);
+  color: var(--avatar-ink);
 }
 
 /* Panel colour with a violet icon. A plain panel disc on a panel card
@@ -4824,7 +5357,7 @@ body.is-locked .dots {
   z-index: 0;
   margin-left: -10px;
   box-sizing: border-box;
-  border: 1.5px solid rgba(124, 58, 237, 0.4);
+  border: 1.5px solid var(--accent-ring);
   background-color: var(--panel);
   color: var(--accent);
 }
@@ -4839,14 +5372,14 @@ body.is-locked .dots {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #22c55e;
-  box-shadow: 0 0 0 2px var(--panel), 0 0 0 0 rgba(34, 197, 94, 0.5);
+  background-color: var(--live);
+  box-shadow: 0 0 0 2px var(--panel), 0 0 0 0 var(--live-ring);
   animation: jr-pulse 2.6s ease-in-out infinite;
 }
 
 @keyframes jr-pulse {
-  0%, 100% { box-shadow: 0 0 0 2px var(--panel), 0 0 0 0 rgba(34, 197, 94, 0.5); }
-  50%      { box-shadow: 0 0 0 2px var(--panel), 0 0 0 7px rgba(34, 197, 94, 0); }
+  0%, 100% { box-shadow: 0 0 0 2px var(--panel), 0 0 0 0 var(--live-ring); }
+  50%      { box-shadow: 0 0 0 2px var(--panel), 0 0 0 7px var(--live-ring-0); }
 }
 
 .jr__label {
@@ -4863,7 +5396,7 @@ body.is-locked .dots {
 .jr__more {
   flex-shrink: 0;
   padding: 0.6em 1.1em;
-  border: 1px solid rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--rule-2);
   border-radius: 999px;
   background: none;
   font: inherit;
@@ -4881,9 +5414,9 @@ body.is-locked .dots {
 
 @media (hover: hover) and (pointer: fine) {
   .jr__more:hover {
-    border-color: var(--accent);
-    background-color: var(--accent);
-    color: #fff;
+    border-color: var(--accent-fill);
+    background-color: var(--accent-fill);
+    color: var(--on-accent);
   }
 }
 
@@ -4918,8 +5451,8 @@ body.is-locked .dots {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #f7f5f0;
+  background-color: var(--jr-open-btn);
+  color: var(--jr-open-ink);
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
@@ -4929,50 +5462,54 @@ body.is-locked .dots {
 .jr__card.is-open .jr__close { opacity: 1; pointer-events: auto; }
 
 @media (hover: hover) and (pointer: fine) {
-  .jr__close:hover { background-color: rgba(255, 255, 255, 0.24); }
+  .jr__close:hover { background-color: var(--vid-line-3); }
 }
 
 .jr__text {
   margin: 1.4rem 0 0;
   font-size: 1rem;
   line-height: 1.7;
-  color: #c9c4b8;
+  color: var(--jr-open-body);
 }
 
 /* ---- the open, dark state ---- */
 
 .jr__card.is-open {
-  background-color: #1f1f1f;
-  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.30);
+  background-color: var(--jr-open-bg);
+  /* inset hairline, not a border: a real border would add 2px and shift
+     everything inside the card the moment it opened. Transparent in light
+     mode, where the card is far darker than the page and needs no edge. */
+  box-shadow: 0 26px 70px var(--shadow-4),
+              inset 0 0 0 1px var(--jr-open-border);
 }
 
 /* "A bigger title" — the card's own title grows into it rather than a
    second copy appearing underneath, which read as the same words twice. */
 .jr__card.is-open .jr__title {
-  color: #f7f5f0;
+  color: var(--jr-open-ink);
   font-size: clamp(1.6rem, 2.6vw, 2.2rem);
 }
-.jr__card.is-open .jr__short { color: #c9c4b8; }
-.jr__card.is-open .jr__label { color: #9a958a; }
+.jr__card.is-open .jr__short { color: var(--jr-open-body); }
+.jr__card.is-open .jr__label { color: var(--jr-open-mute); }
 .jr__card.is-open .jr__more  { opacity: 0; pointer-events: none; }
-.jr__card.is-open .jr__rule  { background-color: rgba(255, 255, 255, 0.2); }
+.jr__card.is-open .jr__rule  { background-color: var(--jr-open-line); }
 
 /* Violet at full strength disappears into near-black — 1.2:1 — so the
    opened card steps the year up to a lighter violet, which reaches 6:1
-   on #1f1f1f. Same size and weight; only the tint changes. */
-.jr__card.is-open .jr__year { color: #a78bfa; }
+   on var(--jr-open-bg). Same size and weight; only the tint changes. */
+.jr__card.is-open .jr__year { color: var(--jr-open-year); }
 
-.jr__card.is-open .jr__badge { box-shadow: 0 0 0 3px #1f1f1f; }
-.jr__card.is-open .jr__badge--co { background-color: #f7f5f0; color: #1f1f1f; }
+.jr__card.is-open .jr__badge { box-shadow: 0 0 0 3px var(--jr-open-bg); }
+.jr__card.is-open .jr__badge--co { background-color: var(--avatar-ink); color: var(--jr-open-bg); }
 
 .jr__card.is-open .jr__live {
-  box-shadow: 0 0 0 2px #1f1f1f, 0 0 0 0 rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 0 2px var(--jr-open-bg), 0 0 0 0 var(--live-ring);
   animation-name: jr-pulse-dark;
 }
 
 @keyframes jr-pulse-dark {
-  0%, 100% { box-shadow: 0 0 0 2px #1f1f1f, 0 0 0 0 rgba(34, 197, 94, 0.5); }
-  50%      { box-shadow: 0 0 0 2px #1f1f1f, 0 0 0 7px rgba(34, 197, 94, 0); }
+  0%, 100% { box-shadow: 0 0 0 2px var(--jr-open-bg), 0 0 0 0 var(--live-ring); }
+  50%      { box-shadow: 0 0 0 2px var(--jr-open-bg), 0 0 0 7px var(--live-ring-0); }
 }
 
 /* --------------------------------------------------------------------------
@@ -5102,7 +5639,7 @@ body.is-locked .dots {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  border: 1.5px solid rgba(124, 58, 237, 0.4);
+  border: 1.5px solid var(--accent-ring);
   background-color: var(--panel);
   color: var(--accent);
 }
@@ -5150,7 +5687,7 @@ body.is-locked .dots {
 .jr__tag {
   padding: 0.32em 0.7em;
   border-radius: 999px;
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: var(--sink);
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -5166,7 +5703,7 @@ body.is-locked .dots {
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #a78bfa;
+  color: var(--jr-open-year);
 }
 
 .jr__brought {
@@ -5180,7 +5717,7 @@ body.is-locked .dots {
   padding-left: 1.1rem;
   font-size: 0.95rem;
   line-height: 1.6;
-  color: #c9c4b8;
+  color: var(--jr-open-body);
 }
 
 .jr__brought li + li { margin-top: 0.3rem; }
@@ -5193,7 +5730,7 @@ body.is-locked .dots {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background-color: #a78bfa;
+  background-color: var(--jr-open-year);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5226,7 +5763,7 @@ body.is-locked .dots {
   letter-spacing: -0.045em;
   text-align: center;
   /* #111 at the top of the words to --body at the bottom */
-  background-image: linear-gradient(180deg, #111111 0%, #4a463d 100%);
+  background-image: linear-gradient(180deg, var(--text) 0%, var(--body) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -5422,7 +5959,7 @@ body.is-locked .dots {
   border: 1px solid var(--border);
   border-radius: 20px;
   background-color: var(--panel);
-  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 20px 55px var(--shadow-3), 0 2px 6px var(--shadow-1);
   text-align: left;
   opacity: 0;
   visibility: hidden;
@@ -5454,7 +5991,7 @@ body.is-locked .dots {
   width: 46px;
   height: 46px;
   border-radius: 14px;
-  border: 1.5px solid rgba(124, 58, 237, 0.4);
+  border: 1.5px solid var(--accent-ring);
   background-color: var(--bg);
   color: var(--accent);
 }
@@ -5486,9 +6023,46 @@ body.is-locked .dots {
 
 @media (max-width: 899px) {
   .wib { height: auto; margin-top: 2rem; }
-  .wib__sticky { position: static; height: auto; padding-block: 1rem 2rem; }
+  .wib__sticky { position: static; height: auto; padding-block: 1rem 0; }
+
+  /* The heading keeps the size it had. Only the sentence grows. */
   .wib__head { font-size: clamp(2.75rem, 16vw, 5rem); }
-  .wib__line { font-size: clamp(1.35rem, 6.4vw, 2.25rem); }
+
+  /* The sentence was set at 6.4vw against 24px of side padding, which put
+     it at 25px in a 310px column on a 390px screen and left it filling
+     81% of the line: a paragraph in the middle of the page rather than
+     the thing the section is built around. 7.2vw in a 16px gutter is
+     28px in a 326px column, and the floor of 26px is what keeps a 360px
+     screen from dropping below readable.
+
+     1.2 rather than 1.15, because at this size the tighter leading made
+     the descenders of one line sit into the caps of the next. */
+  .wib__line {
+    font-size: clamp(26px, 7.2vw, 40px);
+    line-height: 1.2;
+    padding-inline: 16px;
+    /* text-wrap stays `pretty` from the base rule. Switching it to greedy
+       wrapping here was tried and measured no different at 360, 390 or
+       430: the rag is set by the words, not by the wrap strategy. The
+       sentence carries "development", "combined" and "languages", and at
+       28px in a 326px column any two of those overflow, so a line ends
+       early whatever the browser does with the rest. 78% average fill is
+       the ceiling at this size, and a larger font lowers it rather than
+       raising it. */
+  }
+
+  /* The chips are icon-only buttons (their names are in a visually hidden
+     span for screen readers), so they are about 39px wide whatever the
+     text does and cannot be what pushes a line over. They still have to
+     shrink slightly against the bigger type or they start to look like
+     buttons dropped into a sentence rather than part of it. */
+  .wib__chip { height: 0.85em; }
+
+  /* 133px sat between the last line and the end of the section: 32px of
+     the sticky wrapper's own bottom padding and about 100px of the shared
+     section padding, on a section whose content had already finished.
+     The wrapper's is now zero and this is the whole gap. */
+  #capabilities { padding-bottom: 60px; }
 
   .wib__card {
     position: fixed;
@@ -5582,8 +6156,8 @@ body.is-locked .dots {
   z-index: 0;
   width: 0;
   border-radius: 18px;
-  background-color: #d9d4c5;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.10), 0 1px 3px rgba(0, 0, 0, 0.04);
+  background-color: var(--surface-strong);
+  box-shadow: 0 12px 34px var(--shadow-2), 0 1px 3px var(--shadow-1);
   transform: translateX(16px);
   transition: transform 380ms var(--ease-out), width 380ms var(--ease-out);
   pointer-events: none;
@@ -5623,8 +6197,8 @@ body.is-locked .dots {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background-color: var(--accent);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 /* Two of the three titles wrap to a second line and one does not. Every
@@ -5737,8 +6311,8 @@ body.is-locked .dots {
 
   .hlp__card {
     padding: 24px;
-    background-color: #d9d4c5;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    background-color: var(--surface-strong);
+    box-shadow: 0 10px 28px var(--shadow-2);
   }
 
   .hlp__head { font-size: clamp(2.25rem, 11vw, 3.5rem); }
@@ -5758,7 +6332,7 @@ body.is-locked .dots {
 
 .no-js .hlp__card { opacity: 1; transform: none; }
 .no-js .hlp__glide { display: none; }
-.no-js .hlp__card { background-color: #d9d4c5; }
+.no-js .hlp__card { background-color: var(--surface-strong); }
 
 /* ==========================================================================
    STEP 7 - Content as the page's one dark band
@@ -5770,11 +6344,9 @@ body.is-locked .dots {
    ========================================================================== */
 
 .vid {
-  --vid-ink: #eae8e3;
-  --vid-mute: #b8b4aa;
 
   position: relative;
-  background-color: #111111;
+  background-color: var(--vid-bg);
   color: var(--vid-ink);
 }
 
@@ -5789,7 +6361,12 @@ body.is-locked .dots {
 .js .vid,
 .js .vid:not(.is-active) { opacity: 1; }
 
-.vid__marker .section__num { background-color: var(--accent-2); color: var(--text); }
+.vid__marker .section__num { background-color: var(--accent-2); color: var(--on-accent-2); }
+/* The marker's own text node is the "/" between the two spans. It was
+   inheriting --muted, which is a dark grey on the light page and a light
+   grey on the dark one; either way it is the wrong one for a band that
+   reverses out of its surroundings. */
+.vid__marker { color: var(--vid-mute); }
 .vid__marker > span:last-child { color: var(--vid-mute); }
 
 /* The band keeps the sidebar's gutter on its inner .wrap, so the usable
@@ -5817,7 +6394,7 @@ body.is-locked .dots {
 /* Each line is one line. If a viewport ever gets too narrow for that the
    clamp has already shrunk the type, and the mobile rule below takes over. */
 .vid__titleln { display: block; white-space: nowrap; }
-.vid__titleln--soft { color: #8a8578; }
+.vid__titleln--soft { color: var(--vid-soft); }
 
 .vid__intro {
   margin: 0 0 0.4rem;
@@ -5867,7 +6444,7 @@ body.is-locked .dots {
   padding: 0;
   border: 0;
   border-radius: 20px;
-  background-color: #1a1a1a;
+  background-color: var(--vid-card);
   cursor: pointer;
   opacity: 0;
   transform: translateY(28px);
@@ -5901,14 +6478,14 @@ body.is-locked .dots {
   top: 14px;
   padding: 0.38em 0.7em;
   border-radius: 999px;
-  background-color: rgba(0, 0, 0, 0.62);
+  background-color: var(--scrim);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1;
-  color: #fff;
+  color: var(--on-accent);
 }
 
 .vid__num { left: 14px; }
@@ -5940,8 +6517,8 @@ body.is-locked .dots {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background-color: var(--accent);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
   transform: translate(-50%, -50%);
   transition: transform 260ms var(--ease-out), background-color 160ms var(--ease-out);
   /* the triangle sits a shade right of centre or it reads as off-centre */
@@ -5956,7 +6533,7 @@ body.is-locked .dots {
   height: 3px;
   margin: clamp(1.5rem, 3vh, 2rem) clamp(1rem, 3vw, 2.5rem) 0 0;
   border-radius: 999px;
-  background-color: #333333;
+  background-color: var(--vid-track);
   overflow: hidden;
 }
 
@@ -6007,36 +6584,36 @@ body.is-locked .dots {
 }
 
 .sb__panel.is-dark::before {
-  background-color: #1f1f1f;
-  border-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--vid-panel);
+  border-color: var(--vid-line);
 }
 
 .sb__panel.is-dark .sb__blurb,
 .sb__panel.is-dark .sb__lab,
 .sb__panel.is-dark .sb__addr,
-.sb__panel.is-dark .sb__chip { color: var(--vid-mute, #b8b4aa); }
+.sb__panel.is-dark .sb__chip { color: var(--vid-mute, var(--vid-mute)); }
 
-.sb__panel.is-dark .sb__link { color: #eae8e3; }
-.sb.is-live .sb__panel.is-dark .sb__link.is-active { background-color: var(--violet); color: #fff; }
+.sb__panel.is-dark .sb__link { color: var(--vid-ink); }
+.sb.is-live .sb__panel.is-dark .sb__link.is-active { background-color: var(--accent-fill); color: var(--on-accent); }
 
-.sb__panel.is-dark .sb__chip { background-color: #2a2a2a; }
+.sb__panel.is-dark .sb__chip { background-color: var(--vid-chip); }
 
-.sb__panel.is-dark .sb__icon { background-color: #2a2a2a; color: #eae8e3; }
+.sb__panel.is-dark .sb__icon { background-color: var(--vid-chip); color: var(--vid-ink); }
 
 /* The number chips are already near-black on yellow, which would vanish
-   into a #1f1f1f panel - a hairline gives them an edge back. */
-.sb__panel.is-dark .sb__num { border: 1px solid rgba(255, 255, 255, 0.22); }
+   into a var(--jr-open-bg) panel - a hairline gives them an edge back. */
+.sb__panel.is-dark .sb__num { border: 1px solid var(--vid-line-2); }
 
-.sb__panel.is-dark .sb__addr { color: #eae8e3; }
-.sb__panel.is-dark .sb__copy { border-color: rgba(255, 255, 255, 0.24); color: #eae8e3; }
-.sb__mail.is-dark::before { background-color: #2a2a2a; }
+.sb__panel.is-dark .sb__addr { color: var(--vid-ink); }
+.sb__panel.is-dark .sb__copy { border-color: var(--vid-line-3); color: var(--vid-ink); }
+.sb__mail.is-dark::before { background-color: var(--vid-chip); }
 
 /* The logo pill keeps its yellow and its dark text in both worlds */
 
 @media (hover: hover) and (pointer: fine) {
-  .sb__panel.is-dark .sb__icon:hover { background-color: #3a3a3a; }
+  .sb__panel.is-dark .sb__icon:hover { background-color: var(--vid-chip-hi); }
   .sb.is-live .sb__panel.is-dark .sb__link:not(.is-active):hover {
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: var(--vid-line);
   }
   .sb__panel.is-dark .sb__copy:hover { border-color: var(--accent-2); color: var(--accent-2); }
 }
@@ -6060,7 +6637,7 @@ body.is-locked .dots {
 
 .vid__kind {
   padding: 0.42em 0.9em;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--vid-line-2);
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 700;
@@ -6117,7 +6694,7 @@ body.is-locked .dots {
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background-color: rgba(0, 0, 0, 0.22);
+  background-color: var(--rule);
   cursor: pointer;
   transition: width 320ms var(--ease-out), background-color 320ms var(--ease-out);
 }
@@ -6142,9 +6719,26 @@ body.is-locked .dots {
   gap: 20px;
   width: 100%;
   margin: 0;
-  /* the trailing gutter is what lets the last card come fully into view
-     instead of stopping flush against the edge of the screen */
-  padding: 4px clamp(1rem, 3vw, 2.5rem) 24px 0;
+  /* The trailing gutter is what lets the last card come fully into view
+     instead of stopping flush against the edge of the screen, and it is
+     TWO things added together, which is what it was missing.
+
+     The clamp only cancels .say's negative margin-right: it buys back
+     the page gutter that the row was deliberately pushed out through,
+     so the right-hand end of the run lands on the wrap's content edge
+     rather than past it. On its own that is not a gutter at all, it is
+     a return to zero, and on a phone it left the last card finishing
+     flush with the screen while the first one started 36px in.
+
+     --space-lg is the gutter proper. It is the same token that sets
+     .say's padding-left, so the space before the first card and the
+     space after the last are one value and cannot drift apart.
+
+     This is also the number the scroll run is built from: scrollWidth
+     is cards + gaps + this padding, so widening it here widens the
+     travel by exactly as much and the last card arrives with the
+     gutter behind it. */
+  padding: 4px calc(clamp(1rem, 3vw, 2.5rem) + var(--space-lg)) 24px 0;
   list-style: none;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -6168,7 +6762,7 @@ body.is-locked .dots {
   padding: 36px;
   border-radius: 24px;
   background-color: var(--panel);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 18px 50px var(--shadow-2), 0 2px 6px var(--shadow-1);
   opacity: 0;
   transform: translateY(28px);
   transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
@@ -6188,8 +6782,8 @@ body.is-locked .dots {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background-color: var(--accent);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 .say__cardtitle {
@@ -6231,8 +6825,8 @@ body.is-locked .dots {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: var(--ink);
-  color: #f7f5f0;
+  background-color: var(--avatar-bg);
+  color: var(--avatar-ink);
   font-size: 1rem;
   font-weight: 800;
 }
@@ -6262,8 +6856,8 @@ body.is-locked .dots {
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  background-color: var(--accent);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -6348,15 +6942,24 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
 
 /* Each photograph fades up into the letters and back out again. opacity
    only: an SVG <image> inside a clip path is already doing enough work. */
+/* No transition. The single rAF loop in script.js writes opacity every
+   frame, and a transition on the same property would be a second animator
+   fighting it for the same number: every write would start a fresh 400ms
+   run from wherever the last one had got to, which is both slower and
+   wrong. Same reason the What I Bring words have no transition.
+
+   will-change and backface-visibility give each picture its own composited
+   layer, so moving one is a compositor job and never repaints the letters
+   underneath. No filter, no box-shadow and no blur anywhere near these:
+   every one of them would force a paint on a moving element and is exactly
+   what the layer is there to avoid.
+
+   The pool is eight nodes and they exist for the whole visit, so the
+   standing cost of eight layers is paid once rather than being churned. */
 .mb__shot {
   opacity: 0;
-  transition: opacity 400ms var(--ease-out);
-}
-
-.mb__shot.is-in { opacity: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-  .mb__shot { transition: none; }
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 /* ==========================================================================
@@ -6390,7 +6993,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
 
 .ct__head {
   margin: 0;
-  font-size: clamp(2.5rem, 7vw, 5.625rem);
+  font-size: clamp(56px, 6.5vw, 96px);
   font-weight: 800;
   line-height: 0.98;
   letter-spacing: -0.04em;
@@ -6457,7 +7060,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   bottom: -3.5cqw;
   height: 5cqw;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.20);
+  background: var(--shadow-3);
   filter: blur(3.2cqw);
   pointer-events: none;
   z-index: -1;
@@ -6468,7 +7071,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   z-index: 1;
   padding: 2cqw 2cqw 2.6cqw;
   border-radius: 2.2cqw 2.2cqw 0.8cqw 0.8cqw;
-  background-color: #111111;
+  background-color: var(--ct-body);
   transform-origin: 50% 100%;
   transform: rotateX(0deg);
   transition: transform 800ms var(--ease-out);
@@ -6486,7 +7089,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   width: 0.7cqw;
   height: 0.7cqw;
   border-radius: 50%;
-  background-color: #3a3a3a;
+  background-color: var(--vid-chip-hi);
   transform: translateX(-50%);
 }
 
@@ -6499,7 +7102,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   align-items: center;
   padding: 6.5%;
   border-radius: 0.8cqw;
-  background-color: var(--panel);
+  background-color: var(--ct-screen);
   overflow: hidden;
   /* Held back until the lid is most of the way up, so the screen comes on
      as it is revealed rather than glowing through the back of the lid */
@@ -6521,8 +7124,8 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   width: 100%;
   padding: 2.4cqw 2.8cqw;
   border-radius: 1.8cqw;
-  background-color: #f4f1ea;
-  box-shadow: 0 1.4cqw 3.4cqw rgba(0, 0, 0, 0.10);
+  background-color: var(--ct-win);
+  box-shadow: 0 1.4cqw 3.4cqw var(--shadow-2);
   /* The one font-size everything in here is measured from. The floor
      matters: at 900px the sidebar leaves the device only about 456px, and
      a pure cqw value put the message at 9.8px, which is a picture of text
@@ -6537,7 +7140,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   align-items: center;
   gap: 0.6em;
   padding-bottom: 0.75em;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  border-bottom: 1px solid var(--hairline);
 }
 
 .ct__avatar {
@@ -6549,14 +7152,14 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   /* The cutout is a head on transparency, framed a little high in its
      own box; nudging the crop down puts the face in the circle */
   object-position: 50% 22%;
-  background-color: var(--accent);
+  background-color: var(--ct-accent);
 }
 
 .ct__who {
   font-size: 0.86em;
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: #1f1f1f;
+  color: var(--ct-ink);
   white-space: nowrap;
 }
 
@@ -6567,7 +7170,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   margin-left: auto;
   font-size: 0.74em;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--ct-accent);
   white-space: nowrap;
 }
 
@@ -6575,7 +7178,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   width: 0.5em;
   height: 0.5em;
   border-radius: 50%;
-  background-color: var(--accent);
+  background-color: var(--ct-accent);
   animation: ct-pulse 1.1s ease-in-out infinite;
 }
 
@@ -6598,7 +7201,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   min-height: 3.2em;
   font-size: 1em;
   line-height: 1.55;
-  color: #1f1f1f;
+  color: var(--ct-ink);
 }
 
 .ct__caret {
@@ -6607,7 +7210,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   height: 1.05em;
   margin-left: 0.08em;
   vertical-align: text-bottom;
-  background-color: var(--accent);
+  background-color: var(--ct-accent);
 }
 
 /* Only ever on while script.js is typing */
@@ -6635,8 +7238,8 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   gap: 0.4em;
   padding: 0.5em 1.1em;
   border-radius: 999px;
-  background-color: var(--accent);
-  color: #ffffff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
   font-size: 0.82em;
   font-weight: 700;
   transition: transform 160ms var(--ease-out), background-color 160ms ease;
@@ -6647,7 +7250,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
    the run is restarted from the Replay button mid-press. */
 .ct__send.is-pressed {
   transform: scale(0.95);
-  background-color: var(--accent-soft);
+  background-color: var(--accent-fill-hi);
 }
 
 .ct__tick {
@@ -6656,7 +7259,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   gap: 0.35em;
   font-size: 0.78em;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--ct-accent);
 }
 
 /* ---- the pointer, the plane and its wake ---- */
@@ -6687,7 +7290,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   z-index: 5;
   left: 50%;
   top: 62%;
-  color: var(--accent);
+  color: var(--ct-accent);
   opacity: 0;
   pointer-events: none;
 }
@@ -6743,8 +7346,8 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   width: 5cqw;
   height: 5cqw;
   border-radius: 50%;
-  background-color: var(--accent);
-  color: #ffffff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 .ct__doneico svg { width: 2.4cqw; height: 2.4cqw; }
@@ -6760,7 +7363,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
 
 .ct__wakeline {
   fill: none;
-  stroke: var(--accent);
+  stroke: var(--ct-accent);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-dasharray: 1 9;
@@ -6801,7 +7404,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   margin-left: -2.5%;
   padding: 2.2cqw 3.2cqw 1.4cqw;
   border-radius: 0.6cqw 0.6cqw 2cqw 2cqw;
-  background-color: #1f1f1f;
+  background-color: var(--ct-body);
 }
 
 .ct__keys { display: grid; gap: 0.72cqw; }
@@ -6824,8 +7427,8 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   justify-content: center;
   height: 4.4cqw;
   border-radius: 0.9cqw;
-  background-color: #2a2a2a;
-  color: #cfcabb;
+  background-color: var(--vid-chip);
+  color: var(--ct-keylab);
   font-size: 1.5cqw;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -6838,8 +7441,8 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
 /* 2px down and darker, with the one violet detail the keys get */
 .ct__key.is-down {
   transform: translateY(2px);
-  background-color: #151515;
-  box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.55);
+  background-color: var(--ct-key-down);
+  box-shadow: inset 0 0 0 1px var(--accent-glow);
 }
 
 .ct__lip {
@@ -6848,7 +7451,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   height: 0.85cqw;
   margin: 1.5cqw auto 0;
   border-radius: 0 0 0.9cqw 0.9cqw;
-  background-color: #2a2a2a;
+  background-color: var(--vid-chip);
 }
 
 /* ---- replay ---- */
@@ -6914,8 +7517,8 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background-color: var(--accent);
-  color: #ffffff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
   transition: background-color var(--fast) ease;
 }
 
@@ -6979,19 +7582,19 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
 @media (hover: hover) and (pointer: fine) {
   .ct__card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 14px 34px var(--shadow-2);
   }
 
-  .ct__card:hover .ct__ico { background-color: var(--accent-soft); }
+  .ct__card:hover .ct__ico { background-color: var(--accent-fill-hi); }
 
   .ct__act:hover,
   /* The stretched anchor covers the card, so hovering anywhere on the
      LinkedIn card is a hover on the button too. Written out because the
      pointer is usually nowhere near the button itself. */
   .ct__card:hover .ct__act--stretch {
-    background-color: var(--accent);
-    border-color: var(--accent);
-    color: #ffffff;
+    background-color: var(--accent-fill);
+    border-color: var(--accent-fill);
+    color: var(--on-accent);
   }
 }
 
@@ -7041,18 +7644,13 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   }
 }
 
-/* Two up, with the odd one out running the full width rather than
-   sitting alone in the left-hand column. Three across at 1024 gave each
-   card 132px of inner width and broke the email over three lines in the
-   middle of a word. */
-@media (min-width: 900px) and (max-width: 1199px) {
-  .ct__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ct__cards > :last-child { grid-column: 1 / -1; }
-}
-
-@media (min-width: 1200px) and (max-width: 1399px) {
-  .ct__cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
+/* The cards used to run in a row UNDER the scene between 900 and 1399,
+   two up below 1200 and three across above it, because the scene had the
+   full width to itself and there was nowhere beside it to put them.
+   STEP 18c gave them a column of their own at every width from 900 up, so
+   both of those rules are gone: a two-up grid inside a 300px track would
+   have given each card 140px and broken the email mid-word, which is the
+   very thing the three-across rule was written to avoid at 1024. */
 
 /* --------------------------------------------------------------------------
    Mobile - the laptop becomes a phone
@@ -7159,7 +7757,7 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
     margin-left: 0;
     padding: 2.6cqw 2cqw 2cqw;
     border-radius: 3cqw;
-    background-color: #1f1f1f;
+    background-color: var(--ct-body);
   }
 
   .ct__keys { gap: 1.5cqw; }
@@ -7209,5 +7807,1069 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   .js .ct__card { opacity: 1; transform: none; }
 
   .ct__replay { display: none; }
+}
+
+/* ==========================================================================
+   STEP 10 - the theme toggle, and the few edges dark mode needs
+
+   The palette itself is two blocks at the top of this file. What is left
+   here is the button, the crossfade between themes, and the handful of
+   places where a dark page needs an outline that a light one does not.
+   ========================================================================== */
+
+/* ---- the crossfade ----
+
+   Only while switching. script.js puts .is-theming on <html>, waits out
+   the 300ms and takes it off again, which gets three things at once:
+
+   1. No transition on first load, by construction rather than by a flag.
+      The class is not there yet, so the first paint cannot animate.
+   2. No permanent transition sitting on every element on the page, which
+      is what a bare `* { transition: background-color ... }` would be,
+      and which would fight every component's own transitions for the
+      rest of the visit.
+   3. Nothing to undo. The rule stops applying the moment the class goes.
+
+   !important is doing real work here: plenty of components declare their
+   own `transition` shorthand, and the shorthand resets every longhand.
+   Without it, a card with `transition: transform 420ms` would refuse to
+   ease its background. The cost is that for those 300ms a transform
+   caught mid-flight snaps instead of easing, which is a fair trade for
+   one third of one second. */
+
+html.is-theming,
+html.is-theming *,
+html.is-theming *::before,
+html.is-theming *::after {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease,
+              fill 0.3s ease,
+              stroke 0.3s ease,
+              box-shadow 0.3s ease !important;
+}
+
+/* A theme change is a change of state, not a journey. Under this setting
+   it simply happens. */
+@media (prefers-reduced-motion: reduce) {
+  html.is-theming,
+  html.is-theming *,
+  html.is-theming *::before,
+  html.is-theming *::after {
+    transition: none !important;
+  }
+}
+
+/* ---- the button ---- */
+
+.tt {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background-color: var(--sink);
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 160ms var(--ease-out);
+}
+
+.tt:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tt:hover { background-color: var(--sink-hi); }
+}
+
+/* Both icons are always in the box, stacked. Only one is at opacity 1, so
+   the swap is a crossfade in place rather than one icon being removed and
+   another inserted, which is what lets it rotate through the change. */
+.tt__ico {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 260ms var(--ease-out), transform 260ms var(--ease-out);
+}
+
+.tt__ico svg { display: block; }
+
+/* Light theme: the moon is showing, because the moon is what you would be
+   switching TO. The sun waits, turned back and faded out. */
+.tt__ico--moon { opacity: 1; transform: rotate(0deg) scale(1); }
+.tt__ico--sun  { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+
+[data-theme="dark"] .tt__ico--moon { opacity: 0; transform: rotate(90deg) scale(0.6); }
+[data-theme="dark"] .tt__ico--sun  { opacity: 1; transform: rotate(0deg) scale(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tt__ico { transition: opacity 120ms ease; transform: none !important; }
+}
+
+/* ---- where the three copies sit ---- */
+
+.topbar__acts {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sb__acts {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.tt--sb {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+}
+
+/* The morph fades the sidebar in by animating named children, not the
+   whole column, so anything it does not know about is painted at full
+   strength from the first frame. This button is new and not one of them,
+   and without this it sat on top of the hero next to the hero's own copy.
+   It now arrives with the rest of the sidebar. */
+.sb:not(.is-live) .tt {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tt--sb { transition: background-color 160ms var(--ease-out), opacity 240ms var(--ease-out); }
+
+/* The sidebar panel reverses while it is over the UGC band, and the
+   toggle sits inside it. Without this it keeps the page's own --sink and
+   --text and turns into a light icon on a light panel, which is exactly
+   the failure the .is-dark block already handles for .sb__icon beside it. */
+.sb__panel.is-dark .tt {
+  background-color: var(--vid-chip);
+  color: var(--vid-ink);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sb__panel.is-dark .tt:hover { background-color: var(--vid-chip-hi); }
+}
+
+/* The sidebar's icons grow with it above 1200px, and the toggle grows
+   with them, or it would sit as a small square beside a large one */
+@media (min-width: 1200px) {
+  .tt--sb { width: 36px; height: 36px; border-radius: 11px; }
+}
+
+/* The hero's copy. Top right, above the wordmark, out of the way of both
+   nav rows. z-index 4 puts it over the portrait, which is the only thing
+   in the hero that reaches this corner. */
+.tt--hx {
+  position: absolute;
+  top: clamp(1rem, 3vh, 2rem);
+  right: clamp(1rem, 3vw, 2.5rem);
+  z-index: 4;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background-color: var(--panel-soft);
+  border: 1px solid var(--hairline);
+  transition: background-color 160ms var(--ease-out),
+              opacity 320ms var(--ease-out);
+}
+
+/* Once the sidebar is live it has a toggle of its own, so the hero's goes
+   away rather than leaving two on screen. :has() is what lets a rule on
+   the hero react to a class on the sidebar without caring where either
+   sits in the document. Where :has() is not supported the hero button
+   simply stays, which is untidy but not broken. */
+html:has(.sb.is-live) .tt--hx {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Below 900px there is no sidebar and no hero pin; the topbar carries the
+   only toggle, so the hero's copy would be a second one on the same
+   screen. */
+@media (max-width: 899px) {
+  .tt--hx { display: none; }
+}
+
+@media (min-width: 900px) {
+  .topbar__acts { display: none; }
+}
+
+/* ---- the edges a dark page needs ----
+
+   Each of these is transparent in light mode, so the light theme is
+   exactly what it was before this step. */
+
+.sb__num,
+.hx__num {
+  box-shadow: inset 0 0 0 1px var(--chip-border);
+}
+
+/* The laptop and the phone are dark objects on what is now a dark page.
+   The outline is what keeps the body from dissolving into the background;
+   the screen inside it stays light in both themes, so the scene reads the
+   same way either way. */
+.ct__lid,
+.ct__deck {
+  box-shadow: inset 0 0 0 1px var(--ct-outline);
+}
+
+/* The sidebar panel over the UGC band. In dark mode the band is the light
+   one, so this is the light panel, and the hairline has to come back the
+   other way round. The switch code in script.js is untouched: .is-dark
+   still only means "this panel is over the band". */
+[data-theme="dark"] .sb__panel.is-dark::before {
+  box-shadow: inset 0 0 0 1px var(--vid-line);
+}
+
+/* The reading highlight dims an inactive section's heading and its section
+   number to --muted. That is a dark grey on the light page, which is fine
+   on the number's yellow chip, and a light grey on the dark page, which is
+   1.59:1 on the same chip. The number keeps its own ink while dimmed here;
+   the chip is yellow in both themes, so the ink on it cannot follow the
+   theme. Specificity has to beat .js .section:not(.is-active) .section__num,
+   which the attribute selector supplies. */
+[data-theme="dark"].js .section:not(.is-active) .section__num {
+  color: var(--on-accent-2);
+}
+
+/* Same dimmer, same problem, the other section. The UGC band reverses out
+   of the page, so --muted is the wrong grey on it in BOTH themes: 2.63:1
+   on the dark band in light mode, 1.55:1 on the light band in dark mode.
+   The band has its own grey and the dimmer has to use it. Matching the
+   dimmer's specificity and sitting later is what takes it. */
+.js .section:not(.is-active) .vid__marker,
+.js .section:not(.is-active) .vid__marker > span:not(.section__num) {
+  color: var(--vid-mute);
+}
+
+/* Except the number, which is not on the band at all: it is on its own
+   yellow chip, and the chip is yellow in both themes */
+.js .section:not(.is-active) .vid__marker .section__num {
+  color: var(--on-accent-2);
+}
+
+/* ==========================================================================
+   STEP 11 - the phone intro, and the phone in general
+
+   Nothing in this block applies above 899px. The desktop hero, its
+   keyframes and its morph are untouched.
+   ========================================================================== */
+
+/* ---- the hold ----
+
+   .is-loading is written by the inline block in <head> before the first
+   paint, and removed once the fonts and the portrait are in. Only the
+   phone hero is covered by it: the desktop hero has its own intro and
+   nothing to gain from waiting.
+
+   visibility rather than display, so the layout is still built and
+   measured underneath. The hero is the right size the instant it appears
+   instead of reflowing into place in front of the visitor. */
+@media (max-width: 899px) {
+  html.is-loading .hx > *,
+  html.is-loading .topbar {
+    visibility: hidden;
+  }
+
+  /* The bloom is the one thing that must be visible while the hero is
+     still covered: it is the first beat of the intro. */
+  html.is-loading .mi__bloom { visibility: visible; }
+}
+
+@media (max-width: 899px) {
+
+  /* ---- a. the bloom ---------------------------------------------------
+     A soft yellow circle growing from the middle of the screen and fading
+     out. Two properties, both compositor-only. */
+
+  .mi__bloom {
+    position: absolute;
+    top: 38%;
+    left: 50%;
+    z-index: 0;
+    width: 62vw;
+    height: 62vw;
+    margin: -31vw 0 0 -31vw;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+                rgba(245, 229, 0, 0.55) 0%,
+                rgba(245, 229, 0, 0.18) 45%,
+                transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  html.is-intro .mi__bloom {
+    animation: mi-bloom 500ms var(--ease-out) both;
+  }
+
+  @keyframes mi-bloom {
+    0%   { opacity: 0;    transform: scale(0.2); }
+    35%  { opacity: 1;    transform: scale(0.85); }
+    100% { opacity: 0;    transform: scale(1.25); }
+  }
+
+  /* ---- b. the name, letter by letter ----------------------------------
+     Each letter is its own clip box with the glyph inside it, written by
+     script.js. The clip is per letter rather than per line because a
+     single overflow:hidden on the line clips sideways as well, and at
+     -0.02em tracking the outer letters sit right on that edge.
+
+     The 30ms stagger is written as an inline animation-delay, so the two
+     lines carry on from one another rather than both starting at zero. */
+
+  .mi__letter {
+    display: inline-block;
+    overflow: hidden;
+    /* The glyph box, not the line box, so a clip cannot eat the cap height */
+    vertical-align: bottom;
+  }
+
+  .mi__letter > i {
+    display: inline-block;
+    font-style: inherit;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Held below the clip until the intro runs. Only while .is-loading is
+     on, so a page that never gets an intro (JS failed, class never added)
+     still shows the name. */
+  html.is-loading .mi__letter > i {
+    transform: translate3d(0, 105%, 0);
+  }
+
+  /* animation-delay: inherit is the whole trick. script.js writes the
+     per-letter stagger as an inline animation-delay on the CLIP, which is
+     the element it created and can address; the glyph inside takes that
+     computed value. animation-delay does not inherit on its own, so this
+     has to ask for it. */
+  html.is-intro .mi__letter > i {
+    animation: mi-letter 520ms var(--ease-out) both;
+    animation-delay: inherit;
+  }
+
+  @keyframes mi-letter {
+    from { transform: translate3d(0, 105%, 0); }
+    to   { transform: translate3d(0, 0, 0); }
+  }
+
+  /* ---- c. the portrait ------------------------------------------------ */
+
+  html.is-loading .hx__portrait {
+    opacity: 0;
+  }
+
+  html.is-intro .hx__portrait {
+    animation: mi-portrait 760ms var(--ease-out) 620ms both;
+  }
+
+  @keyframes mi-portrait {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 60px, 0) scale(1.05);
+      filter: var(--hx-shadow) blur(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: var(--hx-shadow) blur(0);
+    }
+  }
+
+  /* The intro's animations are filled, and a filled animation outranks an
+     inline style. Until they are dropped, every transform, opacity and
+     filter the scroll animation writes would be silently ignored.
+     script.js adds .is-settled when the run is over, which is the same
+     trick .hx.is-ready plays for the desktop morph. */
+  html.is-intro.is-settled .hx__portrait,
+  html.is-intro.is-settled .hx__word,
+  html.is-intro.is-settled .hx__head,
+  html.is-intro.is-settled .hx__btns,
+  html.is-intro.is-settled .hx__stats,
+  html.is-intro.is-settled .hx__traits,
+  html.is-intro.is-settled .hx__tag,
+  html.is-intro.is-settled .hx__desc {
+    animation: none;
+  }
+
+  /* ---- d. headline, buttons, stats, traits ---------------------------- */
+
+  html.is-loading .hx__head,
+  html.is-loading .hx__btns,
+  html.is-loading .hx__stats,
+  html.is-loading .hx__traits,
+  html.is-loading .hx__tag,
+  html.is-loading .hx__desc {
+    opacity: 0;
+  }
+
+  html.is-intro .hx__head    { animation: mi-up 420ms var(--ease-out) 1080ms both; }
+  html.is-intro .hx__btns    { animation: mi-up 420ms var(--ease-out) 1200ms both; }
+  html.is-intro .hx__stats   { animation: mi-up 420ms var(--ease-out) 1300ms both; }
+  html.is-intro .hx__traits  { animation: mi-up 420ms var(--ease-out) 1400ms both; }
+  html.is-intro .hx__tag     { animation: mi-up 420ms var(--ease-out) 1460ms both; }
+  html.is-intro .hx__desc    { animation: mi-up 420ms var(--ease-out) 1520ms both; }
+
+  @keyframes mi-up {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  /* ---- e. the top bar, last ------------------------------------------- */
+
+  html.is-intro .topbar {
+    animation: mi-bar 380ms var(--ease-out) 1600ms both;
+  }
+
+  @keyframes mi-bar {
+    from { opacity: 0; transform: translate3d(0, -100%, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+}
+
+/* ==========================================================================
+   STEP 11 - mobile polish
+
+   Every rule below fixes something that was measured at 390px, not
+   something that looked off. The findings are named in each comment.
+   Nothing here applies above 899px.
+   ========================================================================== */
+
+@media (max-width: 899px) {
+
+  /* ---- side gutters ----
+     Measured: every section's .wrap started at x=0, so all the body copy
+     ran into both edges of the screen. The wrap had a gutter on desktop
+     and none here. 20px, and it has to respect the notch in landscape,
+     where the safe inset is horizontal rather than vertical. */
+  .wrap {
+    padding-inline: max(20px, env(safe-area-inset-left))
+                    max(20px, env(safe-area-inset-right));
+  }
+
+  /* The timeline keeps its 44px rail gutter on the left and takes the
+     standard one on the right */
+  .jr { padding-right: max(20px, env(safe-area-inset-right)); }
+
+  /* ---- the top bar ----
+     Measured 53px; the brief asks for 60. The extra goes on as padding
+     rather than a height, so the safe-area inset can add to it on a
+     notched phone instead of eating the content. */
+  .topbar {
+    /* 60px of bar, plus whatever the notch needs on top of it rather than
+       out of it. On a phone with no inset this computes to exactly 60. */
+    min-height: 60px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-inline: max(20px, env(safe-area-inset-left))
+                    max(20px, env(safe-area-inset-right));
+    transition: transform 280ms var(--ease-out);
+  }
+
+  /* Hides going down, comes back going up. script.js writes the class and
+     holds it off until 80px of scroll, so it never tucks while the hero
+     is still on screen. */
+  .topbar.is-tucked {
+    transform: translate3d(0, -100%, 0);
+  }
+
+  /* ---- 44px tap targets ----
+     Measured under 44px: the theme toggle (30x30), the burger (86x33),
+     the hero buttons (126x36), Read more (101x35), the Copy and WhatsApp
+     buttons (57x33) and the What I Bring chips (39x22).
+
+     The box grows, the ink does not: padding and min-height take each one
+     to 44 without changing a single font size or border radius, so the
+     design is untouched and only the hit area moves. */
+  .tt,
+  .burger {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .hx__btn,
+  .jr__more,
+  .ct__act,
+  .ct__replay,
+  .hlp__btn,
+  .btn {
+    min-height: 44px;
+  }
+
+  /* A chip is too small to grow without redrawing the sentence it sits
+     in, so it gets an invisible pad instead: the ::after covers 44px
+     centred on the chip and takes the tap. */
+  .wib__chip { position: relative; }
+
+  .wib__chip::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Same treatment for the dash indicator, measured at 34x5 */
+  .say__dash { position: relative; }
+
+  .say__dash::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ---- body copy at 16px ----
+     Measured below 16px: the hero strapline at 11.2px, the timeline
+     summaries at 15.2px, the strength proof lines at 14px and the
+     "what I brought" items at 15.2px. Line height 1.5 on all of them. */
+  .hx__desc,
+  .jr__short,
+  .jr__text,
+  .jr__brought li,
+  .st__proof,
+  .hlp__text,
+  .vid__intro,
+  .say__quote {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* The label under a timeline card is a caption, not prose, so it stays
+     smaller than the body but comes up off 12.5px to the 13px floor */
+  .jr__label,
+  .footer__meta { font-size: 0.8125rem; line-height: 1.5; }
+
+  /* ---- carousels ----
+     Measured: no scroll-snap anywhere (snap-type computed to none on all
+     three rows), and the UGC cards at 70vw. 85vw shows a clear slice of
+     the next card, which is what says the row scrolls. */
+  .vid__card { width: 85vw; }
+
+  /* .cardrail__row is the scroller, not .vid__row: the snap rule at the
+     top of the rail section is inside a desktop media query, so on a
+     phone these rows had no snap at all. proximity, not mandatory: the
+     shared rail writes scrollLeft directly during a drag and mandatory
+     fights those writes, which is the same reason .is-snap-suspended
+     exists for the desktop rails. Its rule already covers this one. */
+  .cardrail__row {
+    scroll-snap-type: x proximity;
+  }
+
+  .vid__item,
+  .say__card {
+    scroll-snap-align: start;
+  }
+
+  /* ---- fixed things and the home indicator ---- */
+  .menu {
+    padding-bottom: max(var(--space-lg), env(safe-area-inset-bottom));
+  }
+
+  .footer {
+    padding-bottom: max(var(--space-lg), env(safe-area-inset-bottom));
+  }
+
+  /* ---- the full-screen menu ----
+     28px items as briefed, arriving one after another. */
+  .menu__link { font-size: 1.75rem; }
+
+  .menu__item,
+  .menu__link { min-height: 44px; }
+}
+
+/* ---- the reduced-motion intro ----
+   Same order, same timings, fades only. No letter rise, no blur, no
+   scale, nothing travelling more than --rm-shift. */
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  html.is-loading .mi__letter > i { transform: none; }
+
+  html.is-intro .mi__letter > i {
+    animation: mi-fade 420ms ease both;
+    animation-delay: inherit;
+  }
+
+  html.is-intro .hx__portrait {
+    animation: mi-fade 520ms ease 620ms both;
+  }
+
+  html.is-intro .hx__head    { animation: mi-fade 380ms ease 1080ms both; }
+  html.is-intro .hx__btns    { animation: mi-fade 380ms ease 1200ms both; }
+  html.is-intro .hx__stats   { animation: mi-fade 380ms ease 1300ms both; }
+  html.is-intro .hx__traits  { animation: mi-fade 380ms ease 1400ms both; }
+  html.is-intro .hx__tag     { animation: mi-fade 380ms ease 1460ms both; }
+  html.is-intro .hx__desc    { animation: mi-fade 380ms ease 1520ms both; }
+  html.is-intro .topbar      { animation: mi-fade 320ms ease 1600ms both; }
+
+  /* The bloom is a light coming on, not something crossing the screen.
+     It keeps its fade and loses its growth. */
+  html.is-intro .mi__bloom {
+    animation: mi-fade-out 500ms ease both;
+  }
+
+  @keyframes mi-fade-out {
+    0%   { opacity: 0; }
+    35%  { opacity: 0.8; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes mi-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   STEP 15 - the role title at two lengths
+
+   Full:  Technical Customer Success Manager & Business Developer
+   Short: Customer Success & Business Development
+
+   The full one is used everywhere there is room. The short one exists for
+   the hero tagline on a phone, where the full title wrapped to three lines
+   at 360px and pushed "That's Mohamed." away from the title it answers.
+   -------------------------------------------------------------------------- */
+
+.hx__tagshort { display: none; }
+
+@media (max-width: 899px) {
+  .hx__tagfull { display: none; }
+  .hx__tagshort { display: block; }
+}
+
+/* ==========================================================================
+   STEP 16
+   ========================================================================== */
+
+/* ==========================================================================
+   STEP 18b - the name: yellow in both themes, a hairline rim in light
+
+   Three surfaces wear it: the hero wordmark, the copy of the wordmark
+   that flies into the sidebar, and the divider before Contact. The
+   sidebar logo pill at rest is NOT one of them: it is dark text on a
+   yellow lozenge and already has all the contrast it needs.
+
+   One declaration each, one token pair behind all three, and no second
+   copy of the text anywhere on the page. The offset shadow, the two
+   layered <text> copies in the divider and the clipped <rect> they sat
+   under are all gone.
+
+   Appended last so it beats the earlier .hx__word blocks by source
+   order without needing a heavier selector.
+   ========================================================================== */
+
+/* ---- the hero wordmark ----
+   The floor is for phones only and it is not decoration. 0.006em against
+   the desktop wordmark is 1.15px at 1280 and 1.72px at 1920, which is the
+   hairline that was asked for. The same 0.006em against the phone's 14vw
+   wordmark is 0.33px at 390, which Chrome draws as a third of an alpha
+   value and the eye does not see at all, putting the name back to the
+   1.18:1 yellow-on-beige it is outlined to escape. max() leaves every
+   desktop width untouched and only engages below about a 100px font. */
+.hx__word {
+  color: var(--name);
+  -webkit-text-stroke: max(0.6px, var(--name-sw)) var(--name-ink);
+  /* Keeps the glyph exact by laying the black down first. At a hairline
+     it is barely doing anything, and where it is not supported the
+     stroke simply centres again, which at 0.006em is a third of a pixel
+     either side. That is the degradation, not a second code path. */
+  paint-order: stroke fill;
+}
+
+/* ---- the flying copy ----
+   The pill's inner span stands in for the wordmark for the length of the
+   morph, so it wears the same rim. script.js winds the width down to
+   zero across the same window that turns the text to ink, so what lands
+   in the sidebar is the ordinary pill. */
+.sb__logoin { paint-order: stroke fill; }
+
+/* ---- the divider ----
+   The two <text> nodes are now DRAWN, not just used as a clip shape, so
+   the yellow comes from their own fill and the rim from their own
+   stroke. That removes the <rect> that used to be clipped to them and
+   both layered ink copies at once: one set of letters, filled and
+   stroked, exactly like the wordmark above.
+
+   The clipPath still refers to these very nodes, through <use>, so the
+   photographs are cut from the same shape that is painted. A reference,
+   not a copy: they cannot drift apart when a web font lands or mbFit()
+   resizes them, which is the whole reason the original built the clip
+   this way.
+
+   paint-order puts the stroke behind the fill, so the trail, which is
+   clipped to the glyph outline and therefore stops at the inside edge of
+   the stroke, leaves the rim standing around every photograph. */
+.mb__t {
+  fill: var(--name);
+  stroke: var(--name-ink);
+  stroke-width: var(--name-sw);
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+
+/* The same phone floor as the wordmark, and it has to be written in user
+   units rather than px because in SVG a px IS a user unit: the viewBox is
+   a fixed 1000 wide, so one user unit is 0.39 screen px at 390 and 1.44 at
+   1440. 1.8 user units is the width that lands on the wordmark's 0.6px
+   floor once the viewBox is scaled down to a phone. */
+@media (max-width: 899px) {
+  .mb__t { stroke-width: max(1.8px, var(--name-sw)); }
+}
+
+@media (max-width: 899px) {
+  /* ---- the email on one line ----
+     It wrapped because the address is one unbreakable 26-character run and
+     the card was giving it 24px of padding on each side. The padding goes
+     rather than the line: a contact card exists to show an address, and an
+     address broken across two lines is harder to read than a slightly
+     tighter card. */
+  .ct__card { padding: 20px 16px; }
+
+  .ct__val {
+    font-size: clamp(13px, 3.6vw, 16px);
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    word-break: normal;
+    /* Last resort only. At 360px the clamp floor already fits, so this
+       never fires; it is here so a narrower screen shrinks the text
+       rather than bursting the card. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* The <wbr> in the markup is a break opportunity, and nowrap makes it a
+     no-op, which is what we want here. */
+}
+
+/* --------------------------------------------------------------------------
+   STEP 16 - the phone frame goes
+
+   What is left of the scene is the bubble and the keyboard, sized to their
+   own content and sitting on the page background. Everything that drew a
+   device is switched off rather than deleted, because the same elements
+   still carry the typing, the send and the key presses; only their
+   costume goes.
+
+   The point is vertical: with the frame gone and the bubble at about 60%
+   of its old height, the typing and the contact rows fit on one screen,
+   so the reply is visible in the same glance as the message.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 899px) {
+  /* display: contents promotes .ct__dev and the Replay button to be flex
+     children of .ct, which is the only way to put Replay AFTER the
+     contact rows without moving it in the markup: order only works
+     between siblings. */
+  .ct { display: flex; flex-direction: column; }
+  .ct__scene { display: contents; }
+  .ct__dev { order: 1; }
+  .ct__cards { order: 2; margin-top: 1.5rem; }
+  .ct__replaywrap { order: 3; margin-top: 1.25rem; }
+
+  .ct__dev {
+    width: min(340px, 100%);
+    margin-inline: auto;
+  }
+
+  /* The device's ground shadow belonged to the device */
+  .ct__dev::after { display: none; }
+
+  /* The body, the bezel and the notch */
+  .ct__lid {
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .ct__cam { display: none; }
+
+  /* The screen was a tall 9:17 box with its own fill. It is a plain
+     wrapper now: the bubble and the keyboard stack inside it and it is as
+     tall as they are. */
+  .ct__screen {
+    display: block;
+    aspect-ratio: auto;
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    overflow: visible;
+  }
+
+  .ct__dev.is-shut .ct__lid { transform: scale(0.98); opacity: 0; }
+  .ct__dev.is-shut .ct__screen { opacity: 1; }
+
+  /* ---- the bubble ---- */
+
+  .ct__win {
+    margin: 0;
+    padding: 14px 16px;
+    border-radius: 16px 16px 16px 4px;
+    font-size: 15px;
+    box-shadow: 0 10px 26px var(--shadow-2);
+  }
+
+  /* About 60% of what it was. The reserve is still measured rather than
+     guessed: the sentence runs to three lines at this width and size, and
+     holding exactly that stops the bubble growing a line at a time while
+     the text arrives. */
+  .ct__msg { min-height: 4.4em; font-size: 1em; line-height: 1.5; }
+  .ct__sendrow { margin-top: 0.4em; min-height: 1.4em; }
+
+  /* ---- the keyboard, directly under the bubble ---- */
+
+  .ct__deck {
+    position: static;
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 10px 8px 8px;
+    border-radius: 14px;
+    background-color: var(--ct-body);
+    box-shadow: inset 0 0 0 1px var(--ct-outline);
+    transform-origin: 50% 0%;
+    transition: transform 420ms var(--ease-out), opacity 360ms ease;
+  }
+
+  .ct__keys { gap: 5px; }
+  .ct__krow { gap: 5px; }
+  .ct__krow--b { padding-inline: 10px; }
+  .ct__krow--c { padding-inline: 24px; }
+
+  .ct__key {
+    height: 26px;
+    border-radius: 5px;
+    font-size: 10px;
+  }
+
+  /* Down and out once the message has gone, leaving the space the contact
+     rows rise into. It keeps its height while it goes, so the rows below
+     are not yanked upward mid-animation; .ct__dev collapses afterwards. */
+  .ct__dev.is-keysgone .ct__deck {
+    transform: translate3d(0, 24px, 0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Once the keyboard is out of the way the device gives its height back,
+     which is what lets the rows move up into it rather than merely fade
+     in below it. */
+  .ct__dev { transition: max-height 520ms var(--ease-in-out); }
+  .ct__dev.is-keysgone .ct__deck { margin-top: 0; height: 0; padding-block: 0; overflow: hidden; }
+}
+
+/* Under reduced motion the keyboard does not travel, it just goes */
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .ct__deck { transition: opacity 300ms ease; }
+  .ct__dev.is-keysgone .ct__deck { transform: none; }
+}
+
+/* ==========================================================================
+   STEP 18c - Contact on one screen
+
+   The heading, the scene and the three cards used to run to 1.39 screens
+   at 1440x900, with 989px between the eyebrow and the last card, so the
+   end of the page was three separate views of one section. They are now
+   one view: heading and availability line top left, the scene under them,
+   the cards in a column on the right, the footer on the floor.
+
+   The mechanism is `display: contents` on .ct. The eyebrow, the heading
+   and the line are siblings of .ct inside .wrap, and the scene and the
+   cards are its children, so no single existing element is the parent of
+   all five. Dissolving .ct promotes the scene and the cards into .wrap's
+   own grid and all five become placeable together, without moving a line
+   of markup and without a wrapper that exists only to be a grid.
+
+   Everything here is min-width: 900px. The phone keeps the frameless
+   stacked scene from STEP 16 untouched; its own sizing is further down.
+   ========================================================================== */
+
+@media (min-width: 900px) {
+
+  /* The section is no longer pinned to one screen. The heading is back to
+     its full size and is allowed to sit above the fold; what has to share
+     a screen is the SCENE and the CARDS, which is a smaller promise and
+     the one that actually matters, because those two are what a visitor
+     needs to see at the same time.
+
+     So no min-height here any more. The section is as tall as it is, and
+     the row holding the scene and the cards is what gets constrained. */
+  .contact {
+    padding-block: clamp(2rem, 5vh, 4rem);
+  }
+
+  .contact > .wrap {
+    width: 100%;
+    display: grid;
+    /* The card column is the fixed side; the scene takes what is left */
+    grid-template-columns: minmax(0, 1fr) clamp(250px, 23vw, 310px);
+    grid-template-rows: auto auto auto auto;
+    column-gap: clamp(1.5rem, 3vw, 3rem);
+  }
+
+  .contact__eyebrow { grid-area: 1 / 1 / 2 / 2; margin-bottom: 0.5rem; }
+  .ct__head         { grid-area: 2 / 1 / 3 / 2; }
+  .ct__line         { grid-area: 3 / 1 / 4 / 2; margin-top: 0.75rem; }
+
+  .ct { display: contents; }
+
+  .ct__scene { grid-area: 4 / 1 / 5 / 2; align-self: start; margin-top: 1.5rem; }
+
+  /* The cards sit in the SCENE's row, not across the whole grid, which is
+     what centres them against the laptop rather than against the heading
+     and the laptop together. */
+  .ct__cards { grid-area: 4 / 2 / 5 / 3; align-self: center; gap: 10px; }
+
+  .ct__line { font-size: 1rem; max-width: 46ch; }
+
+  /* ---- the laptop ----
+     It is a size container, so every length inside it is a share of this
+     one number: widening it scales the screen, the keyboard, the bubble
+     and the type together, as one drawing. At 620 the message resolves to
+     16px (max(11px, 2.6cqw)), which is ordinary reading size.
+
+     The order of the terms is the order the brief asks to give ground in.
+     620 is the target. 100% is the column, which is the binding limit on
+     a narrow desktop. max(540px, 74vh) is the vertical give: on a short
+     screen 74vh pulls the laptop down, but never below the 540px floor.
+     Nothing shrinks it past that; if it still does not fit, the cards
+     give way first, above. */
+  .ct__dev {
+    width: min(620px, 100%, max(540px, 74vh));
+    margin-inline: 0;
+  }
+
+  .ct__replaywrap { margin-top: 0.75rem; }
+
+  .ct__act { padding: 0.3rem 0.7rem; font-size: 0.78rem; }
+}
+
+/* ---- the compact card, at every width ----
+   The badge and the label share a row instead of stacking, which is one
+   whole 42px row saved on each of the three, and the value sits under
+   both. It is written once, outside the breakpoints, because the shape is
+   the same on a phone and on a laptop; only the sizes below differ. */
+.ct__card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem 0.6rem;
+  grid-template-areas:
+    "ico lab"
+    "val val"
+    "act act";
+  padding: 14px 16px;
+  border-radius: 16px;
+}
+
+.ct__ico { grid-area: ico; width: 32px; height: 32px; border-radius: 9px; }
+.ct__ico svg { width: 17px; height: 17px; }
+.ct__lab { grid-area: lab; margin: 0; font-size: 0.6rem; letter-spacing: 0.14em; }
+.ct__act { grid-area: act; margin-top: 0.15rem; justify-self: start; }
+
+.ct__val {
+  grid-area: val;
+  margin: 0;
+  font-size: 0.95rem;
+  /* The address is one unbreakable 26 character run and the column is
+     250px at its narrowest, so it is allowed to tighten rather than widen
+     the grid track it sits in. */
+  letter-spacing: -0.015em;
+}
+
+/* Below about 1400 the fixed sidebar has already taken ~350px out of the
+   row before this grid sees any of it, so the left column, not the
+   viewport, is what caps the laptop. At 1280 a 294px card column and a
+   38px gutter left it 492px, under the 540 floor.
+
+   The brief's order of giving ground is cards first, laptop last, so the
+   card column goes to its own minimum and the gutter tightens, which
+   hands the laptop back the 48px it needs to reach 540.
+
+   This block sits AFTER the unscoped card rules above on purpose. A media
+   query carries no extra specificity, so source order is the whole of the
+   cascade between these two, and written any earlier every declaration
+   here would be silently overridden by the plain rules below it. */
+@media (min-width: 900px) and (max-width: 1399px) {
+  .contact > .wrap {
+    grid-template-columns: minmax(0, 1fr) 250px;
+    column-gap: 1.25rem;
+  }
+
+  /* The address is a single unbreakable 26 character run and the card is
+     250px here. At 0.95rem it measured about 215px against 218px of inner
+     width and broke at the <wbr>, putting "@gmail.com" on a second line.
+     0.85rem with tighter tracking puts it near 192px, which clears with
+     room rather than by a hair, and the padding comes in with it: a
+     contact card exists to show an address. */
+  .ct__card { padding: 12px 14px; }
+  .ct__val { font-size: 0.85rem; letter-spacing: -0.02em; }
+}
+
+/* ==========================================================================
+   STEP 18c, part two - Contact on a phone
+
+   The same goal within reason: 2.02 screens for the section and its
+   footer, down to about one and a half. Nothing is restructured here, the
+   stacked frameless scene from STEP 16 is exactly as it was; this only
+   takes the air out of it.
+   ========================================================================== */
+
+@media (max-width: 899px) {
+
+  /* 14vh of an 844px phone is 118px at the top AND at the bottom. That
+     one declaration was 236px, more than a quarter of a screen, spent on
+     nothing. */
+  .contact { padding-block: clamp(2rem, 5vh, 3rem); }
+
+  /* The heading keeps the full size here too. It is allowed to be the
+     thing you land on: what has to fit together below it is the scene
+     and the three rows. */
+  .ct__head { line-height: 1; }
+  .ct__line { margin-top: 0.75rem; font-size: 0.95rem; }
+
+  /* .ct inherits align-items: center from the shared rule, and on a
+     column flex container that shrinks every child to its own content
+     width: the three cards were coming out 252px wide on a 390px screen
+     and sitting in the middle with a ragged edge. They are full width
+     rows now, which is what the brief has always called them. */
+  .ct { align-items: stretch; }
+
+  .ct__dev { width: min(300px, 86%); }
+  .ct__cards { gap: 10px; margin-top: 1.25rem; }
+  .ct__replaywrap { margin-top: 0.9rem; }
+}
+
+/* The footer's own height, which is what the section above reserves, in
+   one place: change the footer's padding and this has to change with it
+   or the pair stops adding up to a screen.
+
+   Two values, because the footer is not one height. The role title beside
+   the name is 54 characters, and below about 1360px it wraps to a second
+   line and the footer goes from 102px to 132px. Reserving the smaller
+   number everywhere made the section 664px tall at 1024x768 against a
+   132px footer, which is 796px in a 768px screen: the top of the heading
+   went off the top. Over-reserving only makes the section shorter than a
+   screen, which nothing notices; under-reserving pushes content out of
+   it, so the generous value is the default and the tight one is the
+   exception. */
+:root { --ct-footer: 142px; }
+
+@media (min-width: 1360px) {
+  :root { --ct-footer: 110px; }
 }
 

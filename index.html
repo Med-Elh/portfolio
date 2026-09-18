@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mohamed Elhayyany, Technical Customer Success</title>
-  <meta name="description" content="Mohamed Elhayyany, Technical Customer Success. Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
+  <title>Mohamed Elhayyany, Technical Customer Success Manager &amp; Business Developer</title>
+  <meta name="description" content="Mohamed Elhayyany, Technical Customer Success Manager &amp; Business Developer. Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
 
   <link rel="canonical" href="https://med-elh.github.io/portfolio/">
 
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://med-elh.github.io/portfolio/">
-  <meta property="og:title" content="Mohamed Elhayyany, Technical Customer Success">
+  <meta property="og:title" content="Mohamed Elhayyany, Technical Customer Success Manager &amp; Business Developer">
   <meta property="og:description" content="Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
   <meta property="og:image" content="https://med-elh.github.io/portfolio/assets/images/portrait.jpg">
-  <meta property="og:image:alt" content="Mohamed Elhayyany, Technical Customer Success Manager">
+  <meta property="og:image:alt" content="Mohamed Elhayyany, Technical Customer Success Manager &amp; Business Developer">
   <meta property="og:locale" content="en_US">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Mohamed Elhayyany, Technical Customer Success">
+  <meta name="twitter:title" content="Mohamed Elhayyany, Technical Customer Success Manager &amp; Business Developer">
   <meta name="twitter:description" content="Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
   <meta name="twitter:image" content="https://med-elh.github.io/portfolio/assets/images/portrait.jpg">
 
@@ -27,7 +27,52 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=4">
+  <!-- Theme, decided before the stylesheet is even requested.
+
+       This has to be inline and it has to be here, above the <link>. A
+       deferred script, or script.js at the end of <body>, would run after
+       the first paint, and the page would show a frame of the light theme
+       before turning dark. That flash is the whole reason this block is
+       duplicated logic rather than part of the theme module below.
+
+       Kept to one statement: read the saved choice, fall back to the
+       system setting, write the attribute. Everything else about the
+       theme lives in script.js. localStorage throws outright in some
+       privacy modes, hence the catch, and the catch is why the whole
+       thing still works with storage blocked: it simply follows the
+       system setting every visit. -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('theme'); } catch (e) { t = null; }
+
+      /* Dark on a first visit, whatever the system says. A saved choice
+         still wins: the system setting is no longer consulted at all,
+         because it was only ever the fallback and dark is the fallback
+         now. Anyone who has picked light keeps light. */
+      if (t !== 'dark' && t !== 'light') { t = 'dark'; }
+
+      document.documentElement.setAttribute('data-theme', t);
+
+      /* STEP 11: the hero is held back until the fonts and the portrait
+         are in, so the phone intro starts from a settled layout instead
+         of playing against text that is still reflowing. Only the phone
+         hero reads this class; the desktop hero is untouched by it.
+
+         The fallback timer lives HERE rather than in script.js on
+         purpose: if script.js fails to load or throws before it reaches
+         the hero, this still uncovers the page. A hero that never
+         appears is a worse failure than an intro that does not play. */
+      document.documentElement.classList.add('is-loading');
+
+      setTimeout(function () {
+        document.documentElement.classList.remove('is-loading');
+        document.documentElement.classList.add('is-intro');
+      }, 1600);
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css?v=8">
 
 </head>
 <body>
@@ -53,11 +98,26 @@
   <header class="topbar" id="topbar">
     <a class="logo-pill" href="#hero">Mohamed Elhayyany</a>
 
-    <button class="burger" id="burger" type="button"
-            aria-expanded="false" aria-controls="menu">
-      <span class="burger__label">Menu</span>
-      <span class="burger__icon" aria-hidden="true"></span>
-    </button>
+    <!-- Wrapped so the two controls stay together on the right. The bar is
+         space-between, and a third loose child would have pushed the
+         burger into the middle of it. -->
+    <div class="topbar__acts">
+      <button class="tt" type="button" data-theme-toggle
+              aria-label="Switch to dark mode">
+        <span class="tt__ico tt__ico--moon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5z"/></svg>
+        </span>
+        <span class="tt__ico tt__ico--sun" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+        </span>
+      </button>
+
+      <button class="burger" id="burger" type="button"
+              aria-expanded="false" aria-controls="menu">
+        <span class="burger__label">Menu</span>
+        <span class="burger__icon" aria-hidden="true"></span>
+      </button>
+    </div>
   </header>
 
   <div class="menu" id="menu">
@@ -88,20 +148,32 @@
     <div class="sb__panel sb__intro">
       <div class="sb__brandrow">
         <span class="sb__logo" id="sb-logo"><span class="sb__logoin"><span class="sb__ln">Mohamed</span><span class="sb__ln">Elhayyany</span></span></span>
-        <a class="sb__icon" href="https://www.linkedin.com/in/mohamed-elhayyany"
-           target="_blank" rel="noopener" aria-label="LinkedIn profile, opens in a new tab">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-            <path d="M6.94 5.5a1.94 1.94 0 1 1-3.88 0 1.94 1.94 0 0 1 3.88 0ZM3.2 8.4h3.5V21H3.2V8.4Zm5.7 0h3.35v1.72h.05c.47-.85 1.6-1.75 3.3-1.75 3.53 0 4.18 2.2 4.18 5.05V21h-3.5v-6.1c0-1.46-.03-3.33-2.06-3.33-2.06 0-2.38 1.58-2.38 3.22V21H8.9V8.4Z"/>
-          </svg>
-        </a>
+        <span class="sb__acts">
+          <a class="sb__icon" href="https://www.linkedin.com/in/mohamed-elhayyany"
+             target="_blank" rel="noopener" aria-label="LinkedIn profile, opens in a new tab">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+              <path d="M6.94 5.5a1.94 1.94 0 1 1-3.88 0 1.94 1.94 0 0 1 3.88 0ZM3.2 8.4h3.5V21H3.2V8.4Zm5.7 0h3.35v1.72h.05c.47-.85 1.6-1.75 3.3-1.75 3.53 0 4.18 2.2 4.18 5.05V21h-3.5v-6.1c0-1.46-.03-3.33-2.06-3.33-2.06 0-2.38 1.58-2.38 3.22V21H8.9V8.4Z"/>
+            </svg>
+          </a>
+
+          <button class="tt tt--sb" type="button" data-theme-toggle
+                  aria-label="Switch to dark mode">
+            <span class="tt__ico tt__ico--moon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5z"/></svg>
+            </span>
+            <span class="tt__ico tt__ico--sun" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+            </span>
+          </button>
+        </span>
       </div>
-      <p class="sb__blurb">Technical Customer Success Manager helping teams
+      <p class="sb__blurb">Technical Customer Success Manager &amp; Business Developer helping teams
         keep customers, grow revenue and win new business.</p>
     </div>
 
     <div class="sb__panel sb__stats" id="sb-stats">
       <div class="sb__stat"><span class="sb__num">100+</span><span class="sb__lab">Accounts managed</span></div>
-      <div class="sb__stat"><span class="sb__num">50+</span><span class="sb__lab">Sales closed</span></div>
+      <div class="sb__stat"><span class="sb__num">100+</span><span class="sb__lab">Sales closed</span></div>
       <div class="sb__stat"><span class="sb__num">250+</span><span class="sb__lab">Posters sold</span></div>
       <div class="sb__stat"><span class="sb__num">15%</span><span class="sb__lab">Revenue growth in 2 months</span></div>
     </div>
@@ -165,12 +237,31 @@
     <div class="hz" id="hz">
       <section class="hx" id="hero">
 
+        <!-- The hero's own copy of the toggle, top right. The sidebar has
+             not formed yet up here, so its copy is not on screen; CSS
+             fades this one out the moment the sidebar goes live, so there
+             is never more than one visible at a time. -->
+        <button class="tt tt--hx" type="button" data-theme-toggle
+                aria-label="Switch to dark mode">
+          <span class="tt__ico tt__ico--moon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5z"/></svg>
+          </span>
+          <span class="tt__ico tt__ico--sun" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+          </span>
+        </button>
+
+        <!-- STEP 11: the phone intro's first beat, a soft yellow bloom
+             growing from the centre of the screen and fading, like a light
+             being switched on. Decorative, display:none above 900px. -->
+        <span class="mi__bloom" aria-hidden="true"></span>
+
         <!-- Behind everything, and the thing the intro shows first -->
         <span class="hx__word" id="hx-word" aria-hidden="true"><span class="hx__wordin"><span class="hx__ln">Mohamed</span><span class="hx__ln">Elhayyany</span></span></span>
 
         <img class="hx__portrait" id="hx-portrait"
              src="assets/images/portrait-cutout.png"
-             alt="Mohamed Elhayyany, Technical Customer Success Manager"
+             alt="Mohamed Elhayyany, Technical Customer Success Manager &amp; Business Developer"
              width="900" height="1200">
 
         <!-- Nav row, sitting on the wordmark's baseline and split around
@@ -200,7 +291,7 @@
             <span class="hx__lab">Accounts managed</span>
           </div>
           <div class="hx__stat" data-fly-stat="1">
-            <span class="hx__num">50+</span>
+            <span class="hx__num">100+</span>
             <span class="hx__lab">Sales closed</span>
           </div>
           <div class="hx__stat" data-fly-stat="2">
@@ -239,8 +330,15 @@
           </div>
         </div>
 
+        <!-- Two titles, one shown per breakpoint. The full one wrapped to
+             three lines at 360px, which pushed "That's Mohamed." away from
+             the title it belongs to and broke the two-beat rhythm of the
+             block. display:none rather than a class swap in JS, so the
+             hidden one is out of the accessibility tree too and the line
+             is never read twice. -->
         <p class="hx__tag" id="hx-tag">
-          <span>Technical Customer Success Manager.</span>
+          <span class="hx__tagfull">Technical Customer Success Manager &amp; Business Developer.</span>
+          <span class="hx__tagshort">Customer Success &amp; Business Development.</span>
           <span>That's Mohamed.</span>
         </p>
 
@@ -290,7 +388,7 @@
               <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
             </span>
             <h3 class="st__name">Business Development</h3>
-            <p class="st__proof"><mark class="jr__hl"><span data-st-count="50">50</span>+ sales</mark>
+            <p class="st__proof"><mark class="jr__hl"><span data-st-count="100">100</span>+ sales</mark>
               closed and B2B clients like Experience Morocco</p>
           </li>
 
@@ -300,7 +398,8 @@
             </span>
             <h3 class="st__name">Marketing</h3>
             <p class="st__proof">Meta ad campaigns and a brand that sold
-              <mark class="jr__hl"><span data-st-count="250">250</span>+ posters</mark></p>
+              <mark class="jr__hl"><span data-st-count="250">250</span>+ posters</mark>
+              in the first 3 months</p>
           </li>
 
           <li class="st__item" data-st-item>
@@ -326,9 +425,23 @@
 
         <svg class="jr__svg" id="jr-svg" aria-hidden="true" focusable="false"
              preserveAspectRatio="none">
+          <!-- The main line is solid and draws itself with
+               stroke-dasharray plus a running stroke-dashoffset, which is
+               the arrangement it has always had. Only the tail is dotted,
+               and the tail's reveal is opacity rather than a dash offset,
+               so it can own its dash pattern outright. No mask needed:
+               the two never want the same property. -->
           <path class="jr__line" id="jr-line" fill="none"></path>
           <path class="jr__tail" id="jr-tail" fill="none"></path>
         </svg>
+
+        <!-- The dots' own layer, above the line, which is itself above the
+             cards. They start life inside their cards so the markup reads
+             in order; script.js moves them here on load. They cannot stay
+             where they were: .jr__list has a z-index of its own, so a dot
+             inside it can never paint above a sibling of the list however
+             high its own z-index goes. -->
+        <span class="jr__dots" id="jr-dots" aria-hidden="true"></span>
 
         <!-- Yellow appears in exactly one role here: a <mark> behind a key
              fact. Everything that used to be yellow — the year, the dots,
@@ -539,7 +652,7 @@
 
               <div class="jr__sum"><div class="jr__sumin">
                 <p class="jr__short"><mark class="jr__hl">100+ accounts</mark>,
-                  50+ sales and <mark class="jr__hl">+15% revenue</mark> in
+                  100+ sales and <mark class="jr__hl">+15% revenue</mark> in
                   2 months at SafeApps.</p>
                 <ul class="jr__tags">
                   <li class="jr__tag">Customer Success</li>
@@ -571,7 +684,7 @@
                 <div class="jr__panelin">
                   <p class="jr__text">I own the full client lifecycle for SaaS
                     accounts, from onboarding to renewal, and I close new
-                    business: 50+ sales so far. I run Meta ad campaigns
+                    business: 100+ sales so far. I run Meta ad campaigns
                     (targeting, creative, conversion optimisation) and set up
                     the tracking and messaging flows that keep clients
                     engaged. I also script, film and edit UGC videos for the
@@ -608,7 +721,8 @@
 
               <div class="jr__sum"><div class="jr__sumin">
                 <p class="jr__short"><mark class="jr__hl">250+ posters</mark>
-                  sold in 3 months, B2B clients, zero outside funding.</p>
+                  sold in the first 3 months, B2B clients, zero outside
+                  funding.</p>
                 <ul class="jr__tags">
                   <li class="jr__tag">Business Development</li>
                   <li class="jr__tag">Marketing</li>
@@ -809,7 +923,9 @@
                 <span class="wib__cardtext">I run <mark class="jr__hl">Meta ad
                   campaigns</mark>: audience targeting, creative and conversion
                   optimisation. I also create UGC videos that explain the
-                  product and drive sign-ups.</span>
+                  product and drive sign-ups, and my own brand sold
+                  <mark class="jr__hl">250+ posters</mark> in the first 3
+                  months.</span>
               </span>
             </span></span>
 
@@ -849,7 +965,7 @@
                 </span>
                 <span class="wib__cardtitle">Sales</span>
                 <span class="wib__cardtext">Full-cycle outreach that turned
-                  prospects into <mark class="jr__hl">50+ closed sales</mark>
+                  prospects into <mark class="jr__hl">100+ closed sales</mark>
                   and +15% revenue in 2 months.</span>
               </span>
             </span>,</span>
@@ -954,7 +1070,7 @@
               <span class="hlp__title">Business Development</span>
             </p>
 
-            <p class="hlp__result"><mark class="jr__hl">50+ sales</mark> closed</p>
+            <p class="hlp__result"><mark class="jr__hl">100+ sales</mark> closed</p>
 
             <p class="hlp__text">I find the right partners and accounts, then
               turn conversations into signed deals.</p>
@@ -975,7 +1091,7 @@
               <span class="hlp__title">Marketing</span>
             </p>
 
-            <p class="hlp__result"><mark class="jr__hl">250+ posters</mark> sold with zero funding</p>
+            <p class="hlp__result"><mark class="jr__hl">250+ posters</mark> sold in the first 3 months</p>
 
             <p class="hlp__text">I run Meta ad campaigns and build brands that
               turn attention into sales.</p>
@@ -1297,17 +1413,30 @@
     <section class="mb" id="mb" aria-hidden="true">
       <svg class="mb__svg" id="mb-svg" viewBox="0 0 1000 420"
            preserveAspectRatio="xMidYMid meet" focusable="false">
+        <!-- The clip refers to the two <text> nodes below through <use>,
+             so the window the photographs appear through is the very
+             shape that is painted, not a duplicate of it. A reference
+             cannot drift out of register when a web font lands or when
+             mbFit() resizes the type, which is the reason this section
+             has always built the clip out of the real letters. -->
         <defs>
           <clipPath id="mb-clip">
-            <text class="mb__t" id="mb-t1" x="500" y="176" text-anchor="middle">MOHAMED</text>
-            <text class="mb__t" id="mb-t2" x="500" y="376" text-anchor="middle">ELHAYYANY</text>
+            <use href="#mb-t1"></use>
+            <use href="#mb-t2"></use>
           </clipPath>
         </defs>
 
-        <!-- Everything below is inside the letters. The yellow is the floor;
-             the trail paints over it and never outside it. -->
+        <!-- The letters themselves: yellow fill and, in light, a hairline
+             near-black stroke, both from CSS so they follow the theme. A
+             presentation attribute could not read a custom property, which
+             is why neither is written here. -->
+        <text class="mb__t" id="mb-t1" x="500" y="176" text-anchor="middle">MOHAMED</text>
+        <text class="mb__t" id="mb-t2" x="500" y="376" text-anchor="middle">ELHAYYANY</text>
+
+        <!-- The trail, cut to the letters and painted over the yellow. It
+             stops at the inside edge of the stroke, so the rim stays
+             visible around every photograph. -->
         <g clip-path="url(#mb-clip)">
-          <rect x="0" y="0" width="1000" height="420" fill="#f5e500"></rect>
           <g id="mb-trail"></g>
         </g>
       </svg>
@@ -1514,7 +1643,7 @@
     <div class="wrap footer__inner">
       <p class="footer__name">Mohamed Elhayyany</p>
       <p class="footer__meta">
-        Technical Customer Success Manager ·
+        Technical Customer Success Manager &amp; Business Developer ·
         <span id="footer-year"></span>
       </p>
     </div>
@@ -1563,6 +1692,6 @@
 
   </div>
 
-  <script src="script.js?v=4"></script>
+  <script src="script.js?v=8"></script>
 </body>
 </html>

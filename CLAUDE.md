@@ -21,6 +21,27 @@ studies with context and outcomes, not bullet lists.
   full stop, a colon or "and". Section labels are `01 / Work`. Date
   ranges are `2021 - 2022` with a plain hyphen and spaces around it.
 
+## The role title, at two lengths
+Spelling is exact in both. "Technical Customer Success Manager", never
+"manager" or "CSM"; "Business Developer", never "Business Development" in
+the full version.
+
+**Full: `Technical Customer Success Manager & Business Developer`**
+Used wherever there is room: the `<title>`, the meta description, the
+og:title, og:image:alt and twitter:title, the sidebar blurb, the hero
+portrait's `alt`, the hero tagline above 900px, and the footer.
+
+**Short: `Customer Success & Business Development`**
+For tight spaces. Currently one use: the hero tagline below 900px, where
+the full title wrapped to three lines at 360px and pushed "That's
+Mohamed." away from the title it answers. Both spans are in the markup and
+CSS shows one per breakpoint, so the hidden one is out of the
+accessibility tree and the line is never read twice.
+
+The ampersand is written `&amp;` everywhere, including in text content
+where a bare `&` would also parse. One form throughout means a later edit
+cannot move a string from text into an attribute and break it.
+
 ## Assets
 - `assets/images/portrait.jpg`
 - `assets/docs/cv.pdf`
@@ -72,7 +93,88 @@ accent is ever wanted as a foreground, it has to be a bronze or olive dark
 enough to pass. `#6b5410` reaches 4.68:1.
 
 Never put violet and yellow on the same small element. Text on the yellow
-marker is `--text`, not violet.
+marker is `--on-accent-2`, which is `#111111` in BOTH themes. It is not
+`--text`: `--text` flips, the yellow does not, and following it put
+near-white on near-yellow at 1.07:1.
+
+### Dark theme (STEP 10)
+
+`[data-theme="dark"]` on `<html>`. There is one block of overrides near the
+top of style.css and nothing else in the file knows the theme exists: no
+component carries a colour literal any more.
+
+```
+--bg:          #141312   /* warm near-black, not neutral grey */
+--surface:     #1f1d1a
+--surface-strong: #2a2825
+--border:      rgba(255, 255, 255, 0.08)
+--text:        #eae8e3
+--body:        #c9c4b8
+--muted:       #b8b4aa
+--faint:       #8a8578
+--accent:      #8b5cf6   /* icons, lines, large type */
+--accent-text: #a78bfa   /* violet as small text */
+--accent-soft: #a78bfa   /* on a dark page the hover is LIGHTER */
+--accent-fill: #6d28d9   /* a filled control, see below */
+--accent-2:    #f5e500   /* unchanged: yellow is the constant */
+--wordmark:    #211f1c
+--bg-blur:     rgba(20, 19, 18, 0.86)
+--chip-bg:     #0b0b0b   /* stat chips, plus a light hairline */
+glow tint:     rgba(120, 105, 90, 0.18)
+particles:     lighter pair, alpha x 0.55
+```
+
+**Three kinds of token, and it matters which is which.**
+1. THEME tokens flip: `--text`, `--surface`, `--border` and the rest.
+2. FIXED tokens do not, because they are a colour ON something whose own
+   colour never changes: `--on-accent` (white on violet), `--on-accent-2`
+   (near-black on yellow), `--chip-bg`, `--avatar-bg`, `--scrim`,
+   `--overlay`, `--ct-screen`, `--ct-accent`.
+3. INVERTED tokens flip the other way: the whole `--vid-*` set.
+
+**Shadows deepen, they do not invert.** `--shadow-1` to `--shadow-4` go
+from rgba(0,0,0,0.05..0.32) to 0.30..0.70. A light shadow on a dark page
+is a glow, and a glow on every card makes a dark theme look radioactive.
+
+**`--accent-fill` exists for contrast, not for style.** The brief's
+`#8b5cf6` is right for icons and large type but measures 4.23:1 under
+white text, just under the 4.5:1 floor, and most of the white text here is
+small. Anything painted violet that carries a label uses `--accent-fill`
+instead: `#7c3aed` in light (5.3:1), `#6d28d9` in dark (6.6:1), hovering
+to `--accent-fill-hi`, which goes DARKER in light and LIGHTER in dark.
+
+**The UGC band inverts.** It is the page's one reversed-out section, so it
+is dark on a light page and light on a dark one, and the sidebar panels
+that pass over it switch to whichever style it is not. The switch code in
+script.js is untouched: `.is-dark` still only means "this panel is over
+the band", and only the values underneath it swap.
+
+**No flash on load.** An inline script in `<head>`, above the stylesheet
+link, reads localStorage then `prefers-color-scheme` and writes the
+attribute before the first paint. It is deliberately duplicated logic
+rather than part of the theme module, because anything deferred runs after
+the first paint and the page would show a frame of the wrong theme.
+
+**The crossfade is temporary.** script.js puts `.is-theming` on `<html>`,
+which turns on a 0.3s transition for background-color, border-color,
+color, fill, stroke and box-shadow, then takes it off after 320ms. That
+gets no transition on first load by construction, no permanent transition
+fighting every component for the rest of the visit, and nothing to undo.
+
+**The toggle** is a round icon button, moon in light and sun in dark, both
+icons always present and crossfading with a rotate. Three copies, one
+visible at a time: in the sidebar beside the LinkedIn button, in the hero
+top right until the sidebar goes live, and in the mobile top bar beside
+MENU. `aria-label` says which mode it switches TO, and it carries
+`aria-pressed`.
+
+**Contrast is checked, not assumed.** Both themes clear 4.5:1 for body
+text and 3:1 for large headings. The traps found by measuring: text on the
+yellow marker, the reading highlight dimming a section number that sits on
+a yellow chip, the UGC band's marker inheriting the page's grey rather
+than the band's, and the violet inside the Contact laptop, whose screen is
+light in both themes and therefore needs the light theme's dark violet in
+both (`--ct-accent`).
 
 One bloom permitted per screen, heavily blurred and low opacity. `--glow`
 is a gradient, not a flat colour. Three elements use it as a
@@ -80,6 +182,93 @@ is a gradient, not a flat colour. Three elements use it as a
 cloud behind the content rather than a light source. `--glow-warm` is the
 one exception, behind the Contact heading only. Background particles are
 violet and dark grey at low opacity (`PARTICLE_RGB` in script.js).
+
+### Reduced motion: soften, do not remove (STEP 11)
+There is no blanket `animation-duration: 0.01ms` any more. Animations keep
+their durations and easing; what is removed is **distance, scale, rotation,
+blur, parallax, pinning and momentum**. Nothing may travel further than
+`--rm-shift` (6px) or scale by more than 0.02. The vestibular trigger is
+large movement across the viewport, not the existence of a transition, and
+the old approach meant most of the site simply did not animate on iOS,
+where Reduce Motion is on far more often than people expect.
+
+These run in **both** modes: counters and count-ups, the typing scene, the
+word-by-word reveal (fade only, no blur), the timeline line drawing, card
+reveals (fade only), the marquees (unchanged), the dark-section sidebar
+switch, and the phone intro (fade version).
+
+### The portrait's edges (STEP 13)
+`portrait-cutout.png` is only half a cutout, and this is measured, not
+guessed. At 448x557: the alpha row at face level reads
+`0 0 0 0 255 255 255 0 0 0 0`, so the head is properly cut out, but at
+shoulder level it reads 255 all the way across, **181 of the 557 pixels
+on the left edge are fully opaque, 192 on the right, and all 448 along
+the bottom**. The lower third is a hard crop. The straight cut is the
+image, not the mask. Fixing it properly needs a new asset; until then the
+mask hides it.
+
+Three mask layers, **intersected**. The default composite is `add`, which
+unions them: every layer would only ever make the picture more visible
+and the whole thing would do nothing. `mask-composite: intersect` (plus
+`-webkit-mask-composite: source-in` for Safari) means a pixel survives
+only where all three agree.
+- horizontal: transparent at 0%, opaque 18% to 82%, transparent at 100%
+- vertical: the last 25% fades out, so the shoulders dissolve into the
+  section below rather than stopping on the image's own bottom edge
+- radial: an ellipse centred at 50% 38%, which is the face, not the
+  middle of a box whose bottom third is shoulders
+
+The mask colours are the only ones in style.css outside the palette, and
+deliberately: in a mask the colour is an opacity stop, not a colour.
+Tokenising them would let the theme change how much of the portrait is
+visible. It blends into whichever `--bg` is behind it either way, because
+what fades is alpha.
+
+`--hx-shadow` is a `drop-shadow` in `--shadow-2`, which reads the MASKED
+alpha, so the shadow follows the feathered silhouette rather than the
+image's rectangle, and deepens on the dark page instead of glowing. **It
+has to be repeated in every keyframe and every inline write that touches
+`filter`**, because whatever sets `filter` last owns the whole property.
+The reduced-motion block is the same trap: `filter: none` there would take
+the shadow with the blur, so the portrait is excepted and keeps it.
+
+### The phone's hero parallax (STEP 13)
+Below 900px, read from scrollY on a rAF so scrolling back up runs it
+backwards through the same numbers rather than replaying in reverse.
+Portrait: translateY -15% of the distance scrolled, scale 1 to 1.06, fade
+from progress 0.5, blur 0 to 10px. The name moves at twice the portrait's
+rate so the two visibly come apart. The headline and buttons are gone by
+0.6, leaving the portrait alone for the second half. Reduced motion: fade
+only, in the same order.
+
+**The intro has to hand the properties back first.** Its animations are
+filled, and a filled animation outranks an inline style, so every
+transform, opacity and filter the parallax writes would be silently
+ignored. `html.is-settled` drops them, added on a 2100ms timer OR on the
+first scroll past 1% of the hero, whichever comes first. This is the same
+trick `.hx.is-ready` plays for the desktop morph.
+
+### Mobile intro (STEP 11)
+The hero name and portrait used to appear off to the side and jump to the
+centre on first load. Cause: `@keyframes hx-rise` and `hx-in-x` bake in
+`translateX(-50%)`, which IS the centring for the absolutely positioned
+desktop hero, and those `.js .hx__*` animation rules applied at every
+width. On a phone both elements are ordinary flex items centred by their
+container, so the keyframe dragged them half their own width left and held
+them there for the whole 1.9s intro. Measured at 390px: portrait at x=48,
+headline at x=16, against a viewport centre of 195. **The desktop intro
+keyframes are now scoped to `min-width: 900px`.**
+
+The phone has its own intro: bloom, then the name letter by letter, then
+the portrait, then headline, buttons, stats and traits, then the top bar.
+`.is-loading` from the inline head script holds the hero until the fonts
+and the portrait are in; the inline script arms its own 1600ms fallback so
+a failure in script.js cannot leave the page covered.
+
+**The letter split is mobile only.** On desktop the wordmark is what the
+hero-to-sidebar FLIP measures and morphs, and inline-block letters do not
+carry the same text metrics as a plain run, which would put that 0.00px
+landing off.
 
 ### Typography
 - Inter from Google Fonts: 400, 500, 600, 700, 800.
@@ -172,15 +361,84 @@ rather than a vh-based reserve.
    than zigzags. Each card carries 1-3 strength tags under its summary,
    saying which strength that role built.
 
-   A single SVG cubic curve runs through them, drawn with
+   A single SVG curve runs through them, drawn with
    stroke-dasharray/stroke-dashoffset against scroll position so it
    unwinds in reverse on the way back up, and continuing past the last
    card as a dashed run-on. **The path is never written by hand**:
-   script.js reads where the cards actually landed, runs a Catmull-Rom
-   spline through their anchor points and emits the cubics, re-measuring
-   on debounced resize, on font load, and on every frame while a card is
-   opening. The ring dots are placed at the very points the path was
-   built from, so they are on the line by construction.
+   script.js reads where the cards actually landed and emits the cubics,
+   re-measuring on debounced resize, on font load, and on every frame
+   while a card is opening. The ring dots are placed at the very points
+   the path was built from, so they are on the line by construction.
+
+   **STEP 12: precise, not hand-drawn.** One symmetric cubic per gap,
+   every gap built identically. The handle is `(0, 0.72 * segment
+   height)`, added at the first dot and subtracted at the second, so the
+   control polygon maps onto itself when rotated about the segment's
+   midpoint. Measured swing is **83 to 87% of the content width** from
+   900px to 1920px.
+
+   **The handle is vertical, and that is forced, not chosen.** Three
+   things were asked at once: one symmetric cubic per segment, collinear
+   tangents through every dot, and the same horizontal amplitude in every
+   segment. Give the handle any horizontal component and the third fails:
+   the handle points one way while the dots alternate sides, so the
+   segment running with it gets no overshoot and the segment running
+   against it gets a lot. Measured, that was 261px of reach on one segment
+   and 648px on the next, from an identical construction. A vertical
+   handle has no direction to disagree with.
+
+   **So the width comes from the dots, not the handle.** With a vertical
+   handle a segment reaches exactly as far as the gap between its two
+   dots. Two consequences, and both are load-bearing:
+
+   1. The dots sit on each card's OUTER edge. The inner edges of two 540px
+      cards in a 1028px column are only ~96px apart, which would cap every
+      sweep at 96px however the bezier was built.
+   2. The five varied card indents (`--o1` to `--o5`) are gone, replaced
+      by one 4% indent mirrored left and right. Five different indents
+      meant five different sweeps no matter how uniformly the curve was
+      generated. That is where "precise, not hand-drawn" actually gets
+      decided, not in the bezier.
+
+   Nothing is clamped or fitted any more. A vertical handle cannot leave
+   the box its two dots are in, so the curve cannot reach the page edge.
+
+   **The line is dotted, and the reveal moved to a mask.** It used to draw
+   itself with `stroke-dasharray` plus a running `stroke-dashoffset`. The
+   dot pattern needs the dasharray for itself, and one property cannot do
+   both, so the reveal now lives on a copy of the same path inside an SVG
+   `<mask>`: white, 14px wide, carrying the dasharray/dashoffset pair. The
+   visible path keeps its dots and appears where the mask has been drawn.
+   Same scroll mechanic, same exact reversal on the way back up. script.js
+   writes the identical `d` to both paths; if they ever diverge the mask
+   reveals a shape the line does not follow.
+
+   Dots, not dashes: `stroke-dasharray: 0.01 10` with round caps. A dash
+   LENGTH of zero paints one round cap per position, which at a 2px stroke
+   is a 2px circle. A 2px dash would paint a 4px pill once the caps are
+   added and read as a short dash. 0.01 rather than a bare 0 because some
+   engines drop a zero-length dash entirely. The tail keeps real dashes
+   (`10 12`), because it is an ending rather than more of the line, and its
+   own reveal is opacity, so it never touched the dasharray.
+
+   **`JR_DROP` (40px) sits the path below the cards' centre line.** Added
+   to every anchor, so the curve and the dots move together and the dots
+   stay on the path by construction. It translates the path rather than
+   stretching it: same length, same section height, tail still inside the
+   box.
+
+   **Stacking: line 0, cards 1, dots 3.** The line runs BEHIND the cards;
+   each card hides the stretch under it and the curve reappears on the
+   other side. That is why it is at full opacity with no mask: the cards
+   do the hiding. A mask would also have needed rebuilding every time a
+   card opened or the column reflowed. The dots need a layer of their own
+   (`.jr__dots`) because a dot inside `.jr__list` can never paint above a
+   sibling of the list, however high its own z-index. `.jr__rule`, the
+   hairline that joined a card to a vertical line beside it, is gone on
+   desktop; there is no vertical run left for it to join.
+
+   Below 900px the line is a rail down the left with a 40px wave on it
+   (±20px), same mirrored construction, behind the cards.
 
    A card is hidden (opacity 0, translateY 40px) until its own top comes
    up past 75% of the viewport, and hides again when it drops back below.
@@ -259,10 +517,59 @@ rather than a vh-based reserve.
    copy of the text would once a web font loads.
 
    On a fine pointer, moving across the name spawns a photograph from
-   `assets/collages/` every ~70px of pointer travel, clipped to the
-   letters, fading in and out over 1.2s with at most 14 alive. Distance,
-   not pointer events: a pointermove can fire sixty times over ten pixels.
+   `assets/collages/` every 90px of pointer travel, clipped to the
+   letters, fading in and out over 1.2s. Distance, not pointer events: a
+   pointermove can fire sixty times over ten pixels.
    No trail on touch or under reduced motion; the yellow name stays.
+
+   **Built for frame rate, and the shape of it is the point** (STEP 18).
+   The first version created an `<image>` per spawn and removed it on two
+   nested timers, so a fast scribble meant a dozen node insertions and
+   removals a second, each a fresh image load, each starting its own CSS
+   transition, all inside a clipped group. It stuttered. Four rules now,
+   and none of them is optional:
+
+   1. **A fixed pool of eight** `<image>` nodes, built once at init and
+      reused for ever. Nothing is created or destroyed while it runs.
+      Eight is not a ceiling that gets hit: at an ordinary mouse speed
+      eight slots last about as long as one picture's 1.6s life, so the
+      pool only truncates the tail during a hard scribble, which is the
+      intended trade.
+   2. **Every picture is fetched AND decoded before the section can be
+      reached**, on an IntersectionObserver with two viewports of warning,
+      and the `Image` objects are held in an array. The array is not
+      bookkeeping: drop the references and the browser may throw the
+      decoded bitmaps away, and the second pass across the name stalls
+      exactly like the first.
+   3. **One requestAnimationFrame loop** does the spawning and the fading.
+      `pointermove` is passive and records two numbers. Nothing is on a
+      timer, so nothing drifts and nothing is left running.
+   4. **`transform: translate3d` only.** `x`, `y`, `width` and `height`
+      are attributes written once at init, with x and y at minus half the
+      box so the transform puts the picture's centre on the pointer. A
+      spawn never touches geometry. `will-change: transform, opacity` and
+      `backface-visibility: hidden` on the pool; no `filter`, no
+      `box-shadow`, no blur anywhere near a moving element.
+
+   There is **no CSS transition on `.mb__shot`**. The loop writes opacity
+   every frame, and a transition on the same property would be a second
+   animator restarting a 400ms run on every write.
+
+   The clip is never rebuilt: it is the same two `<text>` nodes the
+   letters are drawn from, sitting in the markup. `mbFit()` resizes them
+   on font load and on debounced resize, which is the only time they move.
+
+   Measured at 1440 with GPU compositing, scribbling across the name at
+   ~1700 px/s: median frame 16.7ms, p95 16.9ms, **zero dropped frames**.
+
+   **The pictures are stored at the size they are shown.** They were
+   675-736 x ~1300 portrait JPEGs, drawn into a 300x210 box with
+   `preserveAspectRatio: slice`, so the browser decoded all ~0.9MP and
+   then cropped 61% of it away on every paint. They are now 571 x 400,
+   the exact 10:7 the box shows, q82: 1.68MB to 0.54MB, 68% smaller, with
+   nothing lost that a visitor could ever have seen. Originals are in
+   `_baseline-step18/assets/collages/`. Do not re-crop them again and do
+   not change the 300x210 box without redoing both.
 
 8c. **What People Say (05)**. Heading over a drag-only row of three
    quote cards, with a dash indicator top right, one dash per card, the
@@ -274,6 +581,34 @@ rather than a vh-based reserve.
    for the throw and the settle on the nearest card. Both attributes are
    generic: any other rail can use them.
 
+   **The end of the run is a resting position in its own right** (STEP
+   18). `settle()` used to round to the nearest multiple of one card
+   pitch, and the run almost never divides by the pitch: three 620px
+   cards with 20px gaps in a 1032px window give 908px of travel against a
+   640px pitch, so the third card's own start sits at 1280, which is
+   372px past the end of the scroll and can never be reached. A drag that
+   had already arrived at 908 was rounded back to 640 and sent there,
+   leaving the last card two thirds off the screen, the dash indicator
+   stuck on the second, and a second drag doing nothing at all, because
+   908 always rounds back to the same place. `settle()` now takes `max`
+   whenever it is the closer of the two candidates.
+
+   `maxScroll()` was never wrong: `scrollWidth - clientWidth` already
+   equals cards + gaps + the row's right padding minus the visible width,
+   measured live, so it is right after fonts load and after a resize with
+   nothing to recompute.
+
+   **The trailing gutter is two things added together**, which is what it
+   was missing. The `clamp(1rem, 3vw, 2.5rem)` half only cancels `.say`'s
+   negative `margin-right`: it buys back the page gutter the row was
+   deliberately pushed out through, and on its own it is a return to
+   zero, not a gutter. On a phone that left the last card finishing flush
+   with the screen while the first started 36px in. `var(--space-lg)` is
+   the gutter proper, and it is the same token that sets `.say`'s
+   `padding-left`, so the space before the first card and the space after
+   the last are one value and cannot drift apart. Measured at 390: 36.0px
+   leading, 36.5px trailing.
+
    On a fine pointer, hovering the row hides the site's own cursor and
    shows a 90px violet puck reading DRAG with an arrow either side. It
    follows by lerp, scales in and out, and shrinks while held. It does
@@ -283,6 +618,63 @@ rather than a vh-based reserve.
    statement with magnetic email and phone links) is gone, and so is the
    magnetic module itself: it was built for those links, nothing else
    used it, and `data-magnetic` no longer appears anywhere.
+
+   **It is one screen, footer included** (STEP 18c). It used to run to
+   1.39 screens at 1440x900 with 989px between the eyebrow and the last
+   card, so the end of the page was three separate views of one section.
+   Heading and availability line top left, the scene under them, the
+   cards in a column on the right, the footer on the floor.
+
+   **The mechanism is `display: contents` on `.ct`.** The eyebrow, the
+   heading and the line are siblings of `.ct` inside `.wrap`, and the
+   scene and the cards are its children, so no existing element is the
+   parent of all five. Dissolving `.ct` promotes the scene and the cards
+   into `.wrap`'s own grid and all five become placeable together,
+   without moving a line of markup and without a wrapper that exists only
+   to be a grid. It is the same trick the phone already used to order the
+   Replay button after the cards.
+
+   `min-height: calc(100svh - var(--ct-footer))`, a min rather than a
+   fixed height: if a translation or a larger font made the content
+   taller it grows instead of clipping, and the page stays correct while
+   ceasing to be one screen. `svh` because `vh` on a mobile browser is
+   the tallest the viewport ever gets, which would push the footer under
+   the URL bar on a 900px-wide phone in landscape.
+
+   **`--ct-footer` has two values and that is not fussiness.** The role
+   title beside the name is 54 characters and wraps below about 1360px,
+   taking the footer from 102px to 132px. Reserving the smaller number
+   everywhere made the section 664px tall at 1024x768 against a 132px
+   footer: 796px in a 768px screen, with the heading off the top.
+   Over-reserving only makes the section shorter than a screen, which
+   nothing notices; under-reserving pushes content out of it. So 142px is
+   the default and 110px the exception above 1360px.
+
+   Shrunk to fit rather than allowed to overflow: heading
+   `clamp(2rem, min(4.2vw, 7vh), 3.75rem)`, where the vh term is what
+   makes 1280x720 work; the laptop `min(420px, 46vh, 100%)`, and it is a
+   size container so the whole scene shrinks as a drawing rather than
+   reflowing; cards with the badge and the label on one row and the value
+   under them, which is one 42px row saved on each of the three.
+
+   The two rules that put the cards in a row UNDER the scene between 900
+   and 1399 are deleted. A two-up grid inside a 300px track would give
+   each card 140px and break the email mid-word, which is the very thing
+   the three-across rule was written to avoid at 1024.
+
+   Measured, contact plus footer: 0.95 viewports at 1280x720, 0.99 at
+   1024x768, 1366x768, 1440x900 and 1920x1080. Nothing off screen at any
+   of them, no empty space after the footer, no horizontal overflow.
+
+   On a phone the stacked frameless scene is unchanged; it only had the
+   air taken out of it. 14vh of an 844px screen is 118px at the top AND
+   the bottom, so one declaration was spending more than a quarter of a
+   screen on nothing. With that, a smaller heading, a 300px device and
+   the compact cards, the section and its footer went from 2.02 screens
+   to **1.46**. `.ct` also had to be set back to `align-items: stretch`
+   there: it inherits `center` from the shared rule, and on a column flex
+   container that shrinks every child to its own content width, which was
+   making the three cards 252px wide on a 390px screen.
 
    **One device, two skins.** `.ct__lid` is the laptop lid above 900px
    and the whole phone body below it, and `.ct__deck`, which holds the
@@ -327,6 +719,68 @@ wider word and sets the size. The font-size is in `vw` and the box is a
 percentage, so it spans ~92% of the hero at every width. The portrait sits
 in front, its head crossing the second line.
 
+#### The name is yellow in both themes, with a hairline rim in light
+`#f5e500` on the beige `#d6d0c1` measures **1.18:1**. No outline changes
+that number and nothing ever will: a bright yellow and a light beige sit
+at nearly the same luminance, which is the same fact that keeps
+`--accent-2` off every foreground on the page. So the letter is not what
+carries the contrast, the rim is: `#111111` against the beige is
+**12.28:1** and against the yellow **14.47:1**, so every edge of every
+glyph is a hard boundary. On the dark page the yellow is 14.2:1 on its
+own and the rim is switched off entirely.
+
+**A hairline, and nothing else.** `--name-sw` is `0.006em`, about 1.3px
+at the hero size. There is no offset shadow, no glow, and no second copy
+of the text anywhere on the page. An earlier pass used `0.030em` plus a
+`0.040em` hard shadow, which read as a sticker rather than as a letter;
+that is the thing this replaced, and it should not come back.
+
+**Two tokens, one pair, three surfaces**: `--name-ink` and `--name-sw`.
+Both are neutralised in dark rather than the rules being duplicated per
+theme. `--name-sw` is `0px` there, never a bare `0`, because the phone
+floors it with `max()` and `max()` containing a unitless zero is invalid
+and throws the whole declaration away.
+
+At a hairline it no longer matters whether the stroke is centred on the
+outline or painted behind it: half of 0.006em is a third of a pixel, far
+below where Inter 800 looks thinned. `paint-order: stroke fill` is still
+there on the wordmark and `paint-order: stroke` on the divider, because
+it costs nothing and keeps the glyph exact, but nothing depends on it.
+
+**The divider draws its own letters now.** The two `<text>` nodes used to
+live inside the `clipPath` with a yellow `<rect>` clipped to them, which
+left no glyph to stroke and forced the layered approach. They are drawn
+directly, their own `fill` is the yellow and their own `stroke` is the
+rim, and the `clipPath` reaches them through `<use>`. So the window the
+photographs appear through is a REFERENCE to the painted shape rather
+than a duplicate of it, which is the same guarantee the original design
+wanted and one element fewer. The trail is clipped to the glyph outline
+and therefore stops at the inside edge of the stroke, leaving the rim
+standing around every photograph.
+
+**The phone needs a floor, and it is not decoration.** 0.006em against
+the phone's 14vw wordmark is 0.33px at 390, which Chrome draws as a third
+of an alpha value and the eye does not see at all, putting the name back
+to the 1.18:1 it is outlined to escape. `max(0.6px, var(--name-sw))`
+leaves every desktop width untouched and only engages below about a 100px
+font. The divider's floor is written in user units (`max(1.8px, ...)`)
+because in SVG a px IS a user unit: the viewBox is a fixed 1000 wide, so
+one unit is 0.39 screen px at 390 and 1.44 at 1440.
+
+**The flying copy winds the rim down as the pill forms.** script.js
+writes the stroke onto `.sb__logoin` scaled by `1 - ink`, on exactly the
+window that turns the letters to ink, in `em` so the value rides the
+flight's CSS scale for free instead of needing to be divided by it every
+frame. What lands in the sidebar is the ordinary pill. **The sidebar logo
+pill at rest is not part of this**: it is dark text on a yellow lozenge
+and already has all the contrast it needs.
+
+Measured, light: wordmark stroke 1.15px at 1280, 1.29px at 1440, 1.72px
+at 1920, 0.60px at 390; divider 0.84 / 0.99 / 1.37 / 0.70 css px. Zero
+horizontal overflow at every one, no letters touching, no text-shadow
+anywhere, exactly two `<text>` nodes in the divider SVG, and the collage
+trail still reads inside the letters.
+
 The same name, the same two lines and the same tracking appear in the
 sidebar logo pill and in the mobile topbar pill. The hero wordmark and the
 sidebar pill must keep **identical `letter-spacing` and `line-height`**: the
@@ -343,7 +797,7 @@ Button: Get in touch → `#contact`
 
 Stat blocks:
 - `100+` Customers managed
-- `50+` Sales closed
+- `100+` Sales closed
 - `98%` Policy accuracy at scale
 - `15%` Revenue growth in 2 months
 
@@ -378,9 +832,10 @@ Marketing gets them through the door. I do all three.
 Four blocks: violet icon, strength name, one line of proof with its number
 on a yellow marker.
 - **Customer Success** - [100+ accounts] managed from onboarding to renewal
-- **Business Development** - [50+ sales] closed and B2B clients like
+- **Business Development** - [100+ sales] closed and B2B clients like
   Experience Morocco
 - **Marketing** - Meta ad campaigns and a brand that sold [250+ posters]
+  in the first 3 months
 - **Team Leadership** - Team Lead at Majorel with [98% accuracy]
 
 #### Colour inside this section
@@ -431,9 +886,9 @@ Arabic, English, French and Spanish.
 
 **'25 / Customer Success & Sales** [current] · badges SA / chart ·
 SafeApps (eGrow) · 2025 - Present
-Short: [100+ accounts], 50+ sales and [+15% revenue] in 2 months at SafeApps.
+Short: [100+ accounts], 100+ sales and [+15% revenue] in 2 months at SafeApps.
 More: I own the full client lifecycle for SaaS accounts, from onboarding
-to renewal, and I close new business: 50+ sales so far. I run Meta ad
+to renewal, and I close new business: 100+ sales so far. I run Meta ad
 campaigns (targeting, creative, conversion optimisation) and set up the
 tracking and messaging flows that keep clients engaged. I also script,
 film and edit UGC videos for the brand.
@@ -442,7 +897,8 @@ film and edit UGC videos for the brand.
 
 **'26 / Founded Postry** [current] · badges P / shopping bag · Postry ·
 2026 - Present
-Short: [250+ posters] sold in 3 months, B2B clients, zero outside funding.
+Short: [250+ posters] sold in the first 3 months, B2B clients, zero
+outside funding.
 More: A DTC wall art brand on Shopify that I run end to end, from product
 to marketing. I sourced B2B clients including [Experience Morocco], plus
 artist and creator commissions. Profitable with zero outside funding.
@@ -489,7 +945,7 @@ bottom of the screen instead.
   explain the product and drive sign-ups.
 - RETENTION / Retention - Clear onboarding, fast answers and regular
   check-ins, so [clients stay] and grow.
-- SALES / Sales - Full-cycle outreach that turned prospects into [50+
+- SALES / Sales - Full-cycle outreach that turned prospects into [100+
   closed sales] and +15% revenue in 2 months.
 - TEAM / Team Leadership - As Team Lead at Majorel I trained and mentored
   moderators while keeping [98% accuracy].
@@ -515,8 +971,37 @@ it a containing block for fixed-position descendants - both are scoped to
 900px and up, or the phone's full-width card would position itself against
 a single word.
 
-Below 900px and under reduced motion: no pin, no dimming, smaller heading
-and sentence, everything simply readable.
+Below 900px and under reduced motion: no pin, no dimming, everything
+simply readable. The HEADING is smaller there; the sentence is not.
+
+#### The sentence on a phone (STEP 18c)
+It was `clamp(1.35rem, 6.4vw, 2.25rem)` in a 24px gutter, which put it at
+25px in a 310px column on a 390px screen: a paragraph in the middle of
+the page rather than the thing the section is built around. It is now
+`clamp(26px, 7.2vw, 40px)` at `line-height: 1.2` in a **16px** gutter,
+which is 26px at 360, 28px at 390 and 31px at 430, in a 326px column.
+1.2 rather than 1.15 because at this size the tighter leading put one
+line's descenders into the next line's caps.
+
+The heading above it keeps the size it had. Desktop is untouched.
+
+The chips go to `height: 0.85em`. They are icon-only buttons, their names
+sit in a visually hidden span for the screen reader, so they are about
+39px wide whatever the type does and can never be what pushes a line
+over; they shrink only so they stay part of the sentence rather than
+looking like buttons dropped into it.
+
+**78% average line fill is the ceiling at this size, not a bug.**
+Switching `text-wrap` from `pretty` to greedy was tried and measured no
+different at 360, 390 or 430. The rag is set by the words: the sentence
+carries "development", "combined" and "languages", and at 28px in a 326px
+column any two of those overflow, so a line ends early whatever the
+browser does. A larger font lowers the fill rather than raising it.
+
+133px sat between the last line and the end of the section, 32px of the
+sticky wrapper's own bottom padding and about 100px of shared section
+padding, on a section whose content had already finished. The wrapper's
+is now zero and `#capabilities` carries a flat 60px.
 
 ### How I Can Help (03)
 Heading, two lines, left aligned: "Where I Make" in `--text`, "The
@@ -532,12 +1017,12 @@ more.
    stay.
    What you get: Smooth onboarding / Proactive check-ins / Fewer churned
    accounts
-2. **Business Development** - [50+ sales] closed
+2. **Business Development** - [100+ sales] closed
    I find the right partners and accounts, then turn conversations into
    signed deals.
    What you get: Qualified leads / Full-cycle outreach / New B2B
    partnerships
-3. **Marketing** - [250+ posters] sold with zero funding
+3. **Marketing** - [250+ posters] sold in the first 3 months
    I run Meta ad campaigns and build brands that turn attention into
    sales.
    What you get: Targeted ad campaigns / Clear messaging / Conversion
@@ -653,7 +1138,12 @@ into view rather than stopping flush against the screen edge.
 Below 900px the cards are 85vw and there is no drag puck.
 ### Name divider
 MOHAMED / ELHAYYANY, yellow `#f5e500`, both lines one size, the longer
-one spanning 92% of the SVG's 1000-unit viewBox.
+one spanning 92% of the SVG's 1000-unit viewBox. In light they carry the
+hairline rim described under the Hero wordmark above, as their own
+`stroke`. The two `<text>` nodes are DRAWN, not just used as a clip
+shape, and the `clipPath` refers to them through `<use>`, so there is one
+set of letters and the photographs are cut from the very shape that is
+painted. The `<rect>` that used to be clipped to them is gone.
 
 **The size is a measured constant in style.css, not a clamp.** The viewBox
 is fixed, so the correct size in user units never changes with the window;
