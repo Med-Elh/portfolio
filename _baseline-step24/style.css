@@ -7683,10 +7683,7 @@ html:has(.sb.is-live) .tt--hx {
     scroll-snap-type: x proximity;
   }
 
-  /* .vid__item is gone from this list: its row no longer scrolls
-     natively, so a snap alignment on it has nothing to snap to. One card
-     per swipe there is done by the transform engine instead, which pages
-     on release rather than relying on the browser's snap. */
+  .vid__item,
   .say__card {
     scroll-snap-align: start;
   }

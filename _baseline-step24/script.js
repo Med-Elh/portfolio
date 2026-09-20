@@ -2097,25 +2097,7 @@
       var raf = 0;
       var dragging = false;
       var pointerId = null;
-      var paged = false;    /* touch pages one card at a time */
       var lastX = 0, lastT = 0, downX = 0, downTo = 0, moved = 0;
-
-      /* A touch swipe advances exactly ONE card, whatever its speed.
-
-         Free scrolling with momentum is right for a mouse, where the
-         pointer is precise and a throw is deliberate. On a phone it is
-         not: the card is 332px of a 370px viewport, so one card IS the
-         screen, and a gesture that lands anywhere other than a card
-         boundary shows half of one video and half of the next. Velocity
-         made that worse rather than better, because a hard flick carried
-         two or three cards and a gentle one rounded back to where it
-         started, so the same gesture did different things.
-
-         So on touch the velocity decides only the DIRECTION, never the
-         distance. Below both thresholds the swipe is treated as a change
-         of mind and the card springs back. */
-      var PAGE_DIST = 40;   /* px of travel that counts as a swipe */
-      var PAGE_VEL = 2.5;   /* or this much speed, for a fast short flick */
 
       /* ---- measuring ----
          The travel is the track's full scroll width, INCLUDING the
@@ -2249,7 +2231,6 @@
 
         dragging = true;
         pointerId = event.pointerId;
-        paged = event.pointerType !== 'mouse';
         vel = 0;
         moved = 0;
         downX = lastX = event.clientX;
@@ -2298,26 +2279,6 @@
         dragging = false;
         pointerId = null;
         row.classList.remove('is-dragging');
-
-        /* ---- touch: one card, decided by direction ---- */
-        if (paged) {
-          var per = cardStep();
-          /* The card the gesture STARTED on, not the one it is nearest
-             now: rounding the current position is what let a long drag
-             skip two cards and a short one round back to the start. */
-          var from = Math.round(downTo / per);
-          var travelled = downX - lastX;   /* positive = swiped forward */
-          var dir = 0;
-
-          if (travelled > PAGE_DIST || vel > PAGE_VEL) { dir = 1; }
-          else if (travelled < -PAGE_DIST || vel < -PAGE_VEL) { dir = -1; }
-
-          vel = 0;
-          to = Math.max(0, Math.min(max, (from + dir) * per));
-          kick();
-
-          return;
-        }
 
         if (reducedMotion.matches) { vel = 0; settle(); return; }
 
@@ -5080,31 +5041,15 @@
     }
 
     if (window.IntersectionObserver) {
+      /* 40% of the PANEL, not of the section: the section is taller than
+         a phone screen, so a threshold on it could never be met and the
+         run would never start. That is the trap the laptop scene hit. */
       var cvIO = new IntersectionObserver(function (entries) {
         if (!entries[0].isIntersecting) { return; }
 
         cvIO.disconnect();
         cvArm();
-      }, {
-        /* 0.55 of the panel, and the bottom 12% of the viewport does not
-           count as "seen".
-
-           0.4 with no margin started the conversation too early: the
-           panel is about 477px tall at 1440x900, so 40% of it is 191px,
-           and 191px creeping above the fold is enough to fire while the
-           panel is still mostly below the screen. The first bubble had
-           been and gone before you arrived.
-
-           Together these put the trigger at roughly the panel's top
-           crossing the middle of the screen, which is where a reader has
-           actually arrived at the section rather than merely approaching
-           it. Still the PANEL and not the section: the section is taller
-           than a phone screen, so a threshold on it could never be met
-           and the run would never start. That is the trap the laptop
-           scene hit. */
-        threshold: 0.55,
-        rootMargin: '0px 0px -12% 0px'
-      });
+      }, { threshold: 0.4 });
 
       cvIO.observe(cv.querySelector('[data-cv-panel]') || cv);
     }

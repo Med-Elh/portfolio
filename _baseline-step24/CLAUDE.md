@@ -1129,24 +1129,7 @@ each frame. Drag, wheel, trackpad, touch, keyboard and the arrows all do
 the same one thing: move the target. The loop stops itself once it
 arrives, so an idle page runs no animation frames.
 
-**Touch pages, one card per swipe, whatever the speed (STEP 26).** Free
-scrolling with momentum is right for a mouse, where the pointer is
-precise and a throw is deliberate. On a phone it is not: the card is
-332px of a 370px viewport, so one card IS the screen, and a gesture
-landing anywhere but a boundary shows half of one video and half of the
-next. Velocity made it worse, not better: a hard flick carried two or
-three cards and a gentle one rounded back to where it started, so the
-same gesture did different things. On touch the velocity now decides only
-the DIRECTION, never the distance, and the step is taken from the card
-the gesture STARTED on rather than the nearest one to where it ended,
-which is what let a long drag skip two. Below 40px of travel and 2.5 of
-speed it springs back. Measured at 390: deliberate, short, hard, angled
-and slow swipes all move exactly 346px, one card; a 25px nudge returns.
-
-`.vid__item` no longer carries `scroll-snap-align`: its row does not
-scroll natively any more, so there is nothing for it to snap to.
-
-For a mouse, momentum decays at 0.94 a frame and then settles on the nearest card,
+Momentum decays at 0.94 a frame and then settles on the nearest card,
 with `max` treated as a resting place in its own right, because the run
 does not divide by the card pitch and rounding alone would never reach
 the last card. Past either end a drag moves at a third speed and springs
