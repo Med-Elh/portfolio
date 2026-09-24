@@ -17,7 +17,7 @@
 
 :root {
   /* Colour */
-  /* Warm-beige base, light theme. Charcoal is the primary accent. */
+  /* Warm-beige base, light theme. Violet is the primary accent. */
   --bg:          #d6d0c1;
   --surface:     #e3dfd3;
   --border:      rgba(0, 0, 0, 0.08);
@@ -27,30 +27,16 @@
      the 0.75rem labels this colours. #5c574c clears it at 4.74:1. Nothing
      on the page is lighter than this. */
   --muted:       #5c574c;
-  /* ---- The accent: charcoal, not violet (STEP 30) --------------------
-     The palette is beige, charcoal and yellow. Every violet on the page
-     was already behind these tokens, so this block is where the whole
-     change happens: there was not one violet literal in index.html and
-     only the particle pair in script.js.
-
-     The accent at display sizes: large headings, bars, dots, arrows,
-     icons, and the fill behind a button. 10.7:1 on --bg. */
-  --accent:       #1f1f1f;
-  /* The hover state. On a light page it goes DARKER, which is the same
-     direction the violet went and the reason this is a token rather than
-     a darken() somewhere. */
-  --accent-hover: #000000;
-  /* The accent as small TEXT. The violet needed a darker cut here
-     because #7c3aed was only 3.70:1 on --bg; charcoal clears 4.5:1 at
-     any size, so the two are the same value in this theme. It stays a
-     separate token because dark mode does need the split. */
-  --accent-text:  #1f1f1f;
-  /* What sits ON the accent: a filled button's label, an icon inside a
-     badge. 14.6:1 on --accent, 18.6:1 on --accent-hover. */
-  --accent-on:    #f4f1ea;
-  /* The old name for the hover, still read by the cursor ring, the
-     sidebar CTA and three link rules. */
-  --accent-soft:  var(--accent-hover);
+  /* Violet at display sizes: large headings, bars, dots, arrows, icons */
+  --accent:      #7c3aed;
+  /* Violet for small text. #7c3aed is 3.70:1 on --bg — fine for large type,
+     short of 4.5:1 for anything set small, which is most of the violet on
+     this page. This darker cut reaches 5.85:1 and carries all of it. */
+  --accent-text: #5b21b6;
+  /* Not "softer" any more — on a light background the hover state is a
+     DARKER violet, and this variable is the hover colour at every one of
+     its uses (filled buttons, the sidebar CTA, link hovers, cursor ring). */
+  --accent-soft: #6d28d9;
   /* Kept at the requested value, but it cannot carry text on this
      background: #e8d900 against --bg measures 1.05:1, because a bright
      yellow and a light beige sit at almost the same luminance. Every
@@ -93,7 +79,7 @@
 
      1. THEME tokens flip. --text, --surface, --border and the rest.
      2. FIXED tokens do not, because they are a colour ON something whose
-        own colour never changes: near-black on yellow, and a brand colour on
+        own colour never changes: white on violet, near-black on yellow,
         white on a scrim over a photograph. Aliasing those to --text is
         exactly how a dark theme ends up with yellow text on a yellow pill.
      3. INVERTED tokens flip the other way. The --vid-* set is the UGC
@@ -124,34 +110,25 @@
   --shadow-4:    rgba(0, 0, 0, 0.32);
 
   /* Accent, at alpha */
-  --accent-ring: rgba(31, 31, 31, 0.4);
-  --accent-glow: rgba(31, 31, 31, 0.18);
-  --accent-wash: rgba(31, 31, 31, 0.10);
+  --accent-ring: rgba(124, 58, 237, 0.4);
+  --accent-glow: rgba(124, 58, 237, 0.55);
+  --accent-wash: rgba(124, 58, 237, 0.10);
 
-  /* A FILLED control, as opposed to the colour text and icons are drawn
-     in. The violet needed these to be two different values, because
-     #8b5cf6 measured 4.23:1 under white text and most of that text is
-     small. Charcoal does not: white on it is 14.6:1 either way, so the
-     fill IS the accent and these are aliases. They stay, because
-     twenty-four rules read them. */
+  /* The violet a FILLED control is painted in, as opposed to the violet
+     text and icons are drawn in. They are the same here and differ in
+     dark mode: the brief's #8b5cf6 is right for icons and large type but
+     measures 4.23:1 under white text, just under the 4.5:1 floor, and
+     most of the white text on this site is small. Filled controls keep a
+     darker violet so the label on them stays legible. */
   --accent-fill:    var(--accent);
-  --accent-fill-hi: var(--accent-hover);
+  --accent-fill-hi: var(--accent-soft);
 
 
-  /* --on-accent USED to be FIXED, and is not any more. White always sat
-     on violet because violet was dark in both themes. The accent now
-     flips from charcoal to off-white, so what sits on it has to flip
-     too, and this tracks --accent-on, which the dark block redefines.
-     --on-accent-2 is still fixed: the yellow does not move. */
-  --on-accent:   var(--accent-on);
+  /* FIXED: these two are the whole reason the palette needs a category
+     for "does not flip". White always sits on violet; near-black always
+     sits on yellow. */
+  --on-accent:   #FFFFFF;
   --on-accent-2: #111111;
-  /* FIXED: the tile a real brand logo sits on in the Growth cards. A
-     brand colour is designed for white, so this does not flip. */
-  --gr-badge:    #f4f1ea;
-  /* FIXED: two quoted colours. The read receipt is #53bdeb in every
-     WhatsApp theme there is, and the brand green is the brand green. */
-  --cv-tick:     #53bdeb;
-  --cv-wa:       #25d366;
 
   /* The big name, wherever it appears at display size: the hero
      wordmark, the copy of it that flies into the sidebar, and the
@@ -225,11 +202,7 @@
   --jr-open-ink:    #f7f5f0;
   --jr-open-body:   #c9c4b8;
   --jr-open-mute:   #9a958a;
-  /* The year inside an opened card. The card is #1f1f1f in both themes,
-     which is now also --accent, so the accent cannot colour its own
-     background: this is the accent inverted, 14.6:1 on the open card.
-     Size and weight are what separate it from the title, not hue. */
-  --jr-open-year:   #f4f1ea;
+  --jr-open-year:   #a78bfa;
   --jr-open-line:   rgba(255, 255, 255, 0.2);
   --jr-open-btn:    rgba(255, 255, 255, 0.12);
   --jr-open-border: transparent;
@@ -241,10 +214,6 @@
   --vid-panel:    #1f1f1f;
   --vid-card:     #1a1a1a;
   --vid-ink:      #eae8e3;
-  /* The band's own hover step. The accent is charcoal now, so inside the
-     band it has to become the band's ink, and a hover needs somewhere
-     to go from there: away from the background in both directions. */
-  --vid-ink-hi:   #ffffff;
   --vid-mute:     #b8b4aa;
   --vid-soft:     #8a8578;
   --vid-chip:     #2a2a2a;
@@ -254,47 +223,30 @@
   --vid-line-2:   rgba(255, 255, 255, 0.20);
   --vid-line-3:   rgba(255, 255, 255, 0.24);
 
-  /* The yellow figure in a Growth card needs no help on the dark
+  /* The yellow figure in a Channels card needs no help on the dark
      band: it is 12.1:1 there. On the LIGHT band, which is what the
      dark theme makes this, it is 1.05:1 and no colour fixes that, so
      the rim carries the boundary instead, as it does on the hero
      wordmark. Transparent here means the stroke paints nothing. */
-  --gr-rim:       transparent;
+  --ch-rim:       transparent;
 
-  /* The Contact conversation (STEP 20, restyled as WhatsApp in STEP 31).
-     A chat panel is a surface stack the palette did not have, and the
-     WhatsApp look needs one more layer than the old one did: a PANEL (the
-     header and the action bar), a WALL behind the bubbles, and the two
-     bubble colours on top of that. --surface and --panel are the same
-     colour here, so a bubble painted --panel on a --panel sheet would be
-     invisible, which is why these exist at all.
+  /* The Contact conversation (STEP 20). Four tokens, and they exist
+     because a chat panel is a surface stack the palette did not have: a
+     sheet, bubbles sitting ON the sheet, and a hover state above those.
+     --surface and --panel are the same colour here, so a bubble painted
+     --panel on a --panel sheet would be invisible.
 
-     This is the one part of the page that is not beige, charcoal and
-     yellow. It is quoting an interface, the same way the Growth badges
-     quote a brand logo, and the rest of the section around it is
-     unchanged. */
-  --cv-panel:   #efece4;   /* header and action bar */
-  --cv-wall:    #efe7dd;   /* behind the bubbles */
-  --cv-in:      #ffffff;   /* incoming bubble */
-  --cv-in-ink:  #111b21;   /* 17.4:1 */
-  --cv-out:     #dcf8c6;   /* outgoing bubble */
-  --cv-out-ink: #111b21;   /* 15.2:1 */
-  --cv-stamp:   #55625a;   /* timestamp inside the bubble, 4.9:1 on --cv-out */
-  --cv-row:     #e0dcd2;   /* the action rows and the header tool buttons */
-  --cv-hover:   #d8d3c7;
-  --cv-shadow:  rgba(0, 0, 0, 0.13);
+     --cv-live is the availability dot and the line beside it. Green, not
+     violet, because it means "available" rather than "brand".
 
-  /* --cv-live is the status line. Green because it means "available",
-     not "brand". It carries its own text at 0.78rem, which is NOT large
-     text, so the floor is 4.5:1 rather than 3:1, and that is what stops
-     it being #25d366: WhatsApp's own green measures 1.62:1 on this panel
-     and no amount of wanting it to work changes that. #00705c is 5.1:1
-     and still reads as a status light rather than as ink.
-
-     The DOT beside it is the real #25d366, because a dot is a graphic
-     whose meaning is spelled out in the word right next to it. */
-  --cv-live:  #00705c;
-  --cv-dot:   #25d366;
+     It has to carry its own text, and that text is 0.78rem, which is not
+     large text, so the floor is 4.5:1 and not 3:1. Measured: #12a150 came
+     out at 2.85:1 on the sheet and failed. #0f7a3a is 4.53:1 and still
+     reads as a status light rather than as ink. */
+  --cv-sheet: #efece4;
+  --cv-in:    #e0dcd2;
+  --cv-hover: #d8d3c7;
+  --cv-live:  #0f7a3a;
 
   /* Spacing (STEP 10's dark override sits just below the close of this
      block; everything from here down is theme-independent) */
@@ -397,30 +349,22 @@
   --rule:        rgba(255, 255, 255, 0.22);
   --rule-2:      rgba(255, 255, 255, 0.18);
 
-  /* The accent inverts. Charcoal on a near-black page would be invisible,
-     so on the dark theme the accent is the off-white and what sits on it
-     is the page colour. 16.5:1 either way.
-
-     --accent-text is a shade off --accent here, and that split is the
-     reason the token exists: a run of small text set in the same
-     off-white as a filled button glares, so body-scale accent text uses
-     the page's own ink instead. 15.6:1 on --bg. */
-  --accent:       #f4f1ea;
+  /* Violet lifts. #7c3aed is 3.0:1 on this background and carries a lot
+     of small text; #8b5cf6 reaches 4.6:1 and the text cut #a78bfa 7.4:1. */
+  --accent:      #8b5cf6;
+  --accent-text: #a78bfa;
   /* On a dark page the hover state is LIGHTER, the opposite of the light
-     theme, which is why this is a token and not a lighten() somewhere. */
-  --accent-hover: #ffffff;
-  --accent-text:  #eae8e3;
-  --accent-on:    #141312;
-  --accent-soft:  var(--accent-hover);
-  --accent-ring: rgba(244, 241, 234, 0.5);
-  --accent-glow: rgba(244, 241, 234, 0.16);
-  --accent-wash: rgba(244, 241, 234, 0.14);
+     theme, which is why this is a token and not a darken() somewhere. */
+  --accent-soft: #a78bfa;
+  --accent-ring: rgba(139, 92, 246, 0.5);
+  --accent-glow: rgba(167, 139, 250, 0.55);
+  --accent-wash: rgba(139, 92, 246, 0.14);
 
-  /* Same aliases as the light block, for the same reason: with a
-     charcoal and off-white accent the fill and the accent are one
-     colour, and nothing needs a separate darker cut to carry a label. */
-  --accent-fill:    var(--accent);
-  --accent-fill-hi: var(--accent-hover);
+  /* White on #8b5cf6 is 4.23:1, and a filled button's label is small
+     text. #6d28d9 takes it to 6.6:1, and the hover goes UP to #7c3aed at
+     5.3:1 rather than down, so the control still brightens on hover. */
+  --accent-fill:    #6d28d9;
+  --accent-fill-hi: #7c3aed;
 
   /* Yellow does not move. It is the one constant across both themes, and
      it still never carries text: #111111 sits on it in both. The name is
@@ -490,7 +434,6 @@
   --vid-panel:    #e3dfd3;
   --vid-card:     #d9d4c5;
   --vid-ink:      #111111;
-  --vid-ink-hi:   #000000;
   --vid-mute:     #5c574c;
   --vid-soft:     #6b665b;
   --vid-chip:     rgba(0, 0, 0, 0.05);
@@ -501,27 +444,16 @@
   --vid-line-3:   rgba(0, 0, 0, 0.16);
 
   /* The band is the light one here, so the rim switches on */
-  --gr-rim:       #111111;
+  --ch-rim:       #111111;
 
-  /* The conversation, in WhatsApp's own dark values. The wall goes to
-     near-black and the panel above it is one step lighter, which is the
-     order the real app uses and the opposite of the light theme, where
-     the wall is the darker of the two.
-
-     --cv-live can be the true #25d366 here: on this panel it is 8.8:1,
-     where in light it was 1.62:1. The token exists for exactly that. */
-  --cv-panel:   #111b21;
-  --cv-wall:    #0b141a;
-  --cv-in:      #202c33;
-  --cv-in-ink:  #e9edef;   /* 12.1:1 */
-  --cv-out:     #005c4b;
-  --cv-out-ink: #e9edef;   /* 6.8:1 */
-  --cv-stamp:   #9fb3ac;   /* 4.9:1 on --cv-out */
-  --cv-row:     #202c33;
-  --cv-hover:   #2a3942;
-  --cv-shadow:  rgba(0, 0, 0, 0.4);
-  --cv-live:    #25d366;
-  --cv-dot:     #25d366;
+  /* The conversation. The sheet lifts off the page rather than sinking
+     into it, and the bubbles lift again off the sheet, so the stack reads
+     the same way round as it does in light. The dot goes lighter, because
+     #12a150 on a near-black sheet is 2.6:1 and would disappear. */
+  --cv-sheet:     #232120;
+  --cv-in:        #2f2c29;
+  --cv-hover:     #3a3733;
+  --cv-live:      #46d07f;
 }
 
 /* --------------------------------------------------------------------------
@@ -728,38 +660,6 @@ em {
   }
 }
 
-/* ---- The cursor inverts whatever is under it (STEP 31) ----
-
-   Before this it was painted in --accent, which STEP 30 turned into the
-   colour of the page's own text: charcoal in light, off-white in dark.
-   That is exactly the colour of the one section that reverses out, so the
-   cursor vanished on the Growth band in light mode and on the same band
-   in dark mode, and it was never reliable over the hero portrait or the
-   collage photographs either, which no token flip could have fixed.
-
-   `mix-blend-mode: difference` with a white source paints 255 minus the
-   backdrop, so the cursor is the photographic negative of whatever it
-   crosses and cannot match it.
-
-   THREE THINGS THIS DEPENDS ON, none of them optional:
-
-   1. Both elements are direct children of <body>. Blending composites
-      against the backdrop of the nearest stacking context that isolates,
-      so they must have no isolating ancestor between them and the root.
-      **Do not wrap them in a container with `isolation: isolate`.** That
-      is the intuitive move and it is backwards: it would isolate the
-      cursor from the page, leaving it to blend against transparent black,
-      which makes white stay white and undoes the whole thing.
-   2. No ancestor may carry `filter`, `backdrop-filter`, `opacity` below
-      1, or a transform. `html` and `body` were checked and carry none.
-   3. The colour is pure white. Any other value inverts to something that
-      is not the complement, and the cursor goes muddy on mid-tones.
-
-   The honest limit: difference blending has nothing to say at exactly
-   mid-grey, where 255 minus 128 is 127 and the result matches its own
-   backdrop. This palette has no mid-grey surface, and the photographs
-   were measured rather than assumed. */
-
 .cursor-dot,
 .cursor-ring {
   display: none;
@@ -770,7 +670,6 @@ em {
   border-radius: 50%;
   opacity: 0;
   pointer-events: none;
-  mix-blend-mode: difference;
   transition: opacity var(--fast) ease,
               width var(--fast) ease,
               height var(--fast) ease,
@@ -789,16 +688,14 @@ em {
   width: 8px;
   height: 8px;
   margin: -4px 0 0 -4px;
-  background-color: #ffffff;
+  background-color: var(--accent);
 }
 
 .cursor-ring {
   width: 36px;
   height: 36px;
   margin: -18px 0 0 -18px;
-  /* 1.5px rather than 1px: a blended hairline is the first thing to get
-     lost to subpixel rounding on a busy backdrop. */
-  border: 1.5px solid #ffffff;
+  border: 1px solid var(--accent-soft);
 }
 
 /* Set once JavaScript has a real cursor position to draw, so nothing
@@ -808,65 +705,18 @@ em {
   opacity: 1;
 }
 
-/* Set by script.js while the cursor is over a link, button, Growth card
-   or work card. The colour cannot change here, because white is what
-   makes the inversion true; the ring says "this is a target" by growing
-   and thickening instead. */
+/* Set by script.js while the cursor is over a link, button, video card
+   or work card */
 .cursor-ring.is-hovering {
   width: 56px;
   height: 56px;
   margin: -28px 0 0 -28px;
-  border-width: 2px;
-}
-
-/* ---- Fallback: no blend support ----
-
-   Everything current supports this, so what is left is old WebKit and
-   the odd embedded browser. There the cursor goes back to a solid accent
-   with a contrasting hairline and a soft shadow in the opposite tone, so
-   one of the two edges always reads whatever it is over. Written as
-   `not (...)`, which is itself only honoured where @supports works; a
-   browser with neither simply keeps the rules above, and a white cursor
-   is visible on every surface on this page except the wordmark. */
-@supports not (mix-blend-mode: difference) {
-  .cursor-dot,
-  .cursor-ring {
-    mix-blend-mode: normal;
-  }
-
-  .cursor-dot {
-    background-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent-on), 0 1px 4px rgba(0, 0, 0, 0.45);
-  }
-
-  .cursor-ring {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent-on),
-                inset 0 0 0 1px var(--accent-on),
-                0 1px 6px rgba(0, 0, 0, 0.4);
-  }
+  border-color: var(--accent);
 }
 
 /* --------------------------------------------------------------------------
    3. Shared pieces — the nav and hero use these, later sections will too
    -------------------------------------------------------------------------- */
-
-/* Shared. Text a screen reader reads and the eye never sees, for the
-   places where a glyph carries meaning on its own: the read receipt in
-   the chat, and anywhere else that follows. `clip-path: inset(50%)`
-   rather than `display: none` or `visibility: hidden`, either of which
-   takes the text out of the accessibility tree along with the pixels. */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  border: 0;
-  clip-path: inset(50%);
-}
 
 .wrap {
   width: 100%;
@@ -1290,18 +1140,6 @@ body.is-locked .nav.is-scrolled {
   transition: color var(--fast) ease;
 }
 
-/* The menu's LinkedIn row. The sidebar carries the same link and the
-   sidebar does not exist below 900px, so without this a phone has no
-   route to the profile at all. The mark is the real LinkedIn glyph in
-   currentColor, so it inherits the row's own colour and its hover. */
-.menu__contact--brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.menu__brandico { flex-shrink: 0; }
-
 .menu__place {
   color: var(--muted);
 }
@@ -1470,7 +1308,7 @@ body.is-locked .nav.is-scrolled {
   /* The photo was shot on a light backdrop, which reads as a bright slab
      against a near-black page. Fading the edges to transparent lets it
      sit into the background instead of ending at a hard rectangle — and
-     the .hero__glow behind it shows through the softened edge. */
+     the violet .hero__glow behind it shows through the softened edge. */
   -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
   mask-image: radial-gradient(ellipse at center, black 50%, transparent 95%);
 }
@@ -1693,7 +1531,7 @@ body.is-locked .nav.is-scrolled {
   color: var(--accent);
 }
 
-/* Quiet punctuation between loud phrases, rather than a third accent
+/* Quiet punctuation between loud phrases, rather than a third violet
    shape competing with them */
 .marquee--cta .marquee__item::after {
   color: var(--muted);
@@ -1926,7 +1764,7 @@ body {
 
 /* The small amber dots */
 
-/* Muted at rest — .card:hover switches these to the accent
+/* Muted at rest — .card:hover switches these to the violet accent
    further down, so hovering a card is still what "interactive" looks
    like everywhere else on the page */
 .chip {
@@ -2214,7 +2052,7 @@ body {
 }
 
 /* ---- Contact: closing statement, no form ----------------------------------
-   The one deliberate exception to "glows follow the accent": this warm-amber
+   The one deliberate exception to "glows are violet": this one warm-amber
    bloom, behind the heading only, echoing the accent-2 word inside it.
    ------------------------------------------------------------------------ */
 
@@ -3207,7 +3045,7 @@ body.is-locked .dots {
     will-change: transform;
   }
 
-  /* Matches the hero's own full stop — the warm accent, not the main one */
+  /* Matches the hero's own full stop — the warm accent, not the violet */
   .nav__stop {
     color: var(--accent-text);
   }
@@ -3406,7 +3244,7 @@ body.is-locked .dots {
 /* Spans the whole timeline, sits behind the cards, never takes a click */
 
 /* The whole route, faint — so the shape of what is coming is legible
-   before the line has reached it */
+   before the violet line has reached it */
 
 /* The drawn line. script.js sets stroke-dasharray to the path's own
    length and moves stroke-dashoffset with scroll position, which is what
@@ -3796,7 +3634,7 @@ body.is-locked .dots {
    #f5e500 measures 1.18:1 against --bg, so it can never carry text. Behind
    near-black text it is the opposite: roughly 15:1, and the most legible
    pairing available on this page. Both uses below therefore put --text on
-   the yellow, never the accent: the accent and yellow never share an element.
+   the yellow, never violet — violet and yellow never share an element.
    -------------------------------------------------------------------------- */
 
 /* ---- Highlighter behind the key phrase ---------------------------------
@@ -3872,11 +3710,8 @@ body.is-locked .dots {
   --yellow: var(--accent-2);
   --panel: var(--surface);
   --ink: var(--text);
-  /* Local aliases, renamed in STEP 30. They pointed at the same two
-     tokens under the names --violet and --violet-dark, which after the
-     palette change described only what the colour used to be. */
-  --hx-accent: var(--accent);
-  --hx-accent-hi: var(--accent-hover);
+  --violet: var(--accent);
+  --violet-dark: var(--accent-soft);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   /* For something travelling ACROSS the screen rather than arriving on it
      or leaving it: the cursor gliding to the Send button in Contact. It
@@ -4212,8 +4047,8 @@ body.is-locked .dots {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .hx__navlink:hover { color: var(--hx-accent); }
-  .hx__btn--go:hover { background-color: var(--hx-accent-hi); }
+  .hx__navlink:hover { color: var(--violet); }
+  .hx__btn--go:hover { background-color: var(--violet-dark); }
   .hx__btn--alt:hover { background-color: var(--surface-strong); }
 }
 
@@ -4384,7 +4219,7 @@ body.is-locked .dots {
 
 .sb__ico { flex-shrink: 0; width: 14px; height: 14px; color: currentColor; }
 
-/* Only lit once the morph has landed — a filled row appearing mid-flight
+/* Only lit once the morph has landed — a violet row appearing mid-flight
    would compete with the item still flying toward it. */
 .sb.is-live .sb__link.is-active { background-color: var(--accent-fill); color: var(--on-accent); }
 
@@ -4437,8 +4272,8 @@ body.is-locked .dots {
 @media (hover: hover) and (pointer: fine) {
   .sb__icon:hover { background-color: var(--sink-hi); }
   .sb.is-live .sb__link:not(.is-active):hover { background-color: var(--sink); }
-  .sb__copy:hover { border-color: var(--hx-accent); color: var(--hx-accent); }
-  .sb__resume:hover { background-color: var(--hx-accent-hi); }
+  .sb__copy:hover { border-color: var(--violet); color: var(--violet); }
+  .sb__resume:hover { background-color: var(--violet-dark); }
 }
 
 @media (min-width: 900px) and (max-height: 820px) {
@@ -4796,7 +4631,7 @@ body.is-locked .dots {
 .sb__logoin { display: inline-block; }
 
 /* --------------------------------------------------------------------------
-   Resume — accent-filled from the first frame, two labels in one box
+   Resume — violet from the first frame, two labels in one box
    -------------------------------------------------------------------------- */
 
 .sb__resume { transform-origin: 0 0; }
@@ -4998,7 +4833,7 @@ body.is-locked .dots {
    the degree and the languages now sit in the year they happened rather
    than in a list at the bottom of the page.
 
-   The accent carries this section: the years, the dots and the tool badges.
+   Violet carries this section: the years, the dots and the tool badges.
    Yellow has exactly one job left - a marker behind a key fact, always
    with the page's own ink on top of it, which is the only way a colour
    this light can carry meaning here at all. Two marks per card at most,
@@ -5021,7 +4856,7 @@ body.is-locked .dots {
   color: var(--text);
 }
 
-/* Dark on the yellow marker, not the accent: the marker is the one job
+/* Dark on the yellow marker, not violet: the marker is now the one job
    yellow does in this section, and it does it the same way everywhere —
    a key fact with the page's own ink on top of it. */
 .jr__lead em {
@@ -5238,7 +5073,7 @@ body.is-locked .dots {
   font-weight: 800;
   line-height: 0.92;
   letter-spacing: -0.045em;
-  /* The accent, so it no longer needs the outline that made yellow readable
+  /* Violet, so it no longer needs the outline that made yellow readable
      on this panel: #7c3aed on #e3dfd3 is 6.5:1 on its own. */
   color: var(--accent);
   transition: color 420ms var(--ease-out), font-size 420ms var(--ease-out);
@@ -5338,8 +5173,8 @@ body.is-locked .dots {
   color: var(--avatar-ink);
 }
 
-/* Panel colour with an accent icon. A plain panel disc on a panel card
-   would be invisible, so a faint accent edge gives it a shape. */
+/* Panel colour with a violet icon. A plain panel disc on a panel card
+   would be invisible, so a faint violet edge gives it a shape. */
 .jr__badge--tool {
   position: relative;
   z-index: 0;
@@ -5482,10 +5317,9 @@ body.is-locked .dots {
 .jr__card.is-open .jr__more  { opacity: 0; pointer-events: none; }
 .jr__card.is-open .jr__rule  { background-color: var(--jr-open-line); }
 
-/* The accent is #1f1f1f, which IS this card's own background once it
-   opens, so it cannot colour its own surface. The year goes to the accent
-   inverted, 14.6:1 on var(--jr-open-bg). Same size and weight either way;
-   only the tint changes. */
+/* Violet at full strength disappears into near-black — 1.2:1 — so the
+   opened card steps the year up to a lighter violet, which reaches 6:1
+   on var(--jr-open-bg). Same size and weight; only the tint changes. */
 .jr__card.is-open .jr__year { color: var(--jr-open-year); }
 
 .jr__card.is-open .jr__badge { box-shadow: 0 0 0 3px var(--jr-open-bg); }
@@ -5590,7 +5424,7 @@ body.is-locked .dots {
    saying which strength that role built, and a short "what I brought"
    list inside each expanded card.
 
-   Colour follows the rule the timeline already set: the accent does the
+   Colour follows the rule the timeline already set: violet does the
    pointing, yellow is only ever a marker with dark text on it.
    ========================================================================== */
 
@@ -6316,15 +6150,14 @@ body.is-locked .dots {
 .no-js .hlp__card { background-color: var(--surface-strong); }
 
 /* ==========================================================================
-   04 / Growth - the page's one dark band
+   04 / Channels - the page's one dark band
 
    STEP 29 replaced the six UGC videos, their carousel and their lightbox
-   with two case study cards. STEP 30 renamed the section from Channels
-   to Growth and rebuilt the cards. The BAND itself is older than either:
-   it still runs the full width and passes under the sidebar, so it still
-   needs sharp edges and no gradient. A fade into the beige at a boundary
-   the fixed sidebar crosses would put the sidebar's own switch out of
-   step with what is behind it.
+   with two case study cards. The BAND survived them: it still runs the
+   full width and passes under the sidebar, so it still needs sharp edges
+   and no gradient. A fade into the beige at a boundary the fixed sidebar
+   crosses would put the sidebar's own switch out of step with what is
+   behind it.
 
    The --vid-* tokens below are this band's palette, not the videos'. The
    name is historical. They are the page's one INVERTED set: dark on a
@@ -6332,42 +6165,10 @@ body.is-locked .dots {
    reads them too.
    ========================================================================== */
 
-.gr {
+.ch {
   position: relative;
   background-color: var(--vid-bg);
   color: var(--vid-ink);
-}
-
-/* ---- the accent, inside a section that reverses out (STEP 30) ----
-
-   The page accent is charcoal in light and off-white in dark. Either way
-   it is the colour of the PAGE's text, and this band is the one place
-   whose background is the other one, so an unmodified accent lands
-   charcoal on #111111 in light and off-white on #e3dfd3 in dark: both
-   invisible.
-
-   Rebinding the tokens on the section rather than rewriting the rules
-   inside it means every component keeps reading --accent and gets the
-   right answer, and there is one place to look when it is wrong. It
-   inverts for free, because --vid-ink already does. */
-/* Every alias is re-declared here, and that is not belt-and-braces: a
-   custom property inherits its COMPUTED value, so a var() written in
-   :root is substituted there and the result is what descends. Setting
-   --accent-on alone left --on-accent still holding :root's #f4f1ea,
-   which put near-white text on the near-white pill this block exists to
-   create. Redeclaring the alias is what makes it resolve locally. */
-.gr,
-.sb__panel.is-dark,
-.sb__resume.is-dark {
-  --accent:         var(--vid-ink);
-  --accent-hover:   var(--vid-ink-hi);
-  --accent-text:    var(--vid-ink);
-  --accent-on:      var(--vid-bg);
-  --accent-soft:    var(--vid-ink-hi);
-  --accent-fill:    var(--vid-ink);
-  --accent-fill-hi: var(--vid-ink-hi);
-  --on-accent:      var(--vid-bg);
-  --accent-ring:    var(--vid-line-3);
 }
 
 /* The band keeps the ordinary section gutter and the ordinary .wrap, so
@@ -6376,16 +6177,16 @@ body.is-locked .dots {
    the dark fill still runs the full width and passes behind the sidebar. */
 
 /* The reading-highlight dim would grey out a dark band into mud */
-.js .gr,
-.js .gr:not(.is-active) { opacity: 1; }
+.js .ch,
+.js .ch:not(.is-active) { opacity: 1; }
 
-.gr__marker .section__num { background-color: var(--accent-2); color: var(--on-accent-2); }
+.ch__marker .section__num { background-color: var(--accent-2); color: var(--on-accent-2); }
 /* The marker's own text node is the "/" between the two spans. It was
    inheriting --muted, which is a dark grey on the light page and a light
    grey on the dark one; either way it is the wrong one for a band that
    reverses out of its surroundings. */
-.gr__marker { color: var(--vid-mute); }
-.gr__marker > span:last-child { color: var(--vid-mute); }
+.ch__marker { color: var(--vid-mute); }
+.ch__marker > span:last-child { color: var(--vid-mute); }
 
 /* --------------------------------------------------------------------------
    The header
@@ -6396,7 +6197,7 @@ body.is-locked .dots {
    against vw.
    -------------------------------------------------------------------------- */
 
-.gr__head {
+.ch__head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
   align-items: end;
@@ -6404,7 +6205,7 @@ body.is-locked .dots {
   margin-top: clamp(1.5rem, 4vh, 2.5rem);
 }
 
-.gr__title {
+.ch__title {
   margin: 0;
   font-size: clamp(2.25rem, 4.6vw, 4.25rem);
   font-weight: 800;
@@ -6416,10 +6217,10 @@ body.is-locked .dots {
 /* Each line is one line. "From The Ground Up" is the longer of the two
    and therefore what the clamp has to fit; below 900px the mobile rule
    takes over and lets it wrap. */
-.gr__titleln { display: block; white-space: nowrap; }
-.gr__titleln--soft { color: var(--vid-soft); }
+.ch__titleln { display: block; white-space: nowrap; }
+.ch__titleln--soft { color: var(--vid-soft); }
 
-.gr__intro {
+.ch__intro {
   margin: 0 0 0.4rem;
   font-size: 1.0625rem;
   line-height: 1.6;
@@ -6430,10 +6231,10 @@ body.is-locked .dots {
    The two case study cards
    -------------------------------------------------------------------------- */
 
-.gr__grid {
+.ch__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  gap: 20px;
   margin: clamp(2rem, 5vh, 3.25rem) 0 0;
   padding: 0;
   list-style: none;
@@ -6441,182 +6242,124 @@ body.is-locked .dots {
 
 /* A flex column so the tag row can be pinned to the bottom with
    `margin-top: auto`. The two cards carry different amounts of copy and
-   only one of them has a number, so the tags are what has to line up.
-
-   The inner gradient goes on `background-image`, with the flat
-   `background-color` underneath it: two properties, so the hover can
-   brighten the border without touching the fill, and so a browser that
-   drops the gradient still paints the panel.
-
-   `isolation: isolate` because the top highlight is a ::before at
-   z-index 1 and the card's own content is not positioned. Without it the
-   highlight paints over the header. */
-.gr__card {
-  position: relative;
-  isolation: isolate;
+   only one of them has a number, so the tags are what has to line up. */
+.ch__card {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding: clamp(26px, 3vw, 44px);
+  padding: clamp(24px, 2.6vw, 40px);
   border: 1px solid var(--vid-line);
-  border-radius: 26px;
+  border-radius: 24px;
   background-color: var(--vid-panel);
-  background-image: linear-gradient(to bottom,
-                    var(--vid-panel) 0%,
-                    var(--vid-card) 100%);
-  box-shadow: 0 18px 44px var(--shadow-2);
-  /* The entrance. Written as a transition rather than a keyframe because
-     the cards can be scrolled past and back, and a transition retargets
-     from wherever it is while a keyframe restarts from zero. */
+  /* The entrance. Written here rather than in a keyframe because the
+     cards can be scrolled past and back, and a transition retargets from
+     wherever it is while a keyframe restarts. */
   opacity: 0;
   transform: translateY(26px);
   transition: opacity 600ms var(--ease-out),
-              transform 300ms var(--ease-out),
-              border-color 300ms ease,
-              box-shadow 300ms ease;
+              transform 600ms var(--ease-out),
+              border-color 200ms ease;
 }
 
-/* The fine top highlight. One pixel, inset from both corners so it reads
-   as a light catching the top edge rather than as a border. */
-.gr__card::before {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 14%;
-  right: 14%;
-  height: 1px;
-  background-image: linear-gradient(to right,
-                    transparent 0%,
-                    var(--vid-line-3) 50%,
-                    transparent 100%);
-}
-
-.gr__grid.is-in .gr__card { opacity: 1; transform: none; }
-.gr__grid.is-in .gr__card:nth-child(2) { transition-delay: 90ms; }
+.ch__grid.is-in .ch__card { opacity: 1; transform: none; }
+.ch__grid.is-in .ch__card:nth-child(2) { transition-delay: 90ms; }
 
 /* The lift only applies once the card has arrived, or it would fight the
-   entrance for the same property. 300ms, and the badge scales with it. */
+   entrance for the same property. */
 @media (hover: hover) and (pointer: fine) {
-  .gr__grid.is-in .gr__card:hover {
+  .ch__grid.is-in .ch__card:hover {
     transform: translateY(-6px);
     border-color: var(--vid-line-3);
-    box-shadow: 0 26px 56px var(--shadow-3);
   }
-
-  .gr__grid.is-in .gr__card:hover .gr__link { transform: scale(1.06); }
 }
 
-/* ---- the header row: brand badge, handle, round icon buttons ---- */
+/* ---- top row: badges, handle, profile links ---- */
 
-/* It wraps, and below about 1300px it has to: two 42px badges, a handle
-   and two 38px round buttons need more than the 292px a card has at the
-   narrow end of the two-up range. A wrapped links row keeps its auto
-   margin and lands right-aligned under the handle, which reads as a
-   second line of the same block. */
-.gr__top {
+.ch__top {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.6rem 0.85rem;
+  gap: 0.75rem 1rem;
 }
 
-.gr__handle {
-  margin: 0;
-  min-width: 0;
-  font-size: 1.1875rem;
-  font-weight: 700;
-  letter-spacing: -0.015em;
-  color: var(--vid-ink);
-  overflow-wrap: anywhere;
-}
-
-.gr__links {
+.ch__badges {
   display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  gap: 8px;
-  margin: 0 0 0 auto;
-  padding: 0;
-  list-style: none;
+  gap: 6px;
 }
 
-/* Round icon buttons. Icon only, so the accessible name lives in the
-   aria-label rather than in text that would have to fit. 38px, which is
-   under the 44px touch target, so the phone rule below grows them. */
-/* The button IS the logo now: the decorative badge that used to sit by
-   the handle is gone, so there is one Instagram mark per card and it is
-   the clickable one. That makes it a brand tile rather than an outline,
-   on the same fixed off-white as the old badge, for the same measured
-   reason: a brand colour is designed for white and goes muddy on the
-   band's own chip.
-
-   Hover cannot repaint the glyph, because the glyph is a brand mark. It
-   lifts the tile instead. */
-.gr__link {
+/* --accent-fill rather than --accent: this carries white on violet, and
+   --accent alone measures 4.23:1 under it. The icon is a graphic rather
+   than text, but the token costs nothing and keeps one rule for every
+   filled violet control on the page. */
+.ch__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--vid-line-2);
-  border-radius: 13px;
-  background-color: var(--gr-badge);
-  transition: transform 300ms var(--ease-out),
-              border-color 300ms ease,
-              box-shadow 300ms ease;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
-.gr__link svg { display: block; }
+.ch__handle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--vid-ink);
+}
+
+.ch__links {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0 0 0 auto;
+}
+
+.ch__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vid-mute);
+  transition: color 160ms ease, gap 200ms var(--ease-out);
+}
+
+.ch__link svg { flex-shrink: 0; }
 
 @media (hover: hover) and (pointer: fine) {
-  .gr__link:hover {
-    border-color: var(--vid-ink);
-    box-shadow: 0 4px 14px var(--shadow-3);
-  }
+  .ch__link:hover { color: var(--vid-ink); gap: 9px; }
 }
 
-.gr__link:focus-visible {
+.ch__link:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 3px;
+  border-radius: 4px;
 }
 
-/* ---- the thin divider under the header ---- */
+/* ---- the number ---- */
 
-.gr__rule {
-  height: 1px;
-  margin: clamp(1.25rem, 2vw, 1.75rem) 0;
-  border: 0;
-  background-color: var(--vid-line);
+.ch__result {
+  margin: clamp(1.5rem, 2.4vw, 2rem) 0 0;
 }
 
-/* ---- the centrepiece block ---- */
-
-/* Its own inset background, so the figure reads as the card's
-   centrepiece rather than as the first line of the body. The inset is an
-   inner shadow plus a hairline, not a lighter fill: a lighter panel on a
-   panel is another card, and this is a recess in the one it is in. */
-.gr__figure {
-  padding: clamp(1.1rem, 1.8vw, 1.5rem) clamp(1.1rem, 1.8vw, 1.5rem) clamp(1rem, 1.6vw, 1.35rem);
-  border: 1px solid var(--vid-line);
-  border-radius: 18px;
-  background-color: var(--vid-chip);
-  box-shadow: inset 0 2px 10px var(--shadow-2);
-}
-
-/* Yellow, and on the dark band that is 12.6:1. On the LIGHT band, which
+/* Yellow, and on the dark band that is 12.1:1. On the LIGHT band, which
    is what the dark theme turns this into, a bright yellow and a light
    beige sit at nearly the same luminance and no colour choice fixes it.
    So the letter does not carry the contrast there, the rim does, exactly
-   as the hero wordmark and the name divider do. --gr-rim is transparent
+   as the hero wordmark and the name divider do. --ch-rim is transparent
    on the dark band and near-black on the light one, and the width can
    stay put because a transparent stroke is a no-op.
 
    `paint-order: stroke fill` keeps the glyph its true weight: the fill
    paints over the stroke rather than the stroke eating into it. */
-.gr__num {
+.ch__num {
   display: block;
-  font-size: clamp(2.35rem, 4.2vw, 3.5rem);
+  font-size: clamp(2.5rem, 4.4vw, 3.75rem);
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.035em;
@@ -6628,26 +6371,13 @@ body.is-locked .dots {
      wordmark's hairline lands too (1.15px at 1280). The floor is for the
      phone, where 0.018em of a 36px figure is 0.65px and Chrome draws it
      as a fraction of an alpha value the eye does not register. */
-  -webkit-text-stroke: max(1px, 0.018em) var(--gr-rim);
+  -webkit-text-stroke: max(1px, 0.018em) var(--ch-rim);
   paint-order: stroke fill;
 }
 
-/* The second card has no figure: none was supplied and one is never
-   guessed here. Its platform names go in the same block in the same
-   style, at a size that fits two words rather than five characters, so
-   the two cards balance without a number being invented for one. It is
-   NOT yellow: "Instagram + YouTube" is a label, not a result, and
-   yellow's job on this page is a result. */
-.gr__num--soft {
-  font-size: clamp(1.5rem, 2.2vw, 1.9rem);
-  letter-spacing: -0.02em;
-  color: var(--vid-ink);
-  -webkit-text-stroke: 0 transparent;
-}
-
-.gr__numlab {
+.ch__numlab {
   display: block;
-  margin-top: 0.6rem;
+  margin-top: 0.55rem;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -6655,33 +6385,23 @@ body.is-locked .dots {
   color: var(--vid-mute);
 }
 
-/* ---- the three labelled blocks, divided by hairlines ---- */
+/* ---- the three labelled blocks ---- */
 
-/* Hairlines rather than gaps, so the card reads as a spec sheet. The
-   rule goes on the block's TOP and the first block is excepted, which
-   means the count can change without a :last-child rule to match. */
-.gr__blocks {
+/* This is what takes up the slack, not the tag row. A card with no
+   number is about 135px shorter than one with, and the two are the same
+   height, so that 135px has to go somewhere deliberate. */
+.ch__blocks {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  margin-top: clamp(1.25rem, 2vw, 1.75rem);
-}
-
-.gr__block {
-  padding: clamp(0.9rem, 1.5vw, 1.15rem) 0;
+  gap: 1.125rem;
+  margin-top: clamp(1.5rem, 2.4vw, 2rem);
+  padding-top: clamp(1.5rem, 2.4vw, 2rem);
   border-top: 1px solid var(--vid-line);
 }
 
-.gr__block:first-child { border-top: 0; padding-top: 0; }
-
-/* The small accent marker before a label. A 3px bar rather than a dot:
-   at this size a dot reads as a bullet and a bar reads as a rule, which
-   is what a label wants. */
-.gr__blab {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin: 0 0 0.45rem;
+.ch__blab {
+  margin: 0 0 0.35rem;
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -6691,51 +6411,50 @@ body.is-locked .dots {
   color: var(--vid-mute);
 }
 
-.gr__blab::before {
-  content: "";
-  flex-shrink: 0;
-  width: 14px;
-  height: 3px;
-  border-radius: 2px;
-  background-color: var(--accent);
-}
-
-.gr__btxt {
+.ch__btxt {
   margin: 0;
   font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--vid-mute);
 }
 
-/* The result is the card's conclusion, so it takes a step up in size and
-   into the band's full ink in both cards. On the second, which has no
-   figure, `margin-top: auto` also collects the spare height above it:
-   the cards are the same height, and a card without the figure block is
-   about 135px shorter, so that space has to go somewhere deliberate. */
-.gr__block--grow { margin-top: auto; }
+/* The second card has no number, because none was supplied and a figure
+   is never guessed here. Its result line takes the weight the number
+   would have had: a step up in size, into the band's full ink, and set
+   off below its own hairline at the foot of the card, so the two cards
+   read as a matched pair rather than one looking unfinished.
 
-.gr__block--result .gr__btxt {
-  font-size: 1.0625rem;
-  line-height: 1.55;
+   `margin-top: auto` is what closes the hole. The spare height collects
+   in ONE place, above a conclusion, where it reads as separation. Spread
+   evenly between the three blocks it just read as a card that had run
+   out of things to say. */
+.ch__block--grow {
+  margin-top: auto;
+  padding-top: clamp(1.5rem, 2.4vw, 2rem);
+  border-top: 1px solid var(--vid-line);
+}
+
+.ch__block--grow .ch__btxt {
+  font-size: 1.125rem;
+  line-height: 1.5;
   color: var(--vid-ink);
 }
 
 /* ---- the skill tags ---- */
 
-.gr__tags {
+.ch__tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 0;
-  padding: clamp(1.25rem, 2vw, 1.75rem) 0 0;
-  border-top: 1px solid var(--vid-line);
+  /* auto, so both cards finish flush at the bottom however differently
+     the copy above them wraps */
+  margin: auto 0 0;
+  padding: clamp(1.5rem, 2.4vw, 2rem) 0 0;
   list-style: none;
 }
 
-/* Thin borders, no fill. Six of these in a row is a lot of small
-   rectangles, and filling them would read as six buttons. */
-.gr__tag {
-  padding: 0.44em 0.9em;
+.ch__tag {
+  padding: 0.42em 0.9em;
   border: 1px solid var(--vid-line-2);
   border-radius: 999px;
   font-size: 0.68rem;
@@ -6751,10 +6470,10 @@ body.is-locked .dots {
    The sidebar's gutter takes about 370px off the wrap, so the column here
    is far narrower than the viewport: 528px at a 900px window, against
    1028px at 1440. Two cards in 528px leaves 170px of content inside each
-   one, which stood the card over 1000px tall and broke the header, the
-   figure and half the block text over extra lines.
+   one, which stood the card 1003px tall and broke the top row, the figure
+   and half the block text over extra lines.
 
-   1180 is where the content inside a card reaches 292px and the header
+   1180 is where the content inside a card reaches 292px and the top row
    fits on one line again. Above it, two up; below it, one. The heading
    goes single column at the same point, for the same reason: the
    paragraph beside it is up to 20rem, which at 900px left the heading
@@ -6762,49 +6481,42 @@ body.is-locked .dots {
    -------------------------------------------------------------------------- */
 
 @media (max-width: 1179px) {
-  .gr__head {
+  .ch__head {
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: 1rem;
   }
 
-  .gr__intro { margin: 0.25rem 0 0; max-width: 62ch; }
+  .ch__intro { margin: 0.25rem 0 0; max-width: 62ch; }
 
-  .gr__grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .ch__grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
 }
 
 /* --------------------------------------------------------------------------
-   Mobile - smaller heading, allowed to wrap, and 44px controls
+   Mobile - smaller heading, allowed to wrap
    -------------------------------------------------------------------------- */
 
 @media (max-width: 899px) {
-  .gr__title { font-size: clamp(1.9rem, 8.6vw, 3rem); }
-  .gr__titleln { white-space: normal; }
+  .ch__title { font-size: clamp(1.9rem, 8.6vw, 3rem); }
+  .ch__titleln { white-space: normal; }
 
-  .gr__grid { gap: 14px; }
-  .gr__card { border-radius: 22px; }
-  .gr__num { font-size: clamp(2.1rem, 9.5vw, 2.9rem); }
-  .gr__num--soft { font-size: clamp(1.35rem, 5.6vw, 1.7rem); }
-  .gr__handle { font-size: 1.0625rem; }
-
-  /* A round icon button is the whole target here, so it goes to the 44px
-     floor. The badge comes down a little to keep the header on one row
-     once the buttons have grown. */
-  .gr__link { width: 44px; height: 44px; }
-  .gr__top { gap: 0.7rem; }
+  .ch__grid { gap: 14px; }
+  .ch__card { border-radius: 20px; }
+  .ch__num { font-size: clamp(2.25rem, 10vw, 3rem); }
+  .ch__handle { font-size: 1.0625rem; }
 }
 
 /* --------------------------------------------------------------------------
-   Reduced motion: the cards fade, they do not travel, and neither the
-   hover lift nor the badge scale happens. Nothing here is load-bearing,
-   so nothing is kept beyond the arrival itself.
+   Reduced motion: the cards fade, they do not travel, and the hover lift
+   is a border change only. Nothing here is load-bearing, so nothing is
+   kept beyond the arrival itself.
    -------------------------------------------------------------------------- */
 
-html.rm .gr__card { transform: none; }
-html.rm .gr__grid.is-in .gr__card:hover { transform: none; }
-html.rm .gr__grid.is-in .gr__card:hover .gr__link { transform: none; }
+html.rm .ch__card { transform: none; }
+html.rm .ch__grid.is-in .ch__card:hover { transform: none; }
+html.rm .ch__link { transition: color 160ms ease; }
 
-.no-js .gr__card { opacity: 1; transform: none; }
+.no-js .ch__card { opacity: 1; transform: none; }
 
 /* ==========================================================================
    The sidebar while the dark band is behind it
@@ -7100,13 +6812,6 @@ html.rm .gr__grid.is-in .gr__card:hover .gr__link { transform: none; }
   transform: translate(-50%, -50%) scale(0.4);
   transition: opacity 200ms var(--ease-out), scale 260ms var(--ease-out);
   pointer-events: none;
-  /* Filled, not blended: the label inside has to stay readable, and
-     difference blending would invert the text along with the disc. It
-     gets the outline and the shadow instead, in the opposite tone, so
-     the puck has an edge against a card, against the page and against a
-     photograph. The 1px ring is --on-accent, which is already the
-     opposite of --accent-fill in both themes. */
-  box-shadow: 0 0 0 1px var(--on-accent), 0 6px 20px rgba(0, 0, 0, 0.35);
 }
 
 .say__cursor.is-on { opacity: 1; scale: 1; }
@@ -7601,14 +7306,14 @@ html:has(.sb.is-live) .tt--hx {
    on the dark band in light mode, 1.55:1 on the light band in dark mode.
    The band has its own grey and the dimmer has to use it. Matching the
    dimmer's specificity and sitting later is what takes it. */
-.js .section:not(.is-active) .gr__marker,
-.js .section:not(.is-active) .gr__marker > span:not(.section__num) {
+.js .section:not(.is-active) .ch__marker,
+.js .section:not(.is-active) .ch__marker > span:not(.section__num) {
   color: var(--vid-mute);
 }
 
 /* Except the number, which is not on the band at all: it is on its own
    yellow chip, and the chip is yellow in both themes */
-.js .section:not(.is-active) .gr__marker .section__num {
+.js .section:not(.is-active) .ch__marker .section__num {
   color: var(--on-accent-2);
 }
 
@@ -7894,7 +7599,7 @@ html:has(.sb.is-live) .tt--hx {
   .jr__brought li,
   .st__proof,
   .hlp__text,
-  .gr__intro,
+  .ch__intro,
   .say__quote {
     font-size: 1rem;
     line-height: 1.5;
@@ -7967,23 +7672,15 @@ html:has(.sb.is-live) .tt--hx {
     animation: mi-fade-out 500ms ease both;
   }
 
-  /* A keyframe OFFSET is not a selector and cannot be scoped. The STEP 28
-     rewrite, which moved every reduced-motion rule from a media query to
-     `html.rm`, prefixed these three offsets along with everything else,
-     and an invalid keyframe selector drops the whole block: both of these
-     animations had no states at all, so the phone's reduced-motion intro
-     ran a 500ms animation that did nothing and left the bloom up. The
-     scoping belongs on the rules that USE the animation, above, and it is
-     already there. */
   @keyframes mi-fade-out {
-    0%   { opacity: 0; }
-    35%  { opacity: 0.8; }
-    100% { opacity: 0; }
+  html.rm 0% { opacity: 0; }
+  html.rm 35% { opacity: 0.8; }
+  html.rm 100% { opacity: 0; }
   }
 
   @keyframes mi-fade {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  html.rm from { opacity: 0; }
+  html.rm to { opacity: 1; }
   }
 
 }
@@ -8184,15 +7881,11 @@ html:has(.sb.is-live) .tt--hx {
 
 .cv { margin-top: clamp(1.5rem, 4vh, 2.75rem); }
 
-/* The panel is now three bands stacked: header, wall, action bar. The
-   padding moved off the panel and onto each band, because the wall has to
-   run edge to edge the way a chat background does, and a padded parent
-   would have inset it. `overflow: hidden` clips the wall to the radius. */
 .cv__panel {
-  overflow: hidden;
   max-width: 900px;
+  padding: clamp(20px, 2.4vw, 28px) clamp(20px, 2.4vw, 30px) clamp(18px, 2vw, 24px);
   border-radius: 28px;
-  background-color: var(--cv-panel);
+  background-color: var(--cv-sheet);
   box-shadow: 0 26px 64px var(--shadow-2), 0 2px 6px var(--shadow-1);
 }
 
@@ -8202,7 +7895,7 @@ html:has(.sb.is-live) .tt--hx {
   display: flex;
   align-items: center;
   gap: 13px;
-  padding: clamp(16px, 2vw, 20px) clamp(18px, 2.2vw, 24px);
+  padding-bottom: 15px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -8237,21 +7930,18 @@ html:has(.sb.is-live) .tt--hx {
   height: 7px;
   flex: 0 0 auto;
   border-radius: 50%;
-  background-color: var(--cv-dot);
+  background-color: var(--cv-live);
 }
 
 .cv__tools { display: flex; gap: 8px; margin: 0 0 0 auto; }
 
-/* Neutral, per the brief: a call button that wore the accent read as the
-   primary action of the whole section, which it is not. The three rows
-   in the bar below are. */
 .cv__tool {
   display: grid;
   place-items: center;
   width: 36px;
   height: 36px;
   border-radius: 11px;
-  background-color: var(--cv-row);
+  background-color: var(--cv-in);
   color: var(--body);
   transition: background-color var(--fast) ease, color var(--fast) ease;
 }
@@ -8260,106 +7950,65 @@ html:has(.sb.is-live) .tt--hx {
 
 /* ---- the thread ---- */
 
-/* The wall. It is a band of the panel rather than a padded child, so the
-   colour runs the full width the way a chat background does. The extra
-   bottom padding is the gutter a thread leaves under its last message. */
 .cv__thread {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
-  padding: clamp(18px, 2.2vw, 24px) clamp(18px, 2.2vw, 24px) clamp(20px, 2.4vw, 26px);
-  background-color: var(--cv-wall);
+  padding: 18px 0 2px;
   list-style: none;
 }
 
-/* `position: relative` for the tail, which is a pseudo-element hung off
-   the bubble's bottom corner. `min-width: 0` so a long unbroken run
-   cannot push the bubble past its max-width. */
 .cv__msg {
-  position: relative;
-  max-width: 75%;
-  min-width: 0;
-  padding: 9px 13px 8px;
-  border-radius: 18px;
-  font-size: 0.975rem;
-  line-height: 1.42;
-  box-shadow: 0 1px 1px var(--cv-shadow);
+  max-width: 68%;
+  padding: 12px 17px;
+  border-radius: 20px;
+  font-size: 1rem;
+  line-height: 1.45;
 }
 
 .cv__msg--in {
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 7px;
   background-color: var(--cv-in);
-  color: var(--cv-in-ink);
+  color: var(--text);
 }
 
 .cv__msg--out {
   align-self: flex-end;
-  border-bottom-right-radius: 4px;
-  background-color: var(--cv-out);
-  color: var(--cv-out-ink);
-  /* Room at the bottom right for the timestamp and the ticks, which sit
-     INSIDE the bubble and must not end up under the last word. */
-  padding-bottom: 8px;
+  border-bottom-right-radius: 7px;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
+  font-weight: 500;
 }
 
-/* ---- the timestamp and the read receipt, inside the outgoing bubble ---- */
-
-/* Floated right and dropped into the last line, which is how the real
-   thing does it: the text wraps around the stamp rather than the stamp
-   sitting on a line of its own and making every bubble two lines taller.
-   `shape-outside` is not needed because the float is a plain rectangle. */
 .cv__meta {
-  float: right;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  height: 15px;
-  margin: 6px -3px -2px 8px;
-  font-size: 0.6875rem;
-  font-weight: 500;
+  align-self: flex-end;
+  font-size: 0.7rem;
+  color: var(--muted);
   letter-spacing: 0.01em;
-  color: var(--cv-stamp);
 }
 
 /* The separator is generated rather than typed, so a missing live time
    never leaves a dangling middle dot on the page. Non-breaking spaces:
    ordinary ones in generated content collapse against the text node
-   beside them and the line set as "Delivered ·04:12". Now that the
-   timestamp stands alone in the corner there is nothing before it to
-   separate from, so the rule only fires when both parts are present. */
-.cv__time:not(:empty) + .cv__ticks { margin-left: 1px; }
-
-/* #53bdeb is the read-receipt blue in every WhatsApp theme there is, and
-   it is 1.86:1 on the pale green bubble. That is BELOW the 3:1 graphic
-   floor and it is allowed to be: the ticks are decoration whose meaning
-   is carried by the visually hidden "Read" beside them, exactly as the
-   status dot leans on the word "online". Darkening it would be inventing
-   a colour the interface being quoted does not have. */
-.cv__ticks {
-  flex: 0 0 auto;
-  color: var(--cv-tick);
-}
+   beside them and the line set as "Delivered ·04:12". */
+.cv__time:not(:empty)::before { content: "\00A0\00B7\00A0"; }
 
 .cv__typing {
-  position: relative;
   display: inline-flex;
-  align-self: flex-start;
   gap: 5px;
-  padding: 12px 14px;
-  border-radius: 18px;
-  border-bottom-left-radius: 4px;
+  padding: 14px 18px;
+  border-radius: 20px;
+  border-bottom-left-radius: 7px;
   background-color: var(--cv-in);
-  box-shadow: 0 1px 1px var(--cv-shadow);
 }
 
 .cv__typing s {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--cv-stamp);
+  background-color: var(--muted);
   /* A CSS animation, not a rAF loop: it is predetermined, it repeats for
      as long as the section is on screen, and CSS keeps it off the main
      thread so it stays smooth while the rest of the page is still
@@ -8385,11 +8034,9 @@ html:has(.sb.is-live) .tt--hx {
      while the phone row sat half empty. */
   grid-template-columns: 1.25fr 1fr 1fr;
   gap: 10px;
-  /* The panel's own padding moved onto its three bands when the wall had
-     to run edge to edge, so the bar carries its own now. No top border:
-     the wall's colour change already draws that line. */
-  margin: 0;
-  padding: clamp(14px, 1.8vw, 18px) clamp(18px, 2.2vw, 24px) clamp(16px, 2vw, 20px);
+  margin: 16px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
   list-style: none;
 }
 
@@ -8399,7 +8046,7 @@ html:has(.sb.is-live) .tt--hx {
   gap: 12px;
   padding: 13px 15px;
   border-radius: 15px;
-  background-color: var(--cv-row);
+  background-color: var(--cv-in);
   transition: background-color var(--fast) ease, transform var(--fast) var(--ease-out);
 }
 
@@ -8445,22 +8092,6 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 }
 
 .cv__sub:hover { text-decoration: underline; }
-
-/* The WhatsApp row. inline-flex rather than inline-block, so the real
-   mark sits on the text's own baseline block instead of hanging off it.
-   `text-underline-offset` because an icon in the flex row makes the
-   default underline sit tight against the glyph's descender. */
-.cv__sub--brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  text-underline-offset: 2px;
-}
-
-/* The one row whose mark keeps its brand colour, per the brief. It is a
-   logo, so WCAG 1.4.11 exempts it from the non-text contrast floor, and
-   the word "WhatsApp" is right beside it carrying the meaning. */
-.cv__brandico { flex-shrink: 0; color: var(--cv-wa); }
 
 .cv__val:focus-visible,
 .cv__sub:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
@@ -8510,12 +8141,6 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 .cv.is-live .cv__msg--in { transform: translate(-10px, 8px) scale(0.96); }
 .cv.is-live .cv__msg--out { transform: translate(10px, 8px) scale(0.96); }
 
-/* The stamp now lives INSIDE the outgoing bubble, so it is nested in an
-   element that is itself animating. It must not travel as well: the
-   bubble carries it, and a second translate on top read as the timestamp
-   sliding around inside a box that had already landed. It fades only. */
-.cv.is-live .cv__msg--out .cv__meta { transform: none; }
-
 .cv.is-live .cv__act { opacity: 0; transform: translateY(10px); }
 
 .cv.is-live [data-cv-step].is-in,
@@ -8536,18 +8161,12 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
    ========================================================================== */
 
 @media (max-width: 899px) {
-  .cv__panel { border-radius: 22px; }
+  .cv__panel {
+    padding: 18px 16px 16px;
+    border-radius: 22px;
+  }
 
-  .cv__head { padding: 14px 15px; }
-  .cv__thread { padding: 16px 14px 20px; gap: 8px; }
-  .cv__bar { padding: 12px 14px 14px; }
-
-  /* 82%, not the 75% desktop uses. 75% of a 326px column is 245px, and
-     the reply is 72 characters: at 0.95rem that is six lines in a bubble
-     taller than it is wide, which stops reading as a message. 82% is
-     267px and five lines, and still leaves the incoming bubble visibly
-     short of the edge, which is the point of a max-width here. */
-  .cv__msg { max-width: 82%; font-size: 0.95rem; padding: 9px 12px 8px; }
+  .cv__msg { max-width: 86%; font-size: 0.95rem; padding: 11px 15px; }
   .cv__av { width: 40px; height: 40px; font-size: 14px; }
   .cv__tools { display: none; }
 
@@ -8623,7 +8242,7 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 .cv__av,
 .logo-pill,
 .sb__logo,
-.gr__num,
+.ch__num,
 .certbox__img {
   -webkit-user-select: none;
   user-select: none;
@@ -8651,7 +8270,7 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 .say__avatar::selection,
 .cv__av::selection,
 .logo-pill::selection,
-.gr__num::selection {
+.ch__num::selection {
   background-color: transparent;
 }
 

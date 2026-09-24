@@ -6504,7 +6504,7 @@ body.is-locked .dots {
     box-shadow: 0 26px 56px var(--shadow-3);
   }
 
-  .gr__grid.is-in .gr__card:hover .gr__link { transform: scale(1.06); }
+  .gr__grid.is-in .gr__card:hover .gr__badge { transform: scale(1.08); }
 }
 
 /* ---- the header row: brand badge, handle, round icon buttons ---- */
@@ -6520,6 +6520,46 @@ body.is-locked .dots {
   flex-wrap: wrap;
   gap: 0.6rem 0.85rem;
 }
+
+.gr__badges {
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+/* The one place on the site that keeps a brand's real colour. Everywhere
+   else a platform mark is drawn in currentColor so it sits in the
+   palette; here the point is that the platform is recognised at a
+   glance, so the glyph keeps Instagram's gradient, YouTube's red and
+   LinkedIn's blue on a NEUTRAL badge rather than a coloured one. The
+   badge is the band's own chip, so nothing clashes with the beige.
+
+   `transform` is on the badge and not on an inner element because the
+   hover scales it, and a transform on a flex item is composite-only. */
+/* The tile is FIXED off-white in both themes, and that is measured, not
+   a style choice. On the dark band --vid-chip is #2a2a2a, and against it
+   YouTube's red is 3.3:1 and LinkedIn's blue 2.07:1: a brand colour is
+   chosen to sit on white and goes muddy anywhere else. On #f4f1ea the
+   red is 3.54:1 and the blue 5.6:1, and Instagram's gradient reads at
+   every stop. It is also simply the convention a brand guideline asks
+   for, which is why the badge is a tile and not a bare glyph.
+
+   The marks are aria-hidden and the platform name is on the link beside
+   them, so nothing here is the only way to know what it is. WCAG 1.4.11
+   exempts a logotype from the non-text contrast floor for this reason. */
+.gr__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--vid-line-2);
+  border-radius: 13px;
+  background-color: var(--gr-badge);
+  transition: transform 300ms var(--ease-out);
+}
+
+.gr__badge svg { display: block; }
 
 .gr__handle {
   margin: 0;
@@ -6544,35 +6584,27 @@ body.is-locked .dots {
 /* Round icon buttons. Icon only, so the accessible name lives in the
    aria-label rather than in text that would have to fit. 38px, which is
    under the 44px touch target, so the phone rule below grows them. */
-/* The button IS the logo now: the decorative badge that used to sit by
-   the handle is gone, so there is one Instagram mark per card and it is
-   the clickable one. That makes it a brand tile rather than an outline,
-   on the same fixed off-white as the old badge, for the same measured
-   reason: a brand colour is designed for white and goes muddy on the
-   band's own chip.
-
-   Hover cannot repaint the glyph, because the glyph is a brand mark. It
-   lifts the tile instead. */
 .gr__link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   border: 1px solid var(--vid-line-2);
-  border-radius: 13px;
-  background-color: var(--gr-badge);
-  transition: transform 300ms var(--ease-out),
+  border-radius: 999px;
+  color: var(--vid-mute);
+  transition: background-color 300ms ease,
               border-color 300ms ease,
-              box-shadow 300ms ease;
+              color 300ms ease;
 }
 
 .gr__link svg { display: block; }
 
 @media (hover: hover) and (pointer: fine) {
   .gr__link:hover {
-    border-color: var(--vid-ink);
-    box-shadow: 0 4px 14px var(--shadow-3);
+    background-color: var(--accent-fill);
+    border-color: var(--accent-fill);
+    color: var(--accent-on);
   }
 }
 
@@ -6791,6 +6823,7 @@ body.is-locked .dots {
      floor. The badge comes down a little to keep the header on one row
      once the buttons have grown. */
   .gr__link { width: 44px; height: 44px; }
+  .gr__badge { width: 38px; height: 38px; border-radius: 12px; }
   .gr__top { gap: 0.7rem; }
 }
 
@@ -6802,7 +6835,8 @@ body.is-locked .dots {
 
 html.rm .gr__card { transform: none; }
 html.rm .gr__grid.is-in .gr__card:hover { transform: none; }
-html.rm .gr__grid.is-in .gr__card:hover .gr__link { transform: none; }
+html.rm .gr__grid.is-in .gr__card:hover .gr__badge { transform: none; }
+html.rm .gr__badge { transition: none; }
 
 .no-js .gr__card { opacity: 1; transform: none; }
 
@@ -8288,11 +8322,37 @@ html:has(.sb.is-live) .tt--hx {
   box-shadow: 0 1px 1px var(--cv-shadow);
 }
 
+/* The tail.
+
+   A radial-gradient rather than a border triangle or a clip-path: the
+   flick WhatsApp draws is concave, and a gradient with a hard stop gives
+   a quarter-circle bite out of a square for one declaration and no extra
+   element. `circle at <far corner>` puts the transparent quarter where
+   the bubble is not, so what is left is the wedge that joins the two.
+
+   It is painted in the bubble's own colour, which is why each side sets
+   it separately: `background-color: inherit` on a pseudo-element of an
+   element whose background is set by a class would work, but it breaks
+   the moment a theme override lands on one bubble and not the other. */
+.cv__msg::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 13px;
+  height: 15px;
+}
+
 .cv__msg--in {
   align-self: flex-start;
   border-bottom-left-radius: 4px;
   background-color: var(--cv-in);
   color: var(--cv-in-ink);
+}
+
+.cv__msg--in::after {
+  left: -8px;
+  background-image: radial-gradient(circle at 100% 0,
+                    transparent 13px, var(--cv-in) 13.5px);
 }
 
 .cv__msg--out {
@@ -8303,6 +8363,12 @@ html:has(.sb.is-live) .tt--hx {
   /* Room at the bottom right for the timestamp and the ticks, which sit
      INSIDE the bubble and must not end up under the last word. */
   padding-bottom: 8px;
+}
+
+.cv__msg--out::after {
+  right: -8px;
+  background-image: radial-gradient(circle at 0 0,
+                    transparent 13px, var(--cv-out) 13.5px);
 }
 
 /* ---- the timestamp and the read receipt, inside the outgoing bubble ---- */
@@ -8353,6 +8419,17 @@ html:has(.sb.is-live) .tt--hx {
   border-bottom-left-radius: 4px;
   background-color: var(--cv-in);
   box-shadow: 0 1px 1px var(--cv-shadow);
+}
+
+.cv__typing::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: -8px;
+  width: 13px;
+  height: 15px;
+  background-image: radial-gradient(circle at 100% 0,
+                    transparent 13px, var(--cv-in) 13.5px);
 }
 
 .cv__typing s {

@@ -1180,7 +1180,7 @@
         sbLogo.style.setProperty('--pill', win(shrunk, 0.62, 0.97).toFixed(3));
       }
 
-      /* Resume is accent-filled from the first frame, so only the label changes */
+      /* Resume is violet from the first frame, so only the label changes */
       if (sbResume) {
         var lab = win(sbResume.__q || 0, 0.5, 0.7);
 
@@ -2137,7 +2137,7 @@
      Atmosphere — background particles, sparkle trail, and the custom
      cursor, all sharing one canvas
 
-     Particles: 50 desktop / 20 under 768px, mixed accent and dark grey,
+     Particles: 50 desktop / 20 under 768px, mixed violet and dark grey,
      drifting slowly and wrapping at the edges. On a fine pointer, ones
      within 150px of the cursor nudge away and brighten; on touch,
      scroll velocity nudges all of them instead.
@@ -2184,27 +2184,19 @@
     var canvasW = 0;
     var canvasH = 0;
 
-    /* The accent and a warm dark grey. On the old near-black page these
-       were violet and amber and worked by being brighter than the
-       background; on beige they have to work by being darker than it, so
-       the second colour is a grey-brown rather than a second accent.
+    /* Violet and a warm dark grey. On the old near-black page these were
+       violet and amber and worked by being brighter than the background;
+       on beige they have to work by being darker than it, so the second
+       colour is a grey-brown rather than a second accent.
 
        STEP 10: and on a dark page they have to go back to being lighter
        than it, so there are two sets and a pair of alpha multipliers. The
        brief asks for lower opacity in dark mode, which is also what the
        physics of the thing wants: a light mote on near-black is far more
-       visible than a dark one on beige at the same alpha.
-
-       STEP 30: the first colour was the violet. It is now the charcoal
-       accent, #1f1f1f in light and #f4f1ea in dark, which is the only
-       place in this file that ever held a palette value. The two hard
-       numbers are deliberate rather than read from a custom property:
-       this runs inside a per-frame canvas fill and a getComputedStyle
-       call per particle per frame is the one thing the loop cannot
-       afford. They have to be changed here when the palette moves. */
+       visible than a dark one on beige at the same alpha. */
     var PARTICLE_SETS = {
-      light: ['31, 31, 31', '90, 84, 74'],
-      dark:  ['244, 241, 234', '190, 182, 168']
+      light: ['124, 58, 237', '90, 84, 74'],
+      dark:  ['167, 139, 250', '190, 182, 168']
     };
     var PARTICLE_ALPHA = { light: 1, dark: 0.55 };
 
@@ -2561,7 +2553,7 @@
           cursorIdleTimer = setTimeout(hideCursor, CURSOR_IDLE_DELAY);
         }, { passive: true });
 
-        var CURSOR_GROW_SELECTOR = 'a, button, .gr__card, .jr__card';
+        var CURSOR_GROW_SELECTOR = 'a, button, .ch__card, .jr__card';
 
         document.addEventListener('mouseover', function (e) {
           if (e.target.closest && e.target.closest(CURSOR_GROW_SELECTOR)) {
@@ -3693,7 +3685,7 @@
   }
 
 
-  /* The two Growth cards come up one after another when the grid
+  /* The two Channels cards come up one after another when the grid
      arrives, and the first card's figure counts up with it. Once only:
      this is an arrival, and a figure that re-ran every time the section
      came back into view would read as a loading state rather than as a
@@ -3703,15 +3695,15 @@
      in, not something travelling across the screen, and stripping it
      would leave the card's whole point sitting there as a static digit
      with no reason for the space around it. */
-  var grGrid = document.querySelector('[data-gr-grid]');
+  var chGrid = document.querySelector('[data-ch-grid]');
 
-  if (grGrid) {
+  if (chGrid) {
     /* 8000 becomes "8,000". Written out rather than handed to
        toLocaleString, which formats to the VISITOR's locale and sets
        the same number as "8.000" across much of Europe. Read as
        English that is eight, three orders of magnitude out, on the one
        figure this card exists to state. */
-    function grFigure(n) {
+    function chFigure(n) {
       var s = String(n);
       var out = '';
 
@@ -3723,14 +3715,14 @@
       return out;
     }
 
-    function grRun() {
-      grGrid.classList.add('is-in');
+    function chRun() {
+      chGrid.classList.add('is-in');
 
-      var grCounts = grGrid.querySelectorAll('[data-gr-count]');
+      var chCounts = chGrid.querySelectorAll('[data-ch-count]');
 
-      for (var i = 0; i < grCounts.length; i++) {
+      for (var i = 0; i < chCounts.length; i++) {
         (function (el) {
-          var target = parseInt(el.getAttribute('data-gr-count'), 10);
+          var target = parseInt(el.getAttribute('data-ch-count'), 10);
 
           if (isNaN(target)) { return; }
 
@@ -3753,28 +3745,28 @@
 
               if (t > 1) { t = 1; }
 
-              el.textContent = grFigure(Math.round(target * (1 - Math.pow(1 - t, 3))));
+              el.textContent = chFigure(Math.round(target * (1 - Math.pow(1 - t, 3))));
 
               if (t < 1) { requestAnimationFrame(step); }
             }
 
             requestAnimationFrame(step);
           }, 260);
-        }(grCounts[i]));
+        }(chCounts[i]));
       }
     }
 
     if ('IntersectionObserver' in window) {
-      var grSeen = new IntersectionObserver(function (entries) {
+      var chSeen = new IntersectionObserver(function (entries) {
         if (entries[0].isIntersecting) {
-          grRun();
-          grSeen.disconnect();
+          chRun();
+          chSeen.disconnect();
         }
       }, { rootMargin: '0px 0px -12% 0px' });
 
-      grSeen.observe(grGrid);
+      chSeen.observe(chGrid);
     } else {
-      grRun();
+      chRun();
     }
   }
 

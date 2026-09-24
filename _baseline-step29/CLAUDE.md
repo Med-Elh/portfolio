@@ -121,95 +121,6 @@ portrait still selects a word of the headline underneath it. That is the
 beneath the portrait stay clickable. The image itself is not selected and
 no rectangle appears over it.
 
-## Platform icons are the real brand marks (STEP 30)
-Every platform logo on the site is the official glyph, inline in the
-markup. **No icon library, no external request, no hand-drawn
-approximation.** The sidebar's LinkedIn mark and the contact card's were
-both close-enough redraws before this and are not any more.
-
-The marks in use: Instagram, YouTube, LinkedIn, WhatsApp. Each one is a
-24x24 `viewBox` with a single `<path>`, which is what keeps it crisp at
-every size the page draws it: 13px in the contact sub-link, 15px in the
-mobile menu, 17px in a Growth round button, 22px in a Growth badge.
-
-**Single colour by default, brand colour in one place.** Everywhere on
-the page a platform mark is `fill="currentColor"`, so it inherits the
-palette and its own hover. The exception is the Growth cards' badges,
-where the point is that the platform is recognised at a glance, so the
-glyph keeps Instagram's gradient, YouTube's red and LinkedIn's blue.
-
-**The brand-colour badge is an off-white tile, and that is measured.** On
-the dark band `--vid-chip` is #2a2a2a, and against it YouTube's red is
-3.3:1 and LinkedIn's blue 2.07:1: a brand colour is chosen to sit on
-white and goes muddy anywhere else. On `--gr-badge` (#f4f1ea, FIXED in
-both themes) the red is 3.54:1 and the blue 5.6:1, and Instagram's
-gradient reads at every stop. It is also what a brand guideline asks for.
-
-**Instagram's gradient is defined once.** It is the one mark that is not
-a flat colour, so a `<linearGradient id="gr-ig">` sits in a 0x0
-absolutely positioned SVG at the top of the Growth section and both cards
-reference it. A 0x0 SVG rather than a `display: none` one: some engines
-drop a hidden SVG's referenced gradients along with it.
-
-**Naming.** A mark is decoration and carries `aria-hidden="true"`; the
-accessible name goes on the control around it. The Growth round buttons
-are icon-only, so each carries its own `aria-label` naming the platform
-and saying the link opens in a new tab. Every `<svg>` also carries
-`focusable="false"`, or IE-era Edge puts them in the tab order.
-
-**The mobile menu gained a LinkedIn row**, because the sidebar carries
-that link and the sidebar does not exist below 900px: a phone had no
-route to the profile at all.
-
-## The custom cursor inverts what is under it (STEP 31)
-It was painted in `--accent`, which STEP 30 turned into the colour of the
-page's own text. That is exactly the colour of the one section that
-reverses out, so it vanished on the Growth band in light mode and on the
-same band in dark mode, and it was never reliable over the hero portrait
-or the collage photographs either, which no token flip could have fixed.
-
-`.cursor-dot` and `.cursor-ring` are now pure white with
-`mix-blend-mode: difference`, so the cursor paints 255 minus its backdrop
-and cannot match what it crosses.
-
-**Three things this depends on, none of them optional:**
-1. Both elements are direct children of `<body>`. Blending composites
-   against the backdrop of the nearest stacking context that isolates.
-   **Do not wrap them in a container with `isolation: isolate`.** That is
-   the intuitive move and it is backwards: it would isolate the cursor
-   FROM the page, leaving it to blend against transparent black, which
-   makes white stay white and undoes the whole thing.
-2. No ancestor may carry `filter`, `backdrop-filter`, `opacity` below 1,
-   or a transform. `html` and `body` were checked and carry none.
-3. The colour is pure white. Any other value inverts to something that is
-   not the complement and the cursor goes muddy on mid-tones.
-
-`.cursor-ring.is-hovering` no longer changes colour, because white is
-what makes the inversion true. It grows and thickens instead.
-
-**The honest limit**: difference blending has nothing to say at exactly
-mid-grey, where 255 minus 128 is 127. This palette has no mid-grey
-surface.
-
-**The fallback** is `@supports not (mix-blend-mode: difference)`: a solid
-`--accent` with a 1px `--accent-on` ring and a soft dark shadow, so one
-of the two edges reads on any backdrop.
-
-**The testimonial drag puck stays filled**, because the word DRAG inside
-it has to stay readable and difference would invert the label with the
-disc. It takes the outline and the shadow instead.
-
-**Measuring this is harder than it looks**, and three harness bugs cost
-more than the fix did. Written down so the next person skips them:
-`Page.captureScreenshot`'s `clip` is in PAGE coordinates AND re-renders
-`position: fixed` elements relative to the crop, so the cursor lands in
-the frame only by accident; sampling "the most contrasting pixel near the
-point" measures whatever letter is under it, not the cursor; and
-`CURSOR_IDLE_DELAY` is 500ms, so a screenshot taken later than that
-catches a cursor that has already hidden itself. Capture the full
-viewport, diff two frames with the canvas hidden and animations paused,
-and shoot inside 500ms.
-
 ## CRITICAL RULE
 Never invent content. No fabricated metrics, client names, project names,
 testimonials, or outcomes. Anything marked `[TO CONFIRM]` must be left as a
@@ -222,61 +133,32 @@ not quietly drop the section.
 
 Structure and motion modelled on saad.moatassime.com. Colours stay as below.
 
-### Colour (light warm-beige base, charcoal accent)
-**STEP 30 replaced the violet accent with charcoal.** The palette is
-beige, charcoal and yellow, and nothing else. Every violet on the page
-was already behind a token, which is why this was a palette edit and not
-a sweep: there was not one violet literal in index.html, and only the
-particle pair in script.js.
+### Colour (light warm-beige base, violet accent)
 ```
---bg:           #d6d0c1   /* warm beige page background */
---surface:      #e3dfd3   /* sidebar blocks, cards, stat boxes, pills */
---border:       rgba(0, 0, 0, 0.08)
---text:         #111111   /* near-black: headings, nav, emphasis */
---body:         #4a463d   /* secondary text, body copy */
---muted:        #5c574c   /* faint labels and captions */
---accent:       #1f1f1f   /* primary accent, 10.7:1 on --bg */
---accent-hover: #000000   /* the HOVER state, darker not lighter */
---accent-text:  #1f1f1f   /* the accent as small text */
---accent-on:    #f4f1ea   /* what sits ON the accent, 14.6:1 */
---accent-glow:  rgba(31, 31, 31, 0.18)
---accent-2:     #f5e500   /* see the note below */
+--bg:          #d6d0c1   /* warm beige page background */
+--surface:     #e3dfd3   /* sidebar blocks, cards, stat boxes, pills */
+--border:      rgba(0, 0, 0, 0.08)
+--text:        #111111   /* near-black: headings, nav, emphasis */
+--body:        #4a463d   /* secondary text, body copy */
+--muted:       #7a7568   /* faint labels and captions */
+--accent:      #7c3aed   /* primary accent */
+--accent-soft: #6d28d9   /* the HOVER state, darker not lighter */
+--accent-2:    #e8d900   /* see the note below */
 --bg-blur:     rgba(214, 208, 193, 0.82)  /* --bg with alpha: nav card, menu */
 --wordmark:    #c9c2b0   /* the oversized name behind the hero: a shade
                             darker than --bg, a stamp not a headline */
 ```
 This is a LIGHT theme. Anything that used white text on the old dark
 background now uses `--text`. The only hard-coded `#FFFFFF` left is white
-sitting on the accent, and it is `--accent-on` rather than a literal:
-the filled button, the sidebar CTA, the skip link.
+sitting on violet: the filled button, the sidebar CTA, the skip link.
 
-Charcoal is the primary accent throughout: buttons (accent fill,
-`--accent-on` text, `--accent-hover` on hover), the active nav item,
-progress bars, carousel arrows, link hovers, focus rings, the timeline
-thread and its markers, the Growth cards' label markers, the particles,
-and every number that used to be amber. The availability dot is the one
-exception and stays green: it means "available", not "brand".
+Violet is the primary accent throughout: buttons (violet fill, white text,
+`--accent-soft` on hover), the active nav item, progress bars, carousel
+arrows, link hovers, focus rings, the availability dot, the timeline
+thread and its markers, and every number that used to be amber.
 
-**The accent is now close to the body text colour, so interactivity
-cannot come from hue.** It comes from shape and state instead, and this
-is the rule, not a preference: a button is a SOLID FILL with inverted
-text, the active nav item is filled with inverted text, and everything
-else gets a border or a lift on hover. A charcoal link that looked
-exactly like charcoal body copy would be the whole cost of this palette.
-
-**Small accent text uses `--accent-text`, which is a separate token for
-the dark theme's sake.** In light it is the same value as `--accent`,
-because charcoal clears 4.5:1 at any size. In dark it steps back to the
-page's own ink: a run of small text set in the same off-white as a filled
-button glares.
-
-**`--on-accent` is no longer a FIXED token.** White always sat on violet
-because violet was dark in BOTH themes. The accent now flips from
-charcoal to off-white, so what sits on it has to flip too, and
-`--on-accent` tracks `--accent-on`.
-
-`--accent-2` is the one colour STEP 30 did not touch, and it is **never a
-foreground**: against `--bg` it measures **1.05:1**, because a bright yellow and a light
+`--accent-2` is kept at the requested yellow but is **never a foreground**:
+against `--bg` it measures **1.05:1**, because a bright yellow and a light
 beige sit at nearly the same luminance. It is only ever a surface with
 dark text on top of it. That means the marker behind a key fact in the
 Work cards, the highlighted word in a lead sentence, the section number
@@ -284,7 +166,7 @@ chip, or an image wash, as in the ME-band collage fallback. If a true second
 accent is ever wanted as a foreground, it has to be a bronze or olive dark
 enough to pass. `#6b5410` reaches 4.68:1.
 
-Never put the accent and yellow on the same small element. Text on the yellow
+Never put violet and yellow on the same small element. Text on the yellow
 marker is `--on-accent-2`, which is `#111111` in BOTH themes. It is not
 `--text`: `--text` flips, the yellow does not, and following it put
 near-white on near-yellow at 1.07:1.
@@ -304,12 +186,11 @@ component carries a colour literal any more.
 --body:        #c9c4b8
 --muted:       #b8b4aa
 --faint:       #8a8578
---accent:       #f4f1ea   /* the accent INVERTS: off-white here */
---accent-hover: #ffffff   /* on a dark page the hover is LIGHTER */
---accent-text:  #eae8e3   /* the accent as small text: the page's ink */
---accent-on:    #141312   /* what sits ON the accent */
---accent-glow:  rgba(244, 241, 234, 0.16)
---accent-2:     #f5e500   /* unchanged: yellow is the constant */
+--accent:      #8b5cf6   /* icons, lines, large type */
+--accent-text: #a78bfa   /* violet as small text */
+--accent-soft: #a78bfa   /* on a dark page the hover is LIGHTER */
+--accent-fill: #6d28d9   /* a filled control, see below */
+--accent-2:    #f5e500   /* unchanged: yellow is the constant */
 --wordmark:    #211f1c
 --bg-blur:     rgba(20, 19, 18, 0.86)
 --chip-bg:     #0b0b0b   /* stat chips, plus a light hairline */
@@ -320,28 +201,24 @@ particles:     lighter pair, alpha x 0.55
 **Three kinds of token, and it matters which is which.**
 1. THEME tokens flip: `--text`, `--surface`, `--border` and the rest.
 2. FIXED tokens do not, because they are a colour ON something whose own
-   colour never changes: `--on-accent-2` (near-black on yellow),
-   `--gr-badge` (the off-white tile a real brand logo sits on),
-   `--chip-bg`, `--avatar-bg`, `--overlay`. (The laptop scene's
-   `--ct-*` tokens went with the laptop in STEP 19, and `--scrim` went
-   with the video lightbox in STEP 29.)
-
-   **`--on-accent` used to be in this list and is not any more.** See
-   the accent note above: the accent flips, so what sits on it flips.
-3. INVERTED tokens flip the other way: the whole `--vid-*` set, plus
-   `--gr-rim`. The name is historical. It is the dark band's palette,
-   and the band is Growth now; see STEP 30 below.
+   colour never changes: `--on-accent` (white on violet), `--on-accent-2`
+   (near-black on yellow), `--chip-bg`, `--avatar-bg`, `--scrim`,
+   `--overlay`. (The laptop scene's `--ct-*` tokens went with the laptop
+   in STEP 19.)
+3. INVERTED tokens flip the other way: the whole `--vid-*` set. The
+   name is historical. It is the dark band's palette, and the band is
+   Channels now; see STEP 29 below.
 
 **Shadows deepen, they do not invert.** `--shadow-1` to `--shadow-4` go
 from rgba(0,0,0,0.05..0.32) to 0.30..0.70. A light shadow on a dark page
 is a glow, and a glow on every card makes a dark theme look radioactive.
 
-**`--accent-fill` and `--accent-fill-hi` are now aliases of `--accent`
-and `--accent-hover`.** They existed because the violet `#8b5cf6`
-measured 4.23:1 under white text and most of that text is small, so a
-filled control needed a darker cut of its own. Charcoal does not: what
-sits on it is 14.6:1 either way. The names stay because twenty-four rules
-read them, and because a future accent may need the split again.
+**`--accent-fill` exists for contrast, not for style.** The brief's
+`#8b5cf6` is right for icons and large type but measures 4.23:1 under
+white text, just under the 4.5:1 floor, and most of the white text here is
+small. Anything painted violet that carries a label uses `--accent-fill`
+instead: `#7c3aed` in light (5.3:1), `#6d28d9` in dark (6.6:1), hovering
+to `--accent-fill-hi`, which goes DARKER in light and LIGHTER in dark.
 
 **The dark band inverts.** It is the page's one reversed-out section, so it
 is dark on a light page and light on a dark one, and the sidebar panels
@@ -372,7 +249,7 @@ MENU. `aria-label` says which mode it switches TO, and it carries
 text and 3:1 for large headings. The traps found by measuring: text on the
 yellow marker, the reading highlight dimming a section number that sits on
 a yellow chip, and the dark band's marker inheriting the page's grey
-rather than the band's. Contact's accent was a fourth until STEP 19
+rather than the band's. Contact's violet was a fourth until STEP 19
 deleted the laptop it lived inside. The conversation that stands there
 now brought its own trap, and the same kind: `--cv-live`, the green
 status dot's text, is 0.78rem and therefore NOT large text, so the floor
@@ -383,20 +260,7 @@ is a gradient, not a flat colour. Three elements use it as a
 `background-image`, and it is a warm grey-brown, reading as a soft shadow
 cloud behind the content rather than a light source. `--glow-warm` is the
 one exception, behind the Contact heading only. Background particles are
-the accent and a dark grey at low opacity (`PARTICLE_RGB` in
-script.js, the one place in that file that holds a palette value: a
-`getComputedStyle` per particle per frame is what the loop cannot
-afford, so the two values are written there and have to be changed
-there when the palette moves).
-
-### A keyframe offset is not a selector (STEP 28's one bug, fixed in 31)
-The rewrite that moved every reduced-motion rule from a media query to
-`html.rm` also prefixed the OFFSETS inside two `@keyframes` blocks, as
-`html.rm 0%`, `html.rm 35%`, `html.rm from`. An invalid keyframe
-selector drops the whole block, so `mi-fade` and `mi-fade-out` had no
-states at all and the phone's reduced-motion intro ran a 500ms animation
-that did nothing and left the bloom up. The scoping belongs on the rules
-that USE the animation, where it already was.
+violet and dark grey at low opacity (`PARTICLE_RGB` in script.js).
 
 ### Motion is the SITE's setting, not the operating system's (STEP 28)
 **The page animates by default, including when iOS Reduce Motion is on.**
@@ -552,7 +416,7 @@ landing off.
 ### Section headers
 Every section opens with a two-part label in the small label style:
 `01 / Work`, `02 / What I Bring`, `03 / How I Can Help`,
-`04 / Growth`, `05 / What People Say`, `06 / Contact`.
+`04 / Channels`, `05 / What People Say`, `06 / Contact`.
 Number in `--accent`, title in `--muted`.
 
 ### Motion
@@ -561,7 +425,7 @@ Number in `--accent`, title in `--muted`.
 - Two infinite horizontal marquees (see sections below), CSS-transform driven,
   paused on hover, paused when off screen.
 - Stat counters animate from 0 to their value when scrolled into view, once.
-- Reactive particle canvas behind all content, accent-tinted, low opacity, cursor-
+- Reactive particle canvas behind all content, violet, low opacity, cursor-
   reactive on desktop and scroll-reactive on touch. 30fps cap, tab-hidden pause,
   reduced count under 768px.
 - Custom cursor with sparkle trail on desktop only, via `(hover: hover)`.
@@ -617,7 +481,7 @@ rather than a vh-based reserve.
    A lead sentence at heading size with the accent word on the yellow
    marker, a four-line intro (max ~560px), then a **strengths row**: four
    blocks - Customer Success, Business Development, Marketing, Team
-   Leadership - each a small accent icon, the strength name, and one line
+   Leadership - each a small violet icon, the strength name, and one line
    of proof carrying its number on a yellow marker. Four across, 2x2 under
    1200px, one column under 620px. The blocks come up one after another
    when the row arrives and the numbers count up; deliberately once only,
@@ -737,14 +601,14 @@ rather than a vh-based reserve.
 
 6. **How I Can Help (03)** - a two-line heading, one dark line and one
    in --body, then a single panel holding three cards: Customer
-   Success, Business Development, Marketing. Each is an accent badge and
+   Success, Business Development, Marketing. Each is a violet badge and
    title, a result line with its number on the yellow marker, a short
    description, and a "What you get" list of three. The list is pinned to
    the bottom of the card with `margin-top: auto`, so the three cards
    finish flush however differently the copy above wraps.
 
    **One call to action for the section**, not one per card: a single
-   filled accent button, centred under the panel, reading `Let's talk`
+   filled violet button, centred under the panel, reading `Let's talk`
    and linking to Contact.
 
    **The highlight is one element that slides**, not three backgrounds
@@ -762,14 +626,14 @@ rather than a vh-based reserve.
 7. **Marquee CTA**. Large infinite scrolling text: `Keep Customers · Grow
    Revenue · Automate The Rest ·` repeating, accent-tinted.
 
-8. **Growth (04)** - the page's one dark band, full width and passing
+8. **Channels (04)** - the page's one dark band, full width and passing
    under the sidebar. The inner content keeps the ordinary section gutter
    and the ordinary `.wrap`, so the pill, heading, paragraph and the
    cards land on exactly the same left edge as every section above.
    Padding does not shrink a background box, so the dark fill still runs
-   the full width. Two case study cards side by side, one column below
-   1180px. See the Content section below for the copy, the card design
-   and the whole of STEP 29 and STEP 30.
+   the full width. Two case study cards side by side, stacking below
+   900px. See the Content section below for the copy and the whole of
+   STEP 29.
 
 8b. **Name divider**. The full name on two lines, MOHAMED / ELHAYYANY,
    filled yellow, sitting **immediately before Contact**. Decorative and
@@ -838,7 +702,7 @@ rather than a vh-based reserve.
 
 8c. **What People Say (05)**. Heading over a drag-only row of three
    quote cards, with a dash indicator top right, one dash per card, the
-   active one wider and in the accent. Clicking a dash scrolls to that card.
+   active one wider and violet. Clicking a dash scrolls to that card.
 
    **Drag only, on purpose.** The row opts out of the shared carousel's
    wheel handling with `data-rail-nowheel`, so a vertical wheel over the
@@ -875,7 +739,7 @@ rather than a vh-based reserve.
    leading, 36.5px trailing.
 
    On a fine pointer, hovering the row hides the site's own cursor and
-   shows a 90px accent puck reading DRAG with an arrow either side. It
+   shows a 90px violet puck reading DRAG with an arrow either side. It
    follows by lerp, scales in and out, and shrinks while held. It does
    not exist at all on a touch screen.
 9. **Contact (06)** - a two-line heading, an animated typing scene and
@@ -1037,7 +901,7 @@ Customer success keeps clients. Business development brings new ones.
 Marketing gets them through the door. I do all three.
 
 #### Strengths row (replaced the counters)
-Four blocks: accent icon, strength name, one line of proof with its number
+Four blocks: violet icon, strength name, one line of proof with its number
 on a yellow marker.
 - **Customer Success** - [100+ accounts] managed from onboarding to renewal
 - **Business Development** - [100+ sales] closed and B2B clients like
@@ -1047,16 +911,14 @@ on a yellow marker.
 - **Team Leadership** - Team Lead at Majorel with [98% accuracy]
 
 #### Colour inside this section
-The accent carries it: the year numbers, the timeline dots and the tool
+Violet carries it: the year numbers, the timeline dots and the tool
 badges. Yellow has one job only: a `<mark class="jr__hl">` behind a key
 fact, always with dark text (`--text`) on it, **max two per card**. There
 are no certificate images anywhere in this section.
 
-The year is `--accent` on the light card. Inside an OPENED card it
-cannot be: the card turns #1f1f1f, which after STEP 30 is the accent
-itself, so the accent would be colouring its own background. It goes to
-`--jr-open-year`, #f4f1ea, which is the accent inverted and 14.6:1 on
-the open card. Same size and weight either way; only the tint changes.
+The year is `--accent` (#7c3aed) on the light card and steps up to
+**#a78bfa** inside an opened card, because full-strength violet on
+near-black is 1.2:1. Same size and weight either way.
 
 #### Timeline cards
 Five, alternating right / left. Each has a year with an apostrophe, a
@@ -1140,7 +1002,7 @@ away closes it. Notably it does NOT open on focus alone - that would mean
 the Enter which follows lands on an already-open card and closes it, so
 the keyboard would be the one way in that did not work.
 
-Card: panel colour, radius 20px, 340px, big accent icon, bold title, short
+Card: panel colour, radius 20px, 340px, big violet icon, bold title, short
 text with a yellow marker on the key fact. It is centred on its own chip,
 nudged back on screen if that would hang it off an edge, and flipped above
 the chip when there is no room below. On a phone it goes full width at the
@@ -1239,7 +1101,7 @@ more.
    What you get: Targeted ad campaigns / Clear messaging / Conversion
    tracking
 
-Under the panel, centred, one filled accent button: `Let's talk`, linking
+Under the panel, centred, one filled violet button: `Let's talk`, linking
 to `#contact`. It is the only place that phrase appears in the section.
 
 The highlight colour is `#d9d4c5`, a step darker than `--panel`. The
@@ -1253,17 +1115,16 @@ em on the row resolves against its inherited 16px, not the title's size.
 ### Marquee CTA
 Bring Customers · Keep Them · Grow Revenue · Automate The Rest ·
 
-### Growth (04)
+### Channels (04)
 **This is the page's one dark band** - #111111, ink #eae8e3, muted
 #b8b4aa, sharp edges and no gradient into the beige. It runs full width
 and passes UNDER the fixed sidebar, which is what the sidebar's own dark
-switch below is for. The band is older than what stands in it: STEP 29
+switch below is for. The band is older than what stands in it: **STEP 29
 deleted the six UGC videos, their carousel, their phone stack and their
-lightbox and put two case study cards here, and **STEP 30 renamed the
-section from Channels to Growth and rebuilt the cards.** The band, the
-inverted palette and the sidebar switch survived both.
+lightbox and put two case study cards here instead.** The band, the
+inverted palette and the sidebar switch all survived unchanged.
 
-Pill "04 / GROWTH". Heading, two lines, left aligned: "Accounts I Grew"
+Pill "04 / CHANNELS". Heading, two lines, left aligned: "Accounts I Grew"
 in #eae8e3 over "From The Ground Up" in #8a8578. To its right (stacked
 under it on mobile): "I don't just make content. I build the strategy,
 film it, edit it and run the posting schedule, then watch the numbers
@@ -1271,55 +1132,30 @@ move."
 
 The section keeps `id="content"`. **Do not rename it**: the sidebar's
 dark switch finds the band by that id, and the nav, the mobile menu and
-the hero nav row all link to it. The class went from `.ch` to `.gr` with
-the section name; the id did not.
+the hero nav row all link to it.
 
-#### The card
-A tall panel with a soft inner gradient from `--vid-panel` to
-`--vid-card`, a fine top highlight line, a hairline border and 44px of
-padding (`clamp(26px, 3vw, 44px)`).
+#### The two cards
+**Two up above 1180px, one column below it, and 1180 is measured.** The
+sidebar's gutter takes about 370px off the wrap, so the column is far
+narrower than the viewport: 528px at a 900px window against 1028px at
+1440. Two cards in 528px left 170px of content inside each, which stood
+the card 1003px tall and broke the top row, the figure and half the block
+text over extra lines. 1180 is where a card's content reaches 292px and
+the top row fits on one line again. The heading goes single column at the
+same point: the paragraph beside it is up to 20rem, which at 900px left
+the heading 160px to set "From The Ground Up" in.
 
-The gradient is on `background-image` with the flat colour underneath on
-`background-color`: two properties, so the hover can brighten the border
-without touching the fill, and a browser that drops the gradient still
-paints a panel. The highlight is a `::before` at z-index 1, inset 14%
-from both corners so it reads as a light catching the top edge rather
-than as a border, and the card carries `isolation: isolate` or that
-pseudo-element paints over the header.
+Dark panel (`--vid-panel`),
+radius 24px, padding `clamp(24px, 2.6vw, 40px)`, a hairline border that
+brightens on hover, and a 6px lift on a fine pointer only.
 
-Top to bottom: the header, a thin divider, the centrepiece block, the
-three labelled blocks, the tags.
+Each card reads: platform badges and the handle with its profile links,
+then the figure where there is one, then three labelled blocks, then the
+skill tags.
 
-**Header.** The brand logo badge on the left, the handle in bold beside
-it, the platform links as small round icon buttons pushed right with
-`margin-left: auto`. It wraps, and below about 1300px it has to: two
-42px badges, a handle and two 38px buttons need more than the 292px a
-card has at the narrow end of the two-up range. A wrapped links row
-keeps its auto margin and lands right-aligned under the handle.
-
-**The centrepiece block** has its own inset background, so the figure
-reads as the card's centre rather than as the first line of the body.
-The inset is an inner shadow plus a hairline on `--vid-chip`, not a
-lighter fill: a lighter panel on a panel is another card, and this is a
-recess in the one it is in.
-
-**The three labelled blocks are separated by hairlines, not gaps.** The
-rule goes on each block's TOP and `:first-child` is excepted, so the
-count can change without a `:last-child` rule to match. Each label
-carries a small accent marker before it, a 14x3px bar rather than a dot:
-at that size a dot reads as a bullet and a bar reads as a rule.
-
-**Tags** are a wrapped row with thin borders and no fill. Six of them
-filled would read as six buttons.
-
-**Hover** (fine pointer only): the card lifts 6px, the border goes to
-`--vid-line-3`, the shadow deepens and the logo badge scales to 1.08.
-300ms on every one of them.
-
-#### The copy, unchanged from STEP 29
 **Card 1**
 - handle `@postry_art`, one link, Instagram
-  `https://www.instagram.com/postry_art`
+  `https://www.instagram.com/postry_art`, labelled "View profile"
 - figure `0 to 8,000`, label "followers in under a year"
 - The challenge: A brand new poster brand with no audience and no budget
   for reach.
@@ -1335,12 +1171,9 @@ filled would read as six buttons.
 - handle `@egrowdotcom`, two links, Instagram
   `https://www.instagram.com/egrowdotcom` and YouTube
   `https://www.youtube.com/@eGrowdotcom`
-- **No figure. None was supplied and one is never guessed.** The
-  centrepiece block carries `Instagram + YouTube` instead, with
-  "short form content, scripted to edit" under it, in the same style at a
-  size that fits two words rather than five characters. It is NOT yellow:
-  that is a label, and yellow's job on this page is a result. Do not put
-  a number here, and do not leave a visible placeholder either.
+- **No figure. None was supplied and one is never guessed.** Do not add a
+  number here, and do not leave a visible placeholder in its place
+  either: the card is balanced without one, by the two rules below.
 - The challenge: A SaaS product that needed short form content people
   would actually watch.
 - What I did: Filmed and edited UGC videos for the product, defined the
@@ -1350,15 +1183,22 @@ filled would read as six buttons.
   and drives sign ups.
 - tags: UGC video, Filming, Editing, Content strategy, Posting schedule
 
-**Equal heights, and the second card is the one that needs help.** A card
-without the figure block is about 135px shorter than one with it, and the
-two are the same height, so that space has to go somewhere deliberate.
-`.gr__block--grow` carries `margin-top: auto` on the second card's result
-block, so the slack collects in ONE place, above a conclusion, where it
-reads as separation. Spread evenly between the three blocks it read as a
-card that had run out of things to say. Both cards' result lines are also
-a step up in size and into the band's full ink. Measured at 1440: both
-cards 835px, tag row 1px off the padding box in each.
+**The missing number is a layout problem, and it is solved in two
+places.** A card without the figure block is about 135px shorter than one
+with it, and the two are the same height, so that 135px has to go
+somewhere deliberate or it reads as a card that ran out of things to say.
+
+1. `.ch__block--grow` carries `margin-top: auto`, so the spare height
+   collects in ONE place, above a conclusion, where it reads as
+   separation. Spread evenly between the three blocks it just read as a
+   hole. The block also takes a hairline above it, which lands the second
+   card's two rules opposite the first card's two.
+2. The result line there is a step up in size and into the band's full
+   ink, taking the weight the number would have had.
+
+`.ch__tags` is pinned with `margin-top: auto` so both cards finish flush
+at the bottom however differently the copy above them wraps. Measured at
+1440: both cards 717px, tag row 1px off the padding box in each.
 
 #### The yellow figure needs a rim on the light band
 `--accent-2` is 12.6:1 on the dark band and the figure is simply yellow
@@ -1367,7 +1207,7 @@ same yellow is **1.02:1** and no colour choice fixes that: it is the same
 fact that keeps `--accent-2` off every foreground on the page.
 
 So the letter does not carry the contrast there, the rim does, exactly as
-the hero wordmark and the name divider do. `--gr-rim` is `transparent` in
+the hero wordmark and the name divider do. `--ch-rim` is `transparent` in
 light and `#111111` in dark, and the stroke WIDTH never changes, because
 a transparent stroke paints nothing. `paint-order: stroke fill` keeps the
 glyph its true weight. `max(1px, 0.018em)` is 1.08px at the desktop size,
@@ -1382,9 +1222,9 @@ as the digits go round.
 #### The animation
 The cards fade up 26px one after another when the grid arrives, 90ms
 apart, and the figure counts up from 0 to 8,000 with it, starting 260ms
-in so it is not racing the card's own entrance. Once only: this is an
-arrival, and a figure that re-ran every time the section came back into
-view would read as a loading state rather than as a result.
+in so it is not racing the card's own 600ms entrance. Once only: this is
+an arrival, and a figure that re-ran every time the section came back
+into view would read as a loading state rather than as a result.
 
 **The markup holds the finished figure**, `8,000`, and script.js winds it
 back to zero immediately before it starts counting. No JavaScript, or an
@@ -1397,28 +1237,14 @@ eight.
 
 The count-up runs under reduced motion too, which is what the brief says
 for every counter on the page. What goes there is the travel: the cards
-fade in where they already are, and neither the hover lift nor the badge
-scale happens.
-
-#### Two up above 1180px, one column below it, and 1180 is measured
-The sidebar's gutter takes about 370px off the wrap, so the column is far
-narrower than the viewport: 528px at a 900px window against 1028px at
-1440. Two cards in 528px left 170px of content inside each, which stood
-the card over 1000px tall and broke the header, the figure and half the
-block text over extra lines. 1180 is where a card's content reaches 292px
-and the header fits on one line again. The heading goes single column at
-the same point: the paragraph beside it is up to 20rem, which at 900px
-left the heading 160px to set "From The Ground Up" in.
-
-Below 900px the round icon buttons go to the 44px touch floor and the
-badge comes down to 38px to keep the header on one row.
+fade in where they already are and the hover changes the border only.
 
 #### Nav labels
-The sidebar, the mobile menu and the hero nav row all say **Growth** (the
-hero row renders it uppercase from CSS). The hero-to-sidebar morph pairs
-the two nav lists by index, so they must stay the same length and the
-same order. Re-measured after the rename: worst offset 0.00px across 12
-items.
+The sidebar, the mobile menu and the hero nav row all say **Channels**
+(the hero row renders it uppercase from CSS). The hero-to-sidebar morph
+pairs the two nav lists by index, so they must stay the same length and
+the same order. Re-measured after the rename: worst offset 0.00px across
+12 items.
 
 #### What was deleted with the videos, and must not come back
 The six embed URLs and their thumbnails, the `[data-video-id]` module,
@@ -1448,28 +1274,9 @@ back again on the way down. The middle rather than the edge: switching on
 the edge leaves a panel several hundred pixels of scroll half in one
 world and half in the other, which reads as a rendering fault.
 
-**The accent is rebound inside the band, and inside these panels** (STEP
-30). The page accent is the colour of the PAGE's text, and this band is
-the one place whose background is the other one, so an unmodified accent
-lands charcoal on #111111 in light and off-white on #e3dfd3 in dark: both
-invisible. `.gr`, `.sb__panel.is-dark` and `.sb__resume.is-dark` all
-rebind `--accent`, `--accent-hover`, `--accent-text`, `--accent-on`,
-`--accent-soft`, `--accent-fill`, `--accent-fill-hi`, `--on-accent`
-and `--accent-ring` to the `--vid-*` set, so every component keeps
-reading `--accent` and gets the right answer, and it inverts for free
-because `--vid-ink` already does.
-
-**Every alias is re-declared there, and that is not belt-and-braces.** A
-custom property inherits its COMPUTED value, so a `var()` written in
-`:root` is substituted at `:root` and the RESULT is what descends.
-Setting `--accent-on` alone left `--on-accent` still holding `:root`'s
-`#f4f1ea`, which put near-white text on the near-white sidebar pill the
-rebinding exists to create. This was a real bug, caught by looking at a
-screenshot rather than by reading the cascade.
-
 Dark panel style (`.sb__panel.is-dark`): background #1f1f1f, border
 rgba(255,255,255,0.08), text #eae8e3, muted #b8b4aa. Nav items #eae8e3,
-the active one still filled with inverted text. Ticker chips and the email
+the active one still violet with white text. Ticker chips and the email
 box #2a2a2a. LinkedIn button #2a2a2a. Stat chips keep their dark fill and
 yellow numbers but gain a hairline light border, or they vanish into the
 panel. **The logo pill stays yellow with dark text in both worlds.**
@@ -1494,7 +1301,7 @@ employer to make the row look fuller.
    Coworker / Team member / avatar C
 
 Card: `--panel`, radius 24px, padding 36px, ~620px wide, soft shadow, a
-accent badge with a quote mark top right, and a footer of a dark round
+violet badge with a quote mark top right, and a footer of a dark round
 avatar carrying the initial of the role, the role in bold and a small
 muted line under it. The row starts on the wrap's content edge and runs
 off the right; the trailing gutter is what lets the last card come fully
@@ -1579,85 +1386,11 @@ reads "Delivered", which is why the separator is generated by CSS from
 that generated content, or it collapses against the text beside it and
 sets as "Delivered ·04:12".
 
-#### STEP 31: it is styled as WhatsApp on iOS
-The sequence, the beats, the typing animation and the three contact rows
-are unchanged. What changed is the surface treatment.
-
-The panel is three bands now, not one padded box: HEADER, WALL, ACTION
-BAR. The padding moved off `.cv__panel` and onto each band, because the
-wall has to run edge to edge the way a chat background does and a padded
-parent would have inset it. `overflow: hidden` clips the wall to the
-radius.
-
-```
-              light      dark      what it is
---cv-panel    #efece4    #111b21   header and action bar
---cv-wall     #efe7dd    #0b141a   behind the bubbles
---cv-in       #ffffff    #202c33   incoming bubble
---cv-in-ink   #111b21    #e9edef   17.4:1 light, 12.1:1 dark
---cv-out      #dcf8c6    #005c4b   outgoing bubble
---cv-out-ink  #111b21    #e9edef   15.2:1 light, 6.8:1 dark
---cv-stamp    #55625a    #9fb3ac   timestamp, 4.9:1 on --cv-out
---cv-row      #e0dcd2    #202c33   action rows and header buttons
---cv-tick     #53bdeb              FIXED: the read receipt, both themes
---cv-wa       #25d366              FIXED: the brand green
-```
-
-**The tail is a radial-gradient, not a triangle.** The flick WhatsApp
-draws is CONCAVE, and `radial-gradient(circle at <far corner>,
-transparent 13px, <bubble> 13.5px)` takes a quarter-circle bite out of a
-13x15 pseudo-element for one declaration and no extra markup. Each side
-names its own colour rather than inheriting, so a later override on one
-bubble cannot silently retint the other's tail.
-
-**The timestamp and ticks sit INSIDE the outgoing bubble**, floated
-right and dropped into the last line, which is how the real thing does
-it: the text wraps around the stamp instead of the stamp taking a line of
-its own and making every bubble a line taller. It is still its own
-`[data-cv-step]`, so it still arrives after the message lands; nesting
-does not disturb the sequencer, which collects `[data-cv-step]` in
-document order and this is still the third of four. The one rule it
-needed is `transform: none` while live, or it would travel a second time
-inside a bubble that had already arrived.
-
-**#53bdeb on #dcf8c6 is 1.86:1 and that is allowed.** The ticks are
-decoration: a visually hidden "Read" sits beside them and carries the
-state, the same way the status dot leans on the word next to it.
-Darkening the blue would be inventing a colour the interface being quoted
-does not have. In dark it is 3.74:1 anyway.
-
-**The status line still says "usually replies same day", NOT "online".**
-This was asked for as "online" in STEP 31 and is deliberately not that.
-A static page cannot know whether anyone is online, and a presence light
-that is always green is the one element in a scene like this that
-actually misleads someone. It is the same reason the line was written
-this way in STEP 20. The GREEN is WhatsApp's, the claim is not.
-
-`--cv-live` is #00705c in light and #25d366 in dark. It cannot be
-#25d366 in both: WhatsApp's own green measures **1.62:1** on the light
-panel, and the status line is 0.78rem, which is not large text, so the
-floor is 4.5:1. The DOT beside it is the real #25d366 in both themes,
-because a dot is a graphic whose meaning is spelled out in the word right
-next to it.
-
-**The header's second button is a video call**, per the WhatsApp header,
-and it points at `wa.me` because that is where a video call actually
-happens. A camera glyph over a `mailto:` would be an affordance that
-lies about what it does.
-
-**Bubbles are 75% on desktop and 82% on a phone.** Not 75% on both: 75%
-of a 326px column is 245px, and the reply is 72 characters, which at
-0.95rem is six lines in a bubble taller than it is wide and stops reading
-as a message.
-
-The rest of the page stays beige, charcoal and yellow. This section is
-quoting an interface, the same way the Growth badges quote a brand logo.
-
-**Four surface tokens** were the STEP 20 original, because a chat panel is
-a stack the palette did not have: a sheet, bubbles sitting ON the sheet,
-and a hover state above those. `--surface` and `--panel` are the same
-colour here, so a bubble painted `--panel` on a `--panel` sheet would be
-invisible. That reasoning is why the list above exists at all.
+**Four surface tokens**, because a chat panel is a stack the palette did
+not have: a sheet, bubbles sitting ON the sheet, and a hover state above
+those. `--surface` and `--panel` are the same colour here, so a bubble
+painted `--panel` on a `--panel` sheet would be invisible. `--cv-live` is
+the dot and its text.
 
 `--cv-live` is 4.5:1, not 3:1. The status line is 0.78rem, which is not
 large text, so the large-text floor does not apply to it. Measured,
