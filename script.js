@@ -279,7 +279,7 @@
     /* The shadow has to be repeated in every filter this writes, for the
        same reason the keyframes carry it: whatever sets `filter` last
        owns the whole property. */
-    var HX_SHADOW = 'drop-shadow(0 12px 28px var(--shadow-2))';
+    var HX_SHADOW = 'var(--hx-shadow)';
 
     function hxClamp(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
 
@@ -479,6 +479,10 @@
     function openMenu() {
       menu.classList.add('is-open');
       burger.setAttribute('aria-expanded', 'true');
+      /* Both: <html> is what actually holds the scroll lock (see the
+         note on html.is-locked in style.css), body is what the rules
+         and the topbar tuck read. */
+      document.documentElement.classList.add('is-locked');
       document.body.classList.add('is-locked');
 
       if (menuStops.length) {
@@ -489,6 +493,7 @@
     function closeMenu(returnFocus) {
       menu.classList.remove('is-open');
       burger.setAttribute('aria-expanded', 'false');
+      document.documentElement.classList.remove('is-locked');
       document.body.classList.remove('is-locked');
 
       if (returnFocus) {
@@ -2633,6 +2638,7 @@
 
       certOpener = link;
       certBox.hidden = false;
+      document.documentElement.classList.add('is-locked');
       document.body.classList.add('is-locked');
       certClose.focus();
     }
@@ -2642,6 +2648,7 @@
       /* Dropped so a large scan is not held in memory, and so reopening
          cannot flash the previous certificate for a frame */
       certImg.src = '';
+      document.documentElement.classList.remove('is-locked');
       document.body.classList.remove('is-locked');
 
       if (certOpener) {
@@ -4536,17 +4543,24 @@
       var resting = label.textContent;
       var back = null;
 
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', function (e) {
+        /* The whole card is a mailto now and this button sits on top of it.
+           Stopping the event here is what keeps a copy from also opening
+           the mail app: preventDefault for the card's own default action,
+           stopPropagation so the click never reaches anything above. */
+        e.preventDefault();
+        e.stopPropagation();
+
         ctCopy(btn.getAttribute('data-ct-copy'));
 
-        label.textContent = 'Copied';
+        label.textContent = 'Copied!';
 
         if (back) { clearTimeout(back); }
 
         back = setTimeout(function () {
           back = null;
           label.textContent = resting;
-        }, 1500);
+        }, 2000);
       });
     })(ctCopyBtns[cb]);
   }

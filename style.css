@@ -261,6 +261,11 @@
      wordmark. Transparent here means the stroke paints nothing. */
   --gr-rim:       transparent;
 
+  /* A lit process step: a yellow outline over a faint wash of the same
+     colour. On the dark band the yellow itself is the outline. */
+  --gr-step-line: rgba(245, 229, 0, 0.55);
+  --gr-step-fill: rgba(245, 229, 0, 0.08);
+
   /* The Contact conversation (STEP 20, restyled as WhatsApp in STEP 31).
      A chat panel is a surface stack the palette did not have, and the
      WhatsApp look needs one more layer than the old one did: a PANEL (the
@@ -503,15 +508,24 @@
   /* The band is the light one here, so the rim switches on */
   --gr-rim:       #111111;
 
-  /* The conversation, in WhatsApp's own dark values. The wall goes to
-     near-black and the panel above it is one step lighter, which is the
-     order the real app uses and the opposite of the light theme, where
-     the wall is the darker of the two.
+  /* The band is light here, so the pure yellow disappears as a LINE, at
+     1.05:1 on the beige. The outline steps down to the bronze the brief
+     keeps for exactly this (#6b5410, 4.68:1), and the wash stays yellow,
+     because as a surface the yellow still works. */
+  --gr-step-line: rgba(107, 84, 16, 0.55);
+  --gr-step-fill: rgba(245, 229, 0, 0.28);
 
-     --cv-live can be the true #25d366 here: on this panel it is 8.8:1,
+  /* The conversation, in the page's own dark neutrals rather than
+     WhatsApp's blue-greens: the card reads as one of the site's dark
+     panels, and only the bubbles still quote the interface. The wall is
+     the page background and the bands above and below it are one step
+     lighter, which is the order the real app uses and the opposite of
+     the light theme, where the wall is the darker of the two.
+
+     --cv-live can be the true #25d366 here: on this panel it is 8.5:1,
      where in light it was 1.62:1. The token exists for exactly that. */
-  --cv-panel:   #111b21;
-  --cv-wall:    #0b141a;
+  --cv-panel:   var(--surface);   /* #1f1d1a, the sidebar panel colour */
+  --cv-wall:    var(--bg);        /* #141312 */
   --cv-in:      #202c33;
   --cv-in-ink:  #e9edef;   /* 12.1:1 */
   --cv-out:     #005c4b;
@@ -576,8 +590,25 @@ body {
   overflow-x: clip;
 }
 
-/* Set while the mobile menu is open, so the page behind can't scroll */
-body.is-locked {
+/* Set while the mobile menu or the certificate overlay is open, so the
+   page behind cannot scroll.
+
+   The lock is on <html> and NOT on <body>, and that is not a preference.
+   body carries `overflow-x: clip` above, so `overflow: hidden` on body
+   turned body into a scroll container of its own, and a position: sticky
+   child sticks to its nearest SCROLLPORT: the topbar stopped sticking to
+   the viewport the moment the menu opened and parked at the document's
+   top instead, which is scrollY pixels above the screen. The symptom was
+   the logo pill, the theme toggle and the burger all cut in half along
+   the top edge, by exactly however far the page had been scrolled.
+
+   On <html> the overflow propagates to the viewport: the page still
+   cannot scroll, the scroll position is kept, body stays out of the
+   sticky chain and the bar stays on screen.
+
+   The class is written to BOTH elements. Three rules and one branch in
+   script.js read it on body. */
+html.is-locked {
   overflow: hidden;
 }
 
@@ -1167,7 +1198,13 @@ body.is-locked .nav.is-scrolled {
   justify-content: flex-start;
   gap: var(--space-lg);
   padding: calc(var(--nav-height) + var(--space-lg)) var(--space-md) var(--space-xl);
-  overflow: hidden;
+  /* x stays clipped, because the panel wipes in from off screen to the
+     right. y is the safety net: six rows, a button and the contact block
+     fit from about 700px of screen up, and on anything shorter the panel
+     scrolls rather than cutting the last thing in it in half. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background-color: var(--bg-blur-solid);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
@@ -1202,7 +1239,9 @@ body.is-locked .nav.is-scrolled {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  /* stretch, not flex-start: the rows are full-width targets now, with a
+     hairline between them and a press tint of their own. */
+  align-items: stretch;
   gap: var(--space-md);
 }
 
@@ -1241,35 +1280,74 @@ body.is-locked .nav.is-scrolled {
 .menu.is-open .menu__resume { transition-delay: 500ms; }
 .menu.is-open .menu__foot { transition-delay: 560ms; }
 
+/* A row, not a line of text: number, label, and an arrow pushed to the
+   right edge. align-items: center, because an arrow and a chip have no
+   baseline to sit on. */
 .menu__link {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-sm);
-  padding-block: var(--space-sm);
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 52px;
+  padding: 0.5rem 0.65rem;
+  border-radius: 12px;
   color: var(--text);
-  transition: color var(--fast) ease;
+  transition: background-color var(--fast) ease, color var(--fast) ease;
 }
 
+/* A FIXED box, so the active row filling it in cannot move the label
+   beside it, and tabular figures so the six labels share one left edge. */
 .menu__num {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 22px;
+  border-radius: 7px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  transition: background-color var(--fast) ease, color var(--fast) ease;
 }
 
 .menu__text {
-  font-size: 1.75rem;
+  font-size: 1.3rem;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.02em;
 }
 
-.menu__link.is-active,
-.menu__link.is-active .menu__num {
-  color: var(--accent-text);
+/* The one thing in the row that moves. It sits back at 0.4 so the column
+   reads as a list rather than as six arrows, and comes forward on the row
+   you are on or touching. 4px of travel, which is inside the
+   reduced-motion ceiling, so it runs in both modes. */
+.menu__arrow {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--muted);
+  opacity: 0.4;
+  transform: translateX(-4px);
+  transition: opacity 200ms var(--ease-out),
+              transform 200ms var(--ease-out);
 }
 
+/* The accent is the colour of the page's own text, so the current section
+   is marked by a FILL and never by a hue: the number chip inverts. */
+.menu__link.is-active .menu__num {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.menu__link.is-active .menu__arrow { opacity: 1; transform: none; }
+
+.menu__link:active { background-color: var(--surface); }
+.menu__link:active .menu__arrow { opacity: 1; transform: none; }
+
 @media (hover: hover) {
-  .menu__link:hover {
-    color: var(--accent-text);
-  }
+  .menu__link:hover { background-color: var(--surface); }
+  .menu__link:hover .menu__arrow { opacity: 1; transform: none; }
 }
 
 /* Pushed to the foot of the panel by its own margin, rather than by
@@ -1285,10 +1363,22 @@ body.is-locked .nav.is-scrolled {
   color: var(--muted);
 }
 
+/* Each contact row carries its own mark, so the foot reads as three
+   routes out rather than as three lines of small print. 38px rather than
+   the 44 the nav rows take: three of these plus the six rows above and
+   the button between them is the whole height of a small phone, and these
+   are the least likely of the nine to be aimed at in a hurry. */
 .menu__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 38px;
+  font-size: 0.95rem;
   color: var(--muted);
   transition: color var(--fast) ease;
 }
+
+.menu__cico { flex-shrink: 0; opacity: 0.75; }
 
 /* The menu's LinkedIn row. The sidebar carries the same link and the
    sidebar does not exist below 900px, so without this a phone has no
@@ -1302,7 +1392,10 @@ body.is-locked .nav.is-scrolled {
 
 .menu__brandico { flex-shrink: 0; }
 
+/* A caption under the three routes out, not a fourth one: 13px, the same
+   floor the timeline labels and the footer meta take. */
 .menu__place {
+  font-size: 0.8125rem;
   color: var(--muted);
 }
 
@@ -2768,9 +2861,15 @@ body.is-locked .dots {
     transition: background-color var(--fast) ease,
                 border-color var(--fast) ease !important;
   }
-  html.rm .nav__link,
-  html.rm .menu__link {
+  html.rm .nav__link {
     transition: color var(--fast) ease !important;
+  }
+
+  /* The menu row's press tint is a colour, not travel, so it keeps its
+     transition: what this setting removes is distance. */
+  html.rm .menu__link {
+    transition: background-color var(--fast) ease,
+                color var(--fast) ease !important;
   }
 
   /* The mobile menu panel keeps its wipe. This was previously forced
@@ -3990,7 +4089,7 @@ body.is-locked .dots {
   /* The shoulders dissolve into the section below rather than stopping
      on the image's own bottom edge */
   --hx-mask-y: linear-gradient(to bottom,
-      #000 0%, #000 75%, transparent 100%);
+      #000 0%, #000 80%, rgba(0, 0, 0, 0.62) 92%, transparent 100%);
   /* Rounds the corners off. Centred at 38% down, which is the face, so
      the falloff is symmetrical about the head rather than about the
      middle of a box whose bottom third is shoulders. */
@@ -4015,6 +4114,31 @@ body.is-locked .dots {
      otherwise drop it. */
   --hx-shadow: drop-shadow(0 12px 28px var(--shadow-2));
   filter: var(--hx-shadow);
+  /* No fill of its own in light: the cutout sits straight on the page and
+     there is no rectangle to see. The dark theme's glow is the only
+     background this element ever has. */
+  background: transparent;
+}
+
+/* ---- Dark theme: separate the black blazer from the near-black page ----
+   Everything goes in --hx-shadow rather than in `filter`, because the
+   intro keyframes, the phone parallax and the reduced-motion rule all
+   write `filter` themselves and whatever writes it last owns the whole
+   property. The glow is a background on the image itself, so it is cut
+   by the same three mask layers as the photo and cannot show an edge. */
+[data-theme="dark"] .hx__portrait {
+  --hx-shadow: drop-shadow(0 12px 28px var(--shadow-2))
+               drop-shadow(0 0 18px rgba(255, 255, 255, 0.12))
+               drop-shadow(0 0 30px rgba(255, 230, 0, 0.08))
+               brightness(1.1) contrast(0.95);
+  background-image: radial-gradient(ellipse 75% 50% at 50% 70%,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.04) 45%,
+      transparent 75%);
+  /* The fade starts later and holds longer, so the blazer is still there
+     when the shoulders begin to dissolve. */
+  --hx-mask-y: linear-gradient(to bottom,
+      #000 0%, #000 88%, rgba(0, 0, 0, 0.72) 95%, transparent 100%);
 }
 
 /* ---- Nav row, on the wordmark's baseline, split around the portrait ---- */
@@ -4074,7 +4198,9 @@ body.is-locked .dots {
   letter-spacing: -0.03em;
   color: var(--hx-head);
   text-shadow: 0 2px 18px var(--shadow-4),
-               0 1px 3px var(--shadow-4);
+               0 1px 3px var(--shadow-4),
+               0 0 14px var(--bg-blur),
+               0 0 28px var(--bg-blur);
 }
 
 .hx__btns { display: flex; flex-wrap: wrap; gap: 0.6rem; }
@@ -4214,7 +4340,8 @@ body.is-locked .dots {
 @media (hover: hover) and (pointer: fine) {
   .hx__navlink:hover { color: var(--hx-accent); }
   .hx__btn--go:hover { background-color: var(--hx-accent-hi); }
-  .hx__btn--alt:hover { background-color: var(--surface-strong); }
+  .hx__btn--alt:hover,
+  .hx__btn--cv:hover { background-color: var(--surface-strong); }
 }
 
 /* --------------------------------------------------------------------------
@@ -4466,7 +4593,11 @@ body.is-locked .dots {
     display: flex;
     position: sticky;
     top: 0;
-    z-index: 60;
+    /* One above --z-menu. script.js already treats the burger as the
+       menu's close button ("the menu owns the bar while it is open"),
+       and at an equal z-index the panel, which comes later in the
+       markup, was painting over the only way out of it. */
+    z-index: 61;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
@@ -6439,9 +6570,9 @@ body.is-locked .dots {
   list-style: none;
 }
 
-/* A flex column so the tag row can be pinned to the bottom with
+/* A flex column so the last block can be pinned to the bottom with
    `margin-top: auto`. The two cards carry different amounts of copy and
-   only one of them has a number, so the tags are what has to line up.
+   only one of them has figures, so the result is what has to line up.
 
    The inner gradient goes on `background-image`, with the flat
    `background-color` underneath it: two properties, so the hover can
@@ -6708,10 +6839,11 @@ body.is-locked .dots {
 }
 
 /* The result is the card's conclusion, so it takes a step up in size and
-   into the band's full ink in both cards. On the second, which has no
-   figure, `margin-top: auto` also collects the spare height above it:
-   the cards are the same height, and a card without the figure block is
-   about 135px shorter, so that space has to go somewhere deliberate. */
+   into the band's full ink. On the second card, whose result is one line
+   against the first card's three figures, `margin-top: auto` also collects
+   the spare height above it: the two cards are the same height, so that
+   space has to go somewhere deliberate, and above a conclusion it reads as
+   separation rather than as a card that ran out of things to say. */
 .gr__block--grow { margin-top: auto; }
 
 .gr__block--result .gr__btxt {
@@ -6720,29 +6852,147 @@ body.is-locked .dots {
   color: var(--vid-ink);
 }
 
-/* ---- the skill tags ---- */
+/* ---- the process row: small pill steps joined by arrows ---- */
 
-.gr__tags {
+/* The pill is the SPAN, not the <li>, because the arrow is generated on the
+   li and has to sit BETWEEN two pills rather than inside one. Keeping it
+   inside the li also means it wraps with the step it follows: a row that
+   breaks ends on "Edit" and the next line starts on a pill. */
+.gr__steps {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  gap: 8px 10px;
   margin: 0;
-  padding: clamp(1.25rem, 2vw, 1.75rem) 0 0;
-  border-top: 1px solid var(--vid-line);
+  padding: 0;
   list-style: none;
+  /* When the light-up starts, measured from the grid arriving. The second
+     card's own entrance is 90ms behind the first, so its row waits the
+     same 90ms and the two never run in lockstep. */
+  --gr-step-in: 320ms;
 }
 
-/* Thin borders, no fill. Six of these in a row is a lot of small
-   rectangles, and filling them would read as six buttons. */
-.gr__tag {
+.gr__card:nth-child(2) .gr__steps { --gr-step-in: 410ms; }
+
+.gr__step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* 4px and no further. Five of these going off one after another is a lot
+     of movement for a decoration, and what is being animated is the ORDER,
+     not the distance. */
+  opacity: 0.45;
+  transform: translateY(4px);
+  transition: opacity 240ms var(--ease-out),
+              transform 240ms var(--ease-out);
+}
+
+/* 70ms apart. Close enough to read as one row lighting up, far enough
+   apart to read as five things rather than one. */
+.gr__step:nth-child(1) { --gr-step-d: 0ms; }
+.gr__step:nth-child(2) { --gr-step-d: 70ms; }
+.gr__step:nth-child(3) { --gr-step-d: 140ms; }
+.gr__step:nth-child(4) { --gr-step-d: 210ms; }
+.gr__step:nth-child(5) { --gr-step-d: 280ms; }
+
+.gr__step:not(:last-child)::after {
+  content: "\2192";
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--vid-soft);
+}
+
+.gr__steptx {
   padding: 0.44em 0.9em;
   border: 1px solid var(--vid-line-2);
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--vid-mute);
+  transition: border-color 240ms ease,
+              background-color 240ms ease,
+              color 240ms ease;
+}
+
+/* Lit: a yellow outline over a faint wash of the same colour. The TEXT
+   never goes yellow, in either theme: --accent-2 is 1.02:1 on the light
+   band and is only ever a surface on this page. The unlit state is a plain
+   hairline pill and perfectly readable, so a browser that never gets
+   .is-in loses the animation and nothing else. */
+.gr__grid.is-in .gr__step {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(var(--gr-step-in) + var(--gr-step-d));
+}
+
+.gr__grid.is-in .gr__steptx {
+  border-color: var(--gr-step-line);
+  background-color: var(--gr-step-fill);
   color: var(--vid-ink);
+  transition-delay: calc(var(--gr-step-in) + var(--gr-step-d));
+}
+
+/* ---- the result as small figures ---- */
+
+/* The same shape as the sidebar stats: a recessed chip, the number on it in
+   yellow, the label under it. The recess is an inner shadow on --vid-chip
+   rather than a lighter fill, for the reason the centrepiece block gives. */
+.gr__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gr__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.7rem 0.8rem 0.75rem;
+  border: 1px solid var(--vid-line);
+  border-radius: 14px;
+  background-color: var(--vid-chip);
+  box-shadow: inset 0 2px 10px var(--shadow-2);
+}
+
+/* The same rim as the big figure above it, with the same floor and for the
+   same reason: yellow is 12.6:1 on the dark band and 1.02:1 on the light
+   one, so there the stroke carries the boundary and not the colour. */
+.gr__statnum {
+  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-2);
+  -webkit-text-stroke: max(1px, 0.018em) var(--gr-rim);
+  paint-order: stroke fill;
+}
+
+.gr__statlab {
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vid-mute);
+}
+
+/* The second card's one result word, on the marker. Same pair as the Work
+   cards' highlight: the yellow does not flip between themes, so the ink on
+   it must not either. */
+.gr__hl {
+  padding: 0 0.16em;
+  border-radius: 3px;
+  background-color: var(--accent-2);
+  color: var(--on-accent-2);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
 }
 
 /* --------------------------------------------------------------------------
@@ -6792,6 +7042,17 @@ body.is-locked .dots {
      once the buttons have grown. */
   .gr__link { width: 44px; height: 44px; }
   .gr__top { gap: 0.7rem; }
+
+  /* The step row wraps rather than shrinking: a pill that scales down with
+     the column stops being a pill. Only the type comes in a notch. */
+  .gr__steptx { font-size: 0.68rem; padding: 0.42em 0.8em; }
+  .gr__steps { gap: 8px; }
+  .gr__step { gap: 8px; }
+
+  .gr__stats { gap: 8px; }
+  .gr__stat { padding: 0.6rem 0.65rem 0.65rem; border-radius: 12px; }
+  .gr__statnum { font-size: clamp(1.3rem, 6.4vw, 1.7rem); }
+  .gr__statlab { font-size: 0.65rem; letter-spacing: 0.08em; }
 }
 
 /* --------------------------------------------------------------------------
@@ -6804,7 +7065,13 @@ html.rm .gr__card { transform: none; }
 html.rm .gr__grid.is-in .gr__card:hover { transform: none; }
 html.rm .gr__grid.is-in .gr__card:hover .gr__link { transform: none; }
 
+/* The steps still light up one after another: the ORDER is the content
+   here, and taking it away leaves a row that says nothing a paragraph
+   would not have said. What goes is the 4px of travel. */
+html.rm .gr__step { transform: none; }
+
 .no-js .gr__card { opacity: 1; transform: none; }
+.no-js .gr__step { opacity: 1; transform: none; }
 
 /* ==========================================================================
    The sidebar while the dark band is behind it
@@ -7836,6 +8103,14 @@ html:has(.sb.is-live) .tt--hx {
     transform: translate3d(0, -100%, 0);
   }
 
+  /* The bar cannot be away while the panel is up: the burger inside it
+     is the only close button. The tuck is already held off while the
+     menu is open, so this only covers the case where the bar was already
+     tucked when the panel opened. */
+  body.is-locked .topbar {
+    transform: none;
+  }
+
   /* ---- 44px tap targets ----
      Measured under 44px: the theme toggle (30x30), the burger (86x33),
      the hero buttons (126x36), Read more (101x35), the Copy and WhatsApp
@@ -7926,7 +8201,13 @@ html:has(.sb.is-live) .tt--hx {
 
   /* ---- fixed things and the home indicator ---- */
   .menu {
+    /* The bar sits ON TOP of the panel now rather than under it, so the
+       content starts just below the bar instead of under a reserved
+       108px band. That band was most of what pushed the button and the
+       contact block off the bottom of a small screen. */
+    padding-top: calc(60px + env(safe-area-inset-top, 0px) + var(--space-sm));
     padding-bottom: max(var(--space-lg), env(safe-area-inset-bottom));
+    gap: var(--space-md);
   }
 
   .footer {
@@ -7934,11 +8215,13 @@ html:has(.sb.is-live) .tt--hx {
   }
 
   /* ---- the full-screen menu ----
-     28px items as briefed, arriving one after another. */
-  .menu__link { font-size: 1.75rem; }
+     The rows carry their own 52px min-height, which is over the 44px
+     floor; this keeps the <li> from being the shorter of the two. */
+  .menu__item { min-height: 52px; }
 
-  .menu__item,
-  .menu__link { min-height: 44px; }
+  /* The one action in the panel, and the only route to the CV on a phone
+     besides the hero, so it takes the full width of the column. */
+  .menu__resume { align-self: stretch; }
 }
 
 /* ---- the reduced-motion intro ----
@@ -8394,14 +8677,32 @@ html:has(.sb.is-live) .tt--hx {
 }
 
 .cv__act {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 13px 15px;
   border-radius: 15px;
   background-color: var(--cv-row);
-  transition: background-color var(--fast) ease, transform var(--fast) var(--ease-out);
+  /* The whole row is the target, so the whole row says so. */
+  cursor: pointer;
+  transition: background-color var(--fast) ease, transform var(--fast) var(--ease-out),
+              box-shadow var(--fast) var(--ease-out);
 }
+
+/* The stretched link. Transparent and the full card, with the card's own
+   radius so the focus ring traces the card rather than a square inside it.
+   z-index 1 puts it over the unpositioned icon and text and UNDER the copy
+   button, which takes a layer of its own below. */
+.cv__hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  text-decoration: none;
+}
+
+.cv__hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .cv__ico {
   display: grid;
@@ -8444,7 +8745,15 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
   cursor: pointer;
 }
 
-.cv__sub:hover { text-decoration: underline; }
+/* The copy button is the one control that has to sit above the stretched
+   link, or the click would land on the mailto underneath it. Everything
+   else in the row is plain text and stays where it is. */
+   It is already `display: inline-block`, so the layer it lifts is the size
+   of its own label and covers nothing else. */
+.cv__copy {
+  position: relative;
+  z-index: 2;
+}
 
 /* The WhatsApp row. inline-flex rather than inline-block, so the real
    mark sits on the text's own baseline block instead of hanging off it.
@@ -8468,8 +8777,25 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 /* ---- hover, desktop only ----
    Gated on a fine pointer so a tap never leaves a row stuck lifted. */
 @media (hover: hover) and (pointer: fine) {
-  .cv__act:hover { background-color: var(--cv-hover); transform: translateY(-2px); }
-  .cv__act:hover .cv__ico { background-color: var(--accent-fill-hi); }
+  /* The lift and the darker fill are the whole feedback: the row is one
+     target, so it responds as one thing. 3px rather than 2, now that the
+     hover means "this is clickable" rather than "there is a link in here",
+     with a shadow under it so the lift reads as a lift. */
+  .cv__act:hover,
+  .cv__act:focus-within {
+    background-color: var(--cv-hover);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-2);
+  }
+
+  .cv__act:hover .cv__ico,
+  .cv__act:focus-within .cv__ico { background-color: var(--accent-fill-hi); }
+
+  /* The sub-label underlines with the card, since it is plain text now and
+     can never be hovered on its own. The copy button keeps its own. */
+  .cv__act:hover .cv__sub:not(.cv__copy) { text-decoration: underline; }
+  .cv__copy:hover { text-decoration: underline; }
+
   .cv__tool:hover { background-color: var(--accent-fill); color: var(--on-accent); }
 }
 
@@ -8528,7 +8854,8 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
    of the rule above, or hovering would lose to it on specificity and the
    row would sit still. */
 @media (hover: hover) and (pointer: fine) {
-  .cv.is-live [data-cv-act].is-in:hover { transform: translateY(-2px); }
+  .cv.is-live [data-cv-act].is-in:hover,
+  .cv.is-live [data-cv-act].is-in:focus-within { transform: translateY(-3px); }
 }
 
 /* ==========================================================================
@@ -8580,7 +8907,14 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
   html.rm .cv__typing,
   html.rm .cv__act { transition: opacity 200ms var(--ease-out); }
   html.rm .cv__typing s { animation: none; opacity: 0.55; }
-  html.rm .cv__act:hover { transform: none; }
+  /* Written to out-weigh `.cv.is-live [data-cv-act].is-in:hover` above, or
+     the arrived row keeps its lift under reduced motion: that selector
+     carries four classes and this one has to match them. The darker fill
+     and the shadow stay, because neither of them is travel. */
+  html.rm .cv .cv__act:hover,
+  html.rm .cv .cv__act:focus-within,
+  html.rm .cv.is-live [data-cv-act].is-in:hover,
+  html.rm .cv.is-live [data-cv-act].is-in:focus-within { transform: none; }
 
 
 /* ==========================================================================
@@ -8624,6 +8958,7 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 .logo-pill,
 .sb__logo,
 .gr__num,
+.gr__statnum,
 .certbox__img {
   -webkit-user-select: none;
   user-select: none;
@@ -8651,7 +8986,8 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 .say__avatar::selection,
 .cv__av::selection,
 .logo-pill::selection,
-.gr__num::selection {
+.gr__num::selection,
+.gr__statnum::selection {
   background-color: transparent;
 }
 
@@ -8730,3 +9066,74 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
   .footer__inner { flex-direction: row; align-items: center; flex-wrap: wrap; }
   .footer__motion { margin-left: auto; }
 }
+
+/* ==========================================================================
+   The phone's Resume links
+
+   Resume was never hidden by a rule of its own: it lives inside the
+   sidebar, `.sb` is `display: none` and only comes back at 900px, so
+   below that the CV had no route to it. It is not a floating button over
+   the page: it appears in the two places a phone visitor is already
+   looking for an action, beside Get in touch in the hero and in the open
+   menu, and nowhere else.
+
+   899px rather than 768px on purpose: 900 is where the sidebar appears,
+   so anything narrower is where the gap actually is.
+   ========================================================================== */
+
+/* ---- a. the hero, beside Get in touch ----
+   Hidden from 900px up, where the sidebar carries it and where the morph
+   flies this row into that sidebar. */
+.hx__btn--cv { display: none; }
+
+@media (max-width: 899px) {
+  .hx__btn--cv {
+    display: inline-flex;
+    gap: 0.45rem;
+    /* The same panel fill as View work: Get in touch is the one filled
+       button in the row and stays the only one. */
+    background-color: var(--panel);
+    color: var(--ink);
+    /* transform joins the transition for the press below. The row's own
+       entrance (mi-up, 1200ms) is a filled animation and outranks it
+       while it runs, so the two never overlap. */
+    transition: background-color 160ms var(--ease-out),
+                transform 160ms var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  .hx__btnico { flex: 0 0 auto; }
+
+  /* The press is the only feedback a touch screen gets. Centre origin,
+     because .hx__btn sets 0 0 for the desktop flight and a corner-pinned
+     press reads as a slide rather than a push. */
+  .hx__btn--cv:active {
+    transform: scale(0.96);
+    transform-origin: 50% 50%;
+  }
+
+  /* The arrow goes the way a download goes. 2px, so it is inside the
+     reduced-motion ceiling and can stay in both modes. */
+  .hx__btnico { transition: transform 160ms var(--ease-out); }
+  .hx__btn--cv:active .hx__btnico { transform: translateY(2px); }
+
+  html.rm .hx__btn--cv:active { transform: scale(0.98); }
+}
+
+/* ---- b. the open menu ----
+   .menu__resume already had its slot in the open-menu stagger, 500ms,
+   after the six links and before the contact block. It needed the link,
+   not new motion. Filled and full width: it is the one action in a panel
+   that is otherwise six ways of going somewhere. */
+.menu__resume {
+  gap: 0.5rem;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* No press scale on this one: the open-menu stagger owns its transform
+   and runs it at --slow, so a press would ease over half a second. The
+   arrow nudge below is a child and has a transition of its own. */
+
+.menu__cvico { flex: 0 0 auto; transition: transform 160ms var(--ease-out); }
+.menu__resume:active .menu__cvico { transform: translateY(2px); }

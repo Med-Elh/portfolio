@@ -6,6 +6,29 @@ Manager and Sales roles. Single page, static, English only. This is a REBUILD.
 The previous version was too close to a resume. This one goes deeper: real case
 studies with context and outcomes, not bullet lists.
 
+# Token-saving rules
+
+## Reading files
+- Never read a whole file if you only need part of it. Use grep/search first, then read only the relevant lines.
+- Don't re-read a file you already read in this session unless it changed.
+- Don't explore the whole project. Only open files directly related to my request.
+- Ignore node_modules, dist, build, .git, lock files, and images.
+
+## Working
+- Before a big task, give me a short plan (max 5 bullet points) and wait for my OK.
+- Make the smallest change that solves the problem. Don't refactor or "improve" code I didn't ask about.
+- Edit files with small targeted edits, not full rewrites.
+- If something is unclear, ask me one short question instead of guessing and exploring.
+- When running commands, limit output (e.g. use `| tail -20`, `--quiet`). Don't run full test suites unless I ask.
+
+## Answers
+- Be brief. No long explanations, no summaries of what you did unless I ask.
+- Don't repeat code back to me after editing it.
+- Don't create extra files (READMEs, docs, examples) unless I ask.
+
+# Compact instructions
+When compacting, keep only: current task, decisions made, files changed, and open errors.
+
 ## Tech rules, do not deviate
 - Plain HTML, CSS, and vanilla JavaScript only. No frameworks, no npm, no build.
 - No CDN links except Google Fonts.
