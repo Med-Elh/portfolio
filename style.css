@@ -6340,6 +6340,33 @@ body.is-locked .dots {
   color: var(--text);
 }
 
+/* The Marketing card's result is three lines. Same font-size as the other
+   two, so the row still reads as one set, but the leading tightens from
+   1.25 to 1.1 and the lines are blocks, which stacks the three numbers
+   into a column. The 0.2em between them is what keeps the yellow markers
+   off each other: a mark paints its own content box, about 1.2em tall on
+   Inter, so at a 1.1 line-height alone the tiles would touch. */
+.hlp__result--stack { line-height: 1.1; }
+
+.hlp__resln {
+  display: block;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out);
+}
+
+.hlp__resln + .hlp__resln { margin-top: 0.2em; }
+
+/* They arrive one after another with the card, not with it. This is the
+   third card, so its own entrance starts at 200ms; the lines begin at 300
+   and finish inside it, which reads as the card settling rather than as a
+   second animation. 70ms apart: enough to see three facts land in order,
+   not enough to wait for the last one. */
+.hlp.is-in .hlp__resln { opacity: 1; transform: none; }
+.hlp.is-in .hlp__resln:nth-child(1) { transition-delay: 300ms; }
+.hlp.is-in .hlp__resln:nth-child(2) { transition-delay: 370ms; }
+.hlp.is-in .hlp__resln:nth-child(3) { transition-delay: 440ms; }
+
 .hlp__text {
   margin: 0.85rem 0 0;
   font-size: 1.0625rem;
@@ -6438,11 +6465,13 @@ body.is-locked .dots {
    than travels - it still says which card is which, without the journey.
    -------------------------------------------------------------------------- */
   html.rm .hlp__card { opacity: 1; transform: none; transition: none; }
+  html.rm .hlp__resln { opacity: 1; transform: none; transition: none; }
   html.rm .hlp__glide { transition: none; }
   html.rm .hlp__btn { transition: background-color var(--fast) ease, border-color var(--fast) ease; }
 
 
 .no-js .hlp__card { opacity: 1; transform: none; }
+.no-js .hlp__resln { opacity: 1; transform: none; }
 .no-js .hlp__glide { display: none; }
 .no-js .hlp__card { background-color: var(--surface-strong); }
 

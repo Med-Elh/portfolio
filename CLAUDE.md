@@ -1175,8 +1175,8 @@ bottom of the screen instead.
   from B2B clients like [Experience Morocco] to creator collaborations.
 - MARKETING / Marketing - I run [Meta ad campaigns]: audience targeting,
   creative and conversion optimisation. I grew an Instagram account from
-  [0 to 8,000 followers] in under a year, and I create UGC videos that
-  explain the product and drive sign-ups.
+  [0 to 8,000 followers in 3 months], which sold 250+ posters, and I
+  create UGC videos that explain the product and drive sign-ups.
 - RETENTION / Retention - Clear onboarding, fast answers and regular
   check-ins, so [clients stay] and grow.
 - SALES / Sales - Full-cycle outreach that turned prospects into [100+
@@ -1256,11 +1256,19 @@ more.
    signed deals.
    What you get: Qualified leads / Full-cycle outreach / New B2B
    partnerships
-3. **Marketing** - [0 to 8,000] followers on Instagram
-   I grow the account, run the Meta ad campaigns and build the brand
-   that turns attention into sales.
-   What you get: Targeted ad campaigns / Clear messaging / Conversion
-   tracking
+3. **Marketing** - the result is THREE stacked lines, not one:
+   [3] months. / [8,000] followers. / [250+] posters sold.
+   Same font size as the other two cards' result lines, leading tightened
+   to 1.1 with 0.2em between the lines, so they read as one punch. The
+   yellow carries the NUMBER only in each line: a marker under every word
+   is a yellow block, not an emphasis. The three lines fade up 10px one
+   after another, 70ms apart, starting 300ms after `.hlp.is-in` lands, so
+   they arrive inside the card's own 600ms entrance rather than after it.
+   `html.rm` and `.no-js` both leave all three simply there.
+   I built the account from zero, ran the ad campaigns and the influencer
+   collabs, and turned the audience into paying customers.
+   What you get: Targeted ad campaigns / Influencer collaborations /
+   Content that converts
 
 Under the panel, centred, one filled accent button: `Let's talk`, linking
 to `#contact`. It is the only place that phrase appears in the section.
@@ -1343,7 +1351,7 @@ filled would read as six buttons.
 **Card 1**
 - handle `@postry_art`, one link, Instagram
   `https://www.instagram.com/postry_art`
-- figure `0 to 8,000`, label "followers in under a year"
+- figure `0 to 8,000`, label "followers in 3 months"
 - The challenge: A brand new poster brand with no audience and no budget
   for reach.
 - What I did: Built the content strategy, filmed and edited every post,
