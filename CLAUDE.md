@@ -66,9 +66,25 @@ where a bare `&` would also parse. One form throughout means a later edit
 cannot move a string from text into an attribute and break it.
 
 ## Assets
-- `assets/images/portrait.jpg`
+- `assets/images/portrait-cutout.png` 1200x1500, 280KB. The hero. **Read
+  the dimension rule under the portrait's edges before replacing it.**
+- `assets/images/portrait.jpg` 928x1152, 593KB. **Social cards only**, the
+  `og:image` and `twitter:image`. Nothing a visitor loads points at it, and
+  it must stay this size: a share card built from a thumbnail is a
+  thumbnail. Do not "optimise" it.
+- `assets/images/portrait-avatar.jpg` 184x228, 7KB. The derived small copy,
+  used by the pitch band's 46px avatar and by the favicon. Both were
+  loading the 593KB original for a picture drawn at 46px and at 16px.
+- `assets/collages/` sixteen 571x400 JPEGs, the name divider's trail.
+  Desktop only, and since STEP 33 they are not fetched on a touch screen.
 - `assets/docs/cv.pdf`
 - Never invent filenames. Ask if an image is needed that does not exist.
+- **There are no certificate images.** Four `cert-*.png` sat in
+  `assets/images` until STEP 33 with nothing referencing them; the
+  `#certbox` lightbox that would have shown them has no `[data-cert]`
+  trigger anywhere in the markup, so it can never open. The markup, CSS
+  and JS for it are still there and inert. Do not add images back to it
+  without a reason.
 
 ## The custom domain and CNAME. DO NOT BREAK THIS
 The site is served from **https://mohamedelhayyany.com** through GitHub
@@ -232,6 +248,152 @@ point" measures whatever letter is under it, not the cursor; and
 catches a cursor that has already hidden itself. Capture the full
 viewport, diff two frames with the canvas hidden and animations paused,
 and shoot inside 500ms.
+
+## The site crashed every iPhone, and it was one file (STEP 33)
+The symptom: the page loaded for about a second and the tab died with "A
+problem repeatedly occurred" or "Can't open this page". Safari AND Chrome
+on iPhone, private mode too, **as the hero appeared**. Two browsers and no
+JavaScript error means memory, not a bug.
+
+**`portrait-cutout.png` had been replaced with the camera original:
+3750x4688, 11MB.** That is 17.6 megapixels, and a PNG has no compressed
+form in memory, so the browser expands it to `3750 x 4688 x 4 bytes` =
+**70.3MB of RAM** before a single pixel is drawn. An iPhone tab has a
+budget in the low hundreds of MB. The asset is 1200x1500 / 280KB now,
+which is **6.9MB decoded**, a tenfold cut, and that alone is the fix.
+
+**File size is not the number that matters. Pixel dimensions are.** This
+is the whole lesson and it is counter-intuitive enough to be worth the
+paragraph: `width x height x 4` is the cost, and PNG compression does not
+reduce it. A 300KB PNG that is still 3750px wide crashes exactly the same
+way an 11MB one does, which is why "I compressed it" is not on its own an
+answer. Check the dimensions.
+
+**Why the hero specifically, and not some heavier section further down.**
+The portrait is the one element on the page carrying three INTERSECTED
+mask layers and a `drop-shadow` that reads the masked alpha. Intersect
+cannot be done in one pass and `drop-shadow` needs the masked result
+rasterised first, so that 70MB bitmap was the input to several full-size
+surfaces. Then two separate pieces of code blurred it:
+
+1. `@keyframes mi-portrait`, the phone intro, 10px to 0 over 760ms on the
+   hero's **first paint**. The blur is gone; the keyframe now names only
+   `transform` and `opacity`. It deliberately does not mention `filter` at
+   all, which is not the same as setting it to `--hx-shadow`: a keyframe
+   that never mentions a property does not own it, so the stylesheet's own
+   `filter` applies for the whole run and the drop-shadow survives without
+   being repeated.
+2. The scroll parallax in script.js, writing `style.filter` with a blur on
+   **every scroll frame**. Also gone. `transform` and `opacity` are
+   composited, so the layer is rasterised once and the GPU moves it;
+   `filter` is not, so every write re-rasterised the whole stack.
+
+**The collage trail was warming up on phones.** All sixteen pictures
+fetched and `decode()`d two viewports early, with no pointer check, for a
+trail that refuses any pointer that is not a mouse. 585KB over the wire
+and about 14.6MB of decoded bitmaps held deliberately alive for the rest
+of the visit, to draw nothing. `mbWarmUp()` now returns early unless
+`(hover: hover) and (pointer: fine)`, read at call time, and the
+`pointermove` handler calls it too so a device that gains a mouse later
+still warms up.
+
+**780KB of assets were referenced by nothing** and are deleted: the four
+`cert-*.png` and `portrait-cutout1.png`. See the Assets list.
+
+`_baseline-step33/` holds the previous three files and, under
+`assets/images/`, every deleted asset plus
+`portrait-cutout-original-3750x4688.png`. **The 11MB original is the only
+high-resolution copy of the portrait, so it was archived rather than
+overwritten.** Do not ship that folder's images.
+
+**What was considered and deliberately NOT done**, so it is not
+re-litigated: a separate mobile `srcset` for the portrait, and collapsing
+the three mask layers to one below 900px. At 6.9MB decoded neither earns
+its complexity, and the masks are load-bearing (the asset is still a hard
+crop at the bottom, re-measured). Merging the page's scroll-driven
+animations into one rAF loop was also declined: it is a refactor across
+about twenty modules, and it was not what was crashing the page.
+
+## The other half: composited layers on a phone (STEP 34)
+STEP 33 took the hero portrait from 70.3MB of decoded bitmap to 6.9MB and
+**the tab still died, intermittently**: sometimes the page loaded,
+sometimes the same "A problem repeatedly occurred". **Intermittent is the
+diagnosis, not a complication.** A hard limit fails every time. A budget
+you are sitting on top of fails when the phone happens to be busy, so
+something large was still resident, and on iOS what is large is never the
+markup. It is the number of composited layers and what each one has to be
+blurred through.
+
+**A `backdrop-filter` is not a colour.** Each one makes the compositor
+snapshot the region behind the element, blur that copy, and keep the
+buffers. At a phone's DPR of 3 a single full-viewport layer is
+`390 x 844 x 9 x 4` = about **11.8MB before the blur's own ping-pong
+buffers**. Four of these on the first screen is the rest of the crash.
+
+**`visibility: hidden` and `opacity: 0` do not take an element out of the
+compositing tree. `display: none` does.** That one sentence is most of
+this step. Both of the two biggest items were things nobody could see.
+
+What was resident on every phone visit, all of it invisible:
+
+1. **`.menu`**, the overlay nav: `position: fixed`, `inset: 0`,
+   `backdrop-filter: blur(20px)`, a FULL-VIEWPORT backdrop blur held open
+   from the first paint because it is hidden with `visibility: hidden`.
+   The `transform: translateX(100%)` beside it is itself a promotion
+   trigger. The single biggest item.
+2. **`.cursor-glow`**: `position: fixed`, 400x400, `will-change:
+   transform`, hidden on touch with `opacity: 0`. About 5.8MB of layer,
+   for a glow that follows a cursor a phone does not have.
+3. **`.noise`**: `position: fixed`, `inset: 0`, a tiled `feTurbulence`
+   SVG at 3% opacity. Another full-viewport layer, and procedural noise
+   has to be rasterised rather than decoded. At 3% on a 390px screen it
+   is invisible.
+4. **Two `.bg-glow`**: `position: fixed`, `filter: blur(90px)`. A 90px
+   blur needs a surface padded by roughly three times its radius on every
+   side, so a 218px square becomes about 760px, times DPR 3. Fixed, so
+   never off screen and never discarded.
+5. **Four `.hx__stat`** chips in the hero, `backdrop-filter: blur(6px)`
+   each, plus **`.topbar`**, sticky and always on screen, at `blur(10px)`.
+6. **Eight `.mb__shot`** SVG `<image>` nodes carrying `will-change:
+   transform, opacity`, built by an IIFE on every device, inside a clipped
+   group, for a trail whose `pointermove` handler refuses anything that is
+   not a mouse. The pool is built on demand now, from `mbWarmUp()`, so it
+   shares the one `(hover: hover) and (pointer: fine)` gate.
+7. **`will-change: transform`** on `.hx__stat` and `.hx__btn` at all
+   widths, promoting eight elements for a morph that only exists above
+   900px. `.hx__word` KEEPS its hint: the phone parallax writes a
+   transform to it every scroll frame, which is what will-change is for.
+
+**The fix is not "remove the blurs and accept a flatter page", and this is
+the part worth keeping.** Two observations did the work:
+
+- **Both glows are already radial gradients** (`--glow`, `--glow-warm`).
+  The blur was softening something already soft, for a GPU surface the
+  size of the screen. Dropping only the `filter` keeps the gradient and
+  keeps the bloom. They are not hidden on mobile.
+- **Every `backdrop-filter` here sat on a background that was already
+  nearly opaque**: `--bg-blur-solid` is 0.97 alpha, `--bg-blur-bar` 0.92,
+  `--panel-soft` 0.72. Removing the blur and closing that last few per
+  cent to a flat token is a difference you cannot see at 390px, because
+  there was never much showing through to blur. The topbar goes the whole
+  way to opaque deliberately: 8% translucency with no blur is content
+  ghosting through, which looks worse than either option.
+
+It all lives in one appended `@media (max-width: 899px)` block at the foot
+of style.css, so **desktop is untouched** and the whole thing is one
+block to read or revert. The morph, the sidebar, the rail and the noise
+keep their blurs above 900px.
+
+**Things that were checked and are already correct**, so nobody re-audits
+them: `.cursor-dot` and `.cursor-ring` are `display: none` outside
+`(hover: hover)`, so the `mix-blend-mode: difference` that would force the
+whole page into one blended buffer never engages on touch. `.sb` is
+`display: none` below 900px. `.certbox` has a `.certbox[hidden]` rule, so
+its full-viewport `backdrop-filter` really is gone. `.bg-canvas` keeps its
+`translateZ(0)` and `will-change`, which are load-bearing on iOS. The
+marquee tracks keep theirs, because they genuinely animate. `.nav`,
+`.hero__glow`, `.hero__media`, `.menu__glow` and `.mig-stat` are dead CSS
+with no element in the markup.
 
 ## CRITICAL RULE
 Never invent content. No fabricated metrics, client names, project names,
@@ -471,15 +633,22 @@ word-by-word reveal (fade only, no blur), the timeline line drawing, card
 reveals (fade only), the marquees (unchanged), the dark-section sidebar
 switch, and the phone intro (fade version).
 
-### The portrait's edges (STEP 13)
+### The portrait's edges (STEP 13, re-measured in STEP 33)
 `portrait-cutout.png` is only half a cutout, and this is measured, not
-guessed. At 448x557: the alpha row at face level reads
-`0 0 0 0 255 255 255 0 0 0 0`, so the head is properly cut out, but at
-shoulder level it reads 255 all the way across, **181 of the 557 pixels
-on the left edge are fully opaque, 192 on the right, and all 448 along
-the bottom**. The lower third is a hard crop. The straight cut is the
-image, not the mask. Fixing it properly needs a new asset; until then the
-mask hides it.
+guessed. **The asset was replaced in STEP 33 and is now 1200x1500, 280KB**
+(it was 448x557, and for a while a catastrophic 3750x4688: see STEP 33
+below). Re-measured on the current file, and the character is unchanged:
+the alpha row at face level reads `0 0 0 0 255 255 255 255 0 0 0`, so the
+head is properly cut out, but at shoulder level it reads 255 all the way
+across, **474 of the 1500 rows on the left edge are fully opaque, 510 on
+the right, and all 1200 along the bottom**. That is 31.6% / 34.0% / 100%,
+against the old asset's 32.5% / 34.5% / 100%: the same crop, resized. The
+lower third is a hard crop. The straight cut is the image, not the mask.
+Fixing it properly needs a new asset; until then the mask hides it.
+
+**So the three mask layers below are still load-bearing.** A bigger,
+cleaner-looking file did not remove the reason they exist, and nothing
+about STEP 33 licenses simplifying them.
 
 **A replacement photo was tried in STEP 22 and rolled back.** Worth
 keeping the finding, because the next replacement can hit it too: that
@@ -496,6 +665,20 @@ and the symptom is a grey rectangle that reads as a CSS fault rather than
 an asset fault. If it needs repairing, remap the channel linearly
 (`new = (old - floor) / (255 - floor) * 255`, clamped at 0) rather than
 thresholding it, or the feathered edge around the hair goes jagged.
+
+The STEP 33 replacement was measured against exactly that and passes:
+**41.35% fully transparent**, 57.28% fully opaque, **1.36% in between**,
+which is a proper anti-aliased outline rather than a threshold, and **no
+single intermediate alpha value covers more than 2% of the canvas**, so
+there is no uniform wash. Top corners 0, bottom corners 255. Run that
+check, not a look at the file in a viewer, on the next replacement too.
+
+**And measure the PIXEL DIMENSIONS, not the file size.** This is the STEP
+33 lesson and it is the one that actually took the site down. Decoded
+memory is `width x height x 4 bytes` and a PNG has no compressed form in
+RAM, so how well the file zips says nothing about what it costs a phone. A
+300KB PNG that is still 3750px wide crashes an iPhone exactly as a 11MB
+one does. **Keep it at or under about 1200x1500.**
 
 Three mask layers, **intersected**. The default composite is `add`, which
 unions them: every layer would only ever make the picture more visible
@@ -522,14 +705,22 @@ has to be repeated in every keyframe and every inline write that touches
 The reduced-motion block is the same trap: `filter: none` there would take
 the shadow with the blur, so the portrait is excepted and keeps it.
 
-### The phone's hero parallax (STEP 13)
+### The phone's hero parallax (STEP 13, blur removed in STEP 33)
 Below 900px, read from scrollY on a rAF so scrolling back up runs it
 backwards through the same numbers rather than replaying in reverse.
 Portrait: translateY -15% of the distance scrolled, scale 1 to 1.06, fade
-from progress 0.5, blur 0 to 10px. The name moves at twice the portrait's
+from progress 0.5. The name moves at twice the portrait's
 rate so the two visibly come apart. The headline and buttons are gone by
 0.6, leaving the portrait alone for the second half. Reduced motion: fade
 only, in the same order.
+
+**There is no blur on the portrait here any more, and there must not be
+one again.** It was 0 to 10px, written to `style.filter` on every scroll
+frame of the hero. `transform` and `opacity` are composited, so the layer
+is rasterised once and the GPU moves it; `filter` is not, so each write
+re-rasterised a picture carrying three intersected masks AND a drop-shadow
+that reads the masked alpha. That is several full-size surfaces per frame
+on the page's first screen. See STEP 33.
 
 **The intro has to hand the properties back first.** Its animations are
 filled, and a filled animation outranks an inline style, so every
@@ -1583,8 +1774,23 @@ tokens. Do not bring any of it back.
 > **Yes. Based in Morocco, working with the world. Remote, hybrid or on
 > site.**
 
-Header: `Mohamed Elhayyany`, then a green dot and `Usually replies same
-day`.
+Header: the profile picture, `Mohamed Elhayyany`, then a green dot and
+`Usually replies same day`.
+
+**The profile picture is `portrait-avatar.jpg`, laid OVER the initials
+rather than replacing them.** The circle used to be the letters `ME` on
+an accent fill; they are still in the markup, with `.cv__avimg`
+absolutely positioned on top of them. If the file ever goes missing the
+circle is an avatar rather than a hole, and that costs one element and no
+code path. `aria-hidden` on the wrapper covers both, and the accessible
+name is `.cv__name` right beside it.
+
+Sized in per cent, not pixels, so the phone rule that takes the circle to
+40px carries the photo with it: one number to change instead of two that
+can drift apart. `object-position: 50% 18%`, the same crop the pitch
+band's avatar uses, because the source is 184x228 and a square taken from
+its middle cuts the face in half. 184px of source into a 44px circle is
+still sharp at a phone's 3x density, which needs 132.
 
 **Nothing here invents a person.** The grey bubble is a question anyone
 might ask, not a quotation attributed to anybody. That matters because

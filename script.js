@@ -343,7 +343,21 @@
       hxPortrait.style.transform =
         'translate3d(0, ' + pShift.toFixed(1) + 'px, 0) scale(' + pScale.toFixed(4) + ')';
       hxPortrait.style.opacity = (1 - fade).toFixed(3);
-      hxPortrait.style.filter = HX_SHADOW + ' blur(' + (fade * 10).toFixed(2) + 'px)';
+
+      /* STEP 33: no blur here any more, and it is the one line in this
+         function that was not free.
+         The portrait carries three INTERSECTED mask layers and a
+         drop-shadow that reads the masked alpha, so it is already several
+         full-size surfaces deep before anything moves. transform and
+         opacity are composited: the layer is rasterised once and the GPU
+         moves it. Writing `filter` re-rasterises that whole masked,
+         shadowed stack on the frame it is written, and this wrote it on
+         EVERY scroll frame of the hero.
+         On the phones this was crashing (Safari and Chrome on iPhone,
+         dying as the hero appeared) the real culprit was a 3750x4688
+         portrait, 70MB of bitmap once decoded; the asset is 1200x1500 now
+         and that is fixed. This is the other half: it was cheap to give
+         up and it is what the fade was doing the work of anyway. */
 
       /* Twice the portrait's rate, so the two visibly come apart rather
          than travelling together */
@@ -4098,7 +4112,26 @@
       var mbBorn = [];        /* spawn time per slot, 0 means free */
       var mbSlot = 0;
 
-      (function () {
+      /* STEP 34: built on demand, not at init.
+         It used to be an IIFE that ran on every device. On a phone that put
+         eight <image> nodes carrying `will-change: transform, opacity` into
+         a clipped SVG group, which is eight composited layers the
+         compositor holds for the whole visit, to draw a trail that can
+         never run there: the pointermove handler below refuses anything
+         that is not a mouse. Same reasoning as mbWarmUp, and it is called
+         from there so the pool and the pictures arrive together and share
+         the one `(hover: hover) and (pointer: fine)` gate.
+         Nothing reads mbPool before a pointermove has kicked the frame
+         loop, and that path goes through mbWarmUp first, so by the time
+         mbFrame looks the pool is there. An empty pool would simply loop
+         zero times rather than throw, which is the safe direction. */
+      var mbBuilt = false;
+
+      function mbBuildPool() {
+        if (mbBuilt) { return; }
+
+        mbBuilt = true;
+
         for (var i = 0; i < POOL; i++) {
           var el = document.createElementNS('http://www.w3.org/2000/svg', 'image');
 
@@ -4114,7 +4147,7 @@
           mbPool.push(el);
           mbBorn.push(0);
         }
-      }());
+      }
 
       /* ---- warm every picture up before it is needed ----
          new Image() gets it over the wire; decode() turns it into a bitmap
@@ -4129,9 +4162,29 @@
       var mbWarmed = false;
 
       function mbWarmUp() {
+        /* STEP 33: not on a touch screen. The trail below refuses any
+           pointer that is not a mouse, so on a phone this loop was
+           fetching all sixteen pictures and decoding them into bitmaps
+           that nothing could ever draw: 585KB over the wire and, at
+           571x400 RGBA, about 14.6MB of memory held deliberately alive by
+           mbWarm for the rest of the visit. On a page that was crashing
+           iPhone tabs that is not a rounding error.
+           The check is here rather than at the observer so both entry
+           points are covered, and it is read at CALL time, so a device
+           that gains a mouse later still warms up: the pointermove
+           handler calls this too and mbWarmed makes it a no-op after the
+           first success. Note it does NOT set mbWarmed on this path, or
+           that later call would be refused. */
+        if (!mbFine.matches) { return; }
+
         if (mbWarmed) { return; }
 
         mbWarmed = true;
+
+        /* The eight <image> slots the trail draws into, created here rather
+           than at init for the same reason: on a touch screen they are
+           eight composited layers that nothing will ever use. */
+        mbBuildPool();
 
         for (var i = 0; i < MB_SHOTS.length; i++) {
           var im = new Image();
@@ -4268,6 +4321,13 @@
       /* Two writes and a boolean. Everything else waits for the frame. */
       mb.addEventListener('pointermove', function (event) {
         if (event.pointerType !== 'mouse' || !mbFine.matches) { return; }
+
+        /* A mouse has arrived, so the pictures are worth having after all.
+           The observer will normally have done this two viewports ago; this
+           is the hybrid case, where (hover: hover) was false when the
+           section came up. Idempotent, so from the second move on it is a
+           boolean test. */
+        mbWarmUp();
 
         mbPX = event.clientX;
         mbPY = event.clientY;

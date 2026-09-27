@@ -27,7 +27,12 @@
   <meta name="twitter:description" content="Business development brings the customer. Support keeps them. Automation makes both scale. I've done all three.">
   <meta name="twitter:image" content="https://mohamedelhayyany.com/assets/images/portrait.jpg">
 
-  <link rel="icon" type="image/jpeg" href="assets/images/portrait.jpg">
+  <!-- The small derived copy, not portrait.jpg. A favicon renders at 16 to
+       32px and portrait.jpg is 928x1152 / 593KB, which every visitor was
+       downloading for an icon. portrait.jpg stays exactly as it is above,
+       because og:image and twitter:image need the full size: a share card
+       built from a 184px picture is a thumbnail. -->
+  <link rel="icon" type="image/jpeg" href="assets/images/portrait-avatar.jpg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,7 +93,7 @@
     })();
   </script>
 
-  <link rel="stylesheet" href="style.css?v=19">
+  <link rel="stylesheet" href="style.css?v=34">
 
 </head>
 <body>
@@ -335,7 +340,7 @@
         <img draggable="false" class="hx__portrait" id="hx-portrait"
              src="assets/images/portrait-cutout.png"
              alt="Mohamed Elhayyany, Technical Customer Success Manager &amp; Business Developer"
-             width="900" height="1200">
+             width="1200" height="1500">
 
         <!-- Nav row, sitting on the wordmark's baseline and split around
              the portrait. These are the elements the FLIP carries into the
@@ -877,10 +882,10 @@
              same description to a screen reader twice. -->
         <div class="pitch-band__row" data-reveal>
           <img draggable="false" class="pitch-band__avatar"
-               src="assets/images/portrait.jpg"
+               src="assets/images/portrait-avatar.jpg"
                alt=""
-               width="928"
-               height="1152">
+               width="184"
+               height="228">
 
           <span class="pitch-band__status">
             <span class="pitch-band__dot" aria-hidden="true"></span>
@@ -1622,7 +1627,15 @@
         <div class="cv__panel" data-cv-panel>
 
           <div class="cv__head">
-            <span class="cv__av" aria-hidden="true">ME</span>
+            <!-- The profile picture, which is what the interface being
+                 quoted puts here. The initials stay in the markup behind
+                 it: the photo is laid over them, so if it ever fails to
+                 load the circle is still an avatar rather than a hole.
+                 aria-hidden on the wrapper covers both, and the name is
+                 read from .cv__name right beside it. -->
+            <span class="cv__av" aria-hidden="true">ME<img class="cv__avimg"
+                  src="assets/images/portrait-avatar.jpg" alt=""
+                  draggable="false" width="184" height="228"></span>
 
             <div class="cv__who">
               <p class="cv__name">Mohamed Elhayyany</p>
@@ -1775,6 +1788,6 @@
 
 
 
-  <script src="script.js?v=19"></script>
+  <script src="script.js?v=34"></script>
 </body>
 </html>

@@ -8023,16 +8023,27 @@ html:has(.sb.is-live) .tt--hx {
     animation: mi-portrait 760ms var(--ease-out) 620ms both;
   }
 
+  /* STEP 33: no `filter` in here at all, which is deliberate and is not the
+     same as setting it to --hx-shadow.
+     A keyframe that never mentions a property does not own it, so the
+     stylesheet's own `filter: var(--hx-shadow)` on .hx__portrait applies
+     for the whole run and the drop-shadow is never dropped. That is the
+     trap CLAUDE.md records under the portrait's edges ("whatever sets
+     filter last owns the whole property"), avoided by not competing for
+     it rather than by repeating the value.
+     What went is the 10px blur. This animation plays on the hero's FIRST
+     paint on a phone, which is exactly where the tab was dying, and
+     blurring an element carrying three intersected masks and a
+     drop-shadow means rasterising that whole stack again every frame for
+     760ms. The rise and the fade carry the entrance on their own. */
   @keyframes mi-portrait {
     from {
       opacity: 0;
       transform: translate3d(0, 60px, 0) scale(1.05);
-      filter: var(--hx-shadow) blur(10px);
     }
     to {
       opacity: 1;
       transform: translate3d(0, 0, 0) scale(1);
-      filter: var(--hx-shadow) blur(0);
     }
   }
 
@@ -8521,6 +8532,10 @@ html:has(.sb.is-live) .tt--hx {
 .cv__av {
   display: grid;
   place-items: center;
+  /* The photo is laid OVER the initials rather than replacing them, so
+     these two are the positioning context and the clip it needs. */
+  position: relative;
+  overflow: hidden;
   width: 44px;
   height: 44px;
   flex: 0 0 auto;
@@ -8530,6 +8545,31 @@ html:has(.sb.is-live) .tt--hx {
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+/* The profile picture in the chat header, which is what WhatsApp puts there
+   and therefore what the rest of this panel was already quoting.
+
+   It sits on top of the "ME" initials, which stay in the markup. If the
+   file ever goes missing the circle is still an avatar rather than a hole,
+   and that fallback costs one element and no code path.
+
+   Sized in per cent, not pixels, so the phone rule further down that takes
+   the circle to 40px carries the photo with it: one number to change
+   instead of two that can drift apart.
+
+   `object-position: 50% 18%` is the same crop the pitch band's avatar uses.
+   The source is 184 x 228, so a square taken from its middle would cut the
+   face in half. 184px of source into a 44px circle is still sharp at a
+   phone's 3x density, which needs 132. */
+.cv__avimg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 18%;
 }
 
 .cv__name { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.015em; }
@@ -9037,6 +9077,7 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
    common way a drag carousel feels broken. */
 .hx__portrait,
 .pitch-band__avatar,
+.cv__avimg,
 .certbox__img {
   -webkit-user-drag: none;
   user-drag: none;
@@ -9166,3 +9207,170 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 
 .menu__cvico { flex: 0 0 auto; transition: transform 160ms var(--ease-out); }
 .menu__resume:active .menu__cvico { transform: translateY(2px); }
+
+/* ==========================================================================
+   STEP 34 - the compositing budget on a phone
+   Appended last, so every rule here beats its counterpart above by source
+   order without needing a heavier selector.
+
+   STEP 33 cut the hero portrait from 70.3MB of decoded bitmap to 6.9MB and
+   the tab still died, INTERMITTENTLY: sometimes the page loaded, sometimes
+   the same "A problem repeatedly occurred". Intermittent is the tell. A
+   hard limit fails every time; a budget you are sitting on top of fails
+   when the phone happens to be busy. So something else large was resident,
+   and on iOS the thing that is large is never the markup, it is the number
+   of composited layers and what each one has to be blurred through.
+
+   A backdrop-filter is not a colour. Each one makes the compositor
+   snapshot the region behind the element, blur that copy, and keep the
+   buffers. At a phone's DPR of 3 a full-viewport layer is
+   390 x 844 x 9 x 4 bytes = about 11.8MB BEFORE the blur's own ping-pong
+   buffers. Four of these live on the first screen was the rest of the
+   crash.
+
+   What was resident on every phone visit, none of it visible:
+
+   1. `.menu`, the overlay nav: `position: fixed`, `inset: 0`,
+      `backdrop-filter: blur(20px)` - a FULL-VIEWPORT backdrop blur, held
+      open from the first paint because it is hidden with
+      `visibility: hidden` and not `display: none`. **visibility: hidden
+      does not take an element out of the compositing tree**; it paints
+      nothing while keeping everything allocated, and the
+      `transform: translateX(100%)` next to it is itself a promotion
+      trigger. This was the single biggest item and it was invisible in
+      every sense.
+   2. Two `.bg-glow`, `position: fixed`, `filter: blur(90px)`. A 90px blur
+      needs a surface padded by roughly three times its radius on all
+      sides, so a 218px square element becomes a ~760px one, times DPR 3.
+      Fixed, so never off screen and never discarded.
+   3. Four `.hx__stat` chips in the hero, `backdrop-filter: blur(6px)`
+      each. Small elements, four backdrop snapshots.
+   4. `.topbar`, sticky and always on screen, `backdrop-filter: blur(10px)`.
+
+   The fix is not "remove the blurs and accept a flatter page", which is
+   what makes this worth writing down:
+
+   **Both glows are ALREADY radial gradients** (`--glow`, `--glow-warm` -
+   see the palette). The blur was softening something already soft, for a
+   GPU surface the size of the screen. Dropping only the `filter` keeps the
+   gradient, keeps the bloom, and costs nothing. They are not hidden.
+
+   **Every backdrop-filter here sits on a background that is nearly opaque
+   already**: --bg-blur-solid is 0.97 alpha, --bg-blur-bar 0.92,
+   --panel-soft 0.72. Taking the blur out and closing that last few per
+   cent to a flat token is a difference you cannot see on a 390px screen,
+   because there was never much showing through to blur.
+
+   Desktop is untouched: everything here is inside max-width 899px, and the
+   morph, the sidebar and the rail keep their blurs.
+   ========================================================================== */
+
+@media (max-width: 899px) {
+
+  /* 1. The overlay menu. The blur goes, the sheet goes fully opaque.
+        `--bg` rather than --bg-blur-solid: at 0.97 alpha the two are the
+        same colour to the eye, and an opaque background is what lets the
+        compositor treat this as a plain rectangle.
+        The layer itself still exists - it has a transform and a transition
+        and it needs them to wipe in - but it is a flat fill now instead of
+        a full-screen blur of the page behind it. */
+  .menu {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--bg);
+  }
+
+  /* 2. The two ambient glows keep their gradient and lose the blur.
+        Not `display: none`: the bloom is part of the design and the
+        gradient is what was drawing it. */
+  .bg-glow {
+    filter: none;
+  }
+
+  /* Same again for the one behind the Contact heading. This one is
+     `position: absolute`, so it was only composited near the viewport, but
+     it is a min(760px, 100vw) square with a 70px blur and it is the last
+     thing a phone meets after scrolling the whole page. */
+  .contact__glow {
+    filter: none;
+  }
+
+  /* 3. The hero stat chips. Four backdrop snapshots on the first screen,
+        for 28% of translucency over a plain page background. --panel is
+        the opaque token and is theme-aware. */
+  .hx__stat {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--panel);
+  }
+
+  /* 4. The top bar is sticky, so it is on screen for the entire visit and
+        its blur was being recomputed against whatever scrolled under it.
+        Opaque instead. At 0.92 the bar was already all but solid; without
+        a blur that last 8% would have shown content ghosting through it,
+        which is worse than either, so this goes the whole way. */
+  .topbar {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background-color: var(--bg);
+  }
+
+  /* 5. `will-change: transform` on the stats and the buttons promoted eight
+        elements to their own layers for the whole visit, and on a phone
+        NOTHING ever animates their transform: the stats and buttons only
+        move in the desktop morph, which does not exist below 900px.
+        `.hx__word` deliberately keeps its hint, because the phone parallax
+        writes a transform to it on every scroll frame of the hero, which is
+        exactly the case will-change is for. */
+  .hx__stat,
+  .hx__btn {
+    will-change: auto;
+  }
+
+  /* 6. The cursor glow: `position: fixed`, 400 x 400, `will-change:
+        transform`, and hidden on touch with `opacity: 0` rather than
+        `display: none`. Opacity zero paints nothing and allocates
+        everything, so a phone was carrying a 400 x 400 layer - 1200 x 1200
+        device pixels, about 5.8MB - for the entire visit, to show a glow
+        that follows a cursor it does not have. script.js only ever moves
+        this under finePointer, so there is nothing to break here.
+        `display: none` is the difference between "invisible" and "not
+        there", and that difference is the whole of this step. */
+  .cursor-glow {
+    display: none;
+  }
+
+  /* 7. The noise overlay: `position: fixed`, `inset: 0`, a tiled
+        feTurbulence SVG at 3% opacity. Full-viewport and fixed, so it is
+        another ~11.8MB layer resident from the first paint and never
+        discarded, and feTurbulence is procedural noise that has to be
+        rasterised rather than decoded. At 3% on a 390px screen it is doing
+        nothing a phone can see. Desktop keeps it. */
+  .noise {
+    display: none;
+  }
+
+  /* 8. The intro's letter split, released when the intro is over.
+        `.mi__letter > i` carries `transform: translate3d(0, 0, 0)` at rest,
+        which is the classic promotion hack, and the 520ms `mi-letter`
+        animation is `both`-filled so it holds its end transform for ever
+        too. MOHAMED plus ELHAYYANY is sixteen letters, so that is sixteen
+        composited layers kept for the whole visit to play one animation
+        that lasts half a second.
+        They are cheap individually. They matter because of WHEN they
+        exist: the reported crash lands mid-name, part way through this
+        animation, which is the page's peak. The portrait is decoding, the
+        bloom is up, the particle canvas is starting, the fonts are
+        swapping and these sixteen layers are being composited, all on the
+        same few frames. Releasing them afterwards does not lower the peak,
+        but it stops sixteen layers outliving it.
+        `html.is-settled` already exists and already means "the intro has
+        handed its properties back": script.js sets it on a 2100ms timer or
+        the first scroll past 1% of the hero, whichever comes first. The
+        animation ends at translate3d(0, 0, 0), which is what `none`
+        computes to visually, so there is nothing to see here. */
+  html.is-settled .mi__letter > i {
+    animation: none;
+    transform: none;
+  }
+}
