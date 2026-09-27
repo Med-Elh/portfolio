@@ -8036,14 +8036,19 @@ html:has(.sb.is-live) .tt--hx {
      blurring an element carrying three intersected masks and a
      drop-shadow means rasterising that whole stack again every frame for
      760ms. The rise and the fade carry the entrance on their own. */
+  /* STEP 35: the scale is gone from here too, and for the reason above: a
+     translate moves a texture that is already rasterised, a scale changes
+     the size it has to be rasterised at, and this element is a stack of
+     intersected masks. The reported crash lands part way through the name,
+     which is the same moment this animation is running. */
   @keyframes mi-portrait {
     from {
       opacity: 0;
-      transform: translate3d(0, 60px, 0) scale(1.05);
+      transform: translate3d(0, 60px, 0);
     }
     to {
       opacity: 1;
-      transform: translate3d(0, 0, 0) scale(1);
+      transform: translate3d(0, 0, 0);
     }
   }
 
@@ -9372,5 +9377,140 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
   html.is-settled .mi__letter > i {
     animation: none;
     transform: none;
+  }
+}
+
+/* ==========================================================================
+   STEP 35 - the hero portrait, measured rather than reasoned about
+
+   STEP 34 was still not enough on a loaded phone, so the page was bisected
+   on the real device instead of in my head. Seven builds, each the real
+   site with one thing removed, with the browser's 27 tabs left open so the
+   memory pressure was the hard case rather than the easy one:
+
+     no JavaScript ........ pass
+     no CSS ............... pass
+     NO PORTRAIT .......... pass
+     MOTION TURNED DOWN ... pass
+     no particle canvas ... intermittent
+     HERO ONLY ............ intermittent
+     the real page ........ intermittent
+
+   Hero-only failing kills the "the page is too long" theory outright. No
+   portrait passing and motion-down passing, while hero-only fails, leaves
+   exactly one thing: **the portrait, while it is being animated.** Not the
+   portrait, which is fine sitting still. Not animation, which is fine on
+   everything else. The two together.
+
+   Why those two and nothing else: this element carries three mask layers
+   composited with `intersect`, which cannot be done in one pass, plus a
+   `drop-shadow` that reads the MASKED alpha and therefore needs that result
+   resolved first. Sitting still that is paid once. Under an animation that
+   changes its rasterised size it is paid again and again.
+
+   Three things go, all of them below 900px only. Desktop keeps the full
+   treatment, which is where it was designed and where there is headroom.
+
+   The `scale` went separately, in the keyframe and in the parallax, because
+   that is the one that forced re-rasterisation. A translate moves a texture
+   that already exists. A scale changes the size it has to exist at.
+   ========================================================================== */
+
+@media (max-width: 899px) {
+
+  .hx__portrait {
+    /* 1. No drop-shadow. It is the most expensive single declaration on
+          this element, because `drop-shadow` reads the masked alpha and so
+          cannot start until the three mask layers have been intersected,
+          making it a second full-size pass over the first one's result.
+          On a phone the portrait sits on a flat page background at 82% of
+          a 390px screen; the shadow was depth nobody was looking for.
+          This also drops the dark theme's `brightness(1.1) contrast(0.95)`,
+          which rode in the same token. The portrait is a shade flatter on
+          a dark phone. That is the trade and it is worth it.
+          The matching inline write in script.js's reduced-motion branch was
+          removed in the same step, or it would have put the shadow straight
+          back: an inline style beats this rule. */
+    filter: none;
+
+    /* 2. Two mask layers instead of three. The horizontal one goes.
+          It fades the left and right edges, and it is the one the radial
+          already substantially does: the radial is an ellipse centred on
+          the face, so it is pulling the sides in as well. The vertical
+          layer stays because it is the one dissolving the shoulders into
+          the section below, and the radial stays because it is the one
+          keeping the falloff centred on the head rather than on the middle
+          of a box whose bottom third is a hard crop.
+          Losing a layer also makes the `intersect` cheaper, since there is
+          one less surface to resolve against.
+          The dark theme's background glow is untouched and still correct:
+          it is a background on this element, so it is cut by whichever mask
+          layers are in force and cannot show an edge with two any more than
+          with three. */
+    -webkit-mask-image: var(--hx-mask-y), var(--hx-mask-r);
+    mask-image: var(--hx-mask-y), var(--hx-mask-r);
+
+    /* STEP 36: and the radial takes over the job the horizontal one was
+       doing, by being pulled in horizontally.
+
+       Dropping the layer above left the sides visibly hard cut, which was
+       the predictable cost and it was reported straight away. The fix is
+       not to put the layer back. It is that the radial was never sized to
+       be the only thing fading the sides: at `ellipse 80%` its edge sits
+       well outside the picture, so at shoulder level the left and right
+       columns were still landing at about 42% opacity, and a 42% edge
+       running straight down the image reads as a cut.
+
+       Pulling the horizontal radius in to 58% moves that same falloff
+       inside the frame. Measured against the gradient's own stops, the
+       outer column at shoulder level goes from 0.42 to about 0.09, while
+       the head and the centre of the torso stay at a full 1.0 because they
+       sit inside the 52% solid core. The vertical radius is untouched at
+       86%, so the bottom is still the vertical layer's job and the crop
+       there is unchanged.
+
+       The trade, stated so it is not a surprise: the outer edges of the
+       torso fade a little earlier than the three-layer original did, about
+       0.77 where it used to be 1.0 at a fifth of the way in. On a portrait
+       whose whole treatment is dissolving into the page that reads as more
+       of the intended effect rather than less, but it IS a difference, and
+       `_crashtest/mask.html` exists to compare it against the original
+       before settling on the number.
+
+       STEP 36b: the number is 50%, not 58%. Picked by looking at that page
+       on the device rather than by me choosing from the arithmetic, which
+       is the whole reason the page exists.
+
+       STEP 36c: the stops are 62% and 81%, also picked by looking, from
+       `_crashtest/fade.html`. At the original 52% the falloff began inside
+       the jacket and was eating the suit. Pushing the solid core out to
+       62% pulls the fade off the shoulders and squeezes it into a narrower
+       band nearer the edge.
+
+       The stops cannot move the edges or the bottom, which is why this was
+       safe to tune after the radius was settled: at a 50% horizontal
+       radius the outer column already sits OUTSIDE the ellipse, so it is
+       fully transparent whatever the stops say, and the bottom is the
+       vertical layer's job. One axis at a time, each one checked on the
+       device. */
+    --hx-mask-r: radial-gradient(ellipse 50% 86% at 50% 38%,
+        #000 62%, rgba(0, 0, 0, 0.6) 81%, transparent 100%);
+  }
+
+  /* 3. The same again for the reduced-motion case, and it needs saying out
+        loud because it is a rule fighting a rule.
+        `html.rm .hx__portrait` up in the reduced-motion block carries
+        `filter: var(--hx-shadow) !important`. It is there so that the
+        blanket `filter: none !important` which strips blur transitions
+        cannot take the portrait's drop-shadow with it, since a shadow is
+        not motion. Correct reasoning, and on a desktop it still stands.
+        On a phone it would have quietly undone the rule above for every
+        visitor who has turned motion down, which is the group most likely
+        to be on a struggling device. Same specificity (0,1,1), same
+        importance, later in the file, so this wins.
+        Nothing about this weakens the reduced-motion setting: the shadow
+        was never the motion. */
+  html.rm .hx__portrait {
+    filter: none !important;
   }
 }

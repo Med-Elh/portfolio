@@ -326,9 +326,17 @@
 
       if (soft) {
         /* Fade only: no parallax, no blur, no scale. The layers still
-           leave in order, they just do not travel to do it. */
+           leave in order, they just do not travel to do it.
+
+           STEP 35: `filter` is no longer written here. It used to be set to
+           HX_SHADOW to make sure a leftover blur from the other branch was
+           overwritten, and there is no blur in either branch any more. It
+           had become actively wrong: an inline style beats a stylesheet, so
+           this one line would have reinstated the drop-shadow on exactly
+           the phones the STEP 35 rule below takes it off. Leaving the
+           property alone lets the cascade decide, which is what should
+           have been happening all along. */
         hxPortrait.style.transform = '';
-        hxPortrait.style.filter = HX_SHADOW;
         hxPortrait.style.opacity = (1 - fade).toFixed(3);
 
         if (hxWord) { hxWord.style.transform = ''; hxWord.style.opacity = (1 - leadOut * 0.85).toFixed(3); }
@@ -338,10 +346,22 @@
 
       /* -15% of the distance scrolled, so it lags the page by that much */
       var pShift = -(p * run * 0.15);
-      var pScale = 1 + p * 0.06;
 
+      /* STEP 35: the scale is gone, and a translate is not the same kind of
+         thing as a scale here.
+         A translate moves a texture the compositor has already rasterised,
+         which is free. A SCALE changes the size that texture has to be
+         rasterised AT, and this element is the expensive one on the page:
+         it carries mask layers that are composited with `intersect`. Each
+         new scale step means resolving that stack again.
+         This is not a guess. A bisect on the real phone had the hero alone
+         crashing the tab, the hero without the portrait passing, and the
+         hero with the portrait but with motion turned down passing. The
+         portrait is fine and animating it is fine; rasterising it over and
+         over at new sizes is not. The parallax keeps its lag and its fade,
+         which is what the effect actually reads as. */
       hxPortrait.style.transform =
-        'translate3d(0, ' + pShift.toFixed(1) + 'px, 0) scale(' + pScale.toFixed(4) + ')';
+        'translate3d(0, ' + pShift.toFixed(1) + 'px, 0)';
       hxPortrait.style.opacity = (1 - fade).toFixed(3);
 
       /* STEP 33: no blur here any more, and it is the one line in this
