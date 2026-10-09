@@ -865,11 +865,24 @@
     var sbStats = [].slice.call(sb.querySelectorAll('.sb__stat'));
     var sbResume = document.getElementById('sb-resume');
     var sbPanels = [].slice.call(sb.querySelectorAll('.sb__panel'));
-    var sbR1 = sb.querySelector('.sb__r1');
-    var sbR2 = sb.querySelector('.sb__r2');
+
+    /* STEP 40: the morph target is the BOOK button now, not Resume.
+
+       sbR1 / sbR2 are gone with it. They were the two stacked labels in
+       .sb__rin that crossfaded "Get in touch" into "Resume" partway
+       through the flight, which existed only because the travelling
+       element had to wear the hero button's name on the way. The hero's
+       filled button and this one are both "Book a meeting", so there is
+       nothing left to crossfade. */
+    var sbBook = document.getElementById('sb-book');
+    var sbBookIn = sb.querySelector('.sb__bookin');
 
     /* Everything in the sidebar with no hero counterpart: it cannot travel
-       from anywhere, so it simply arrives at the end. */
+       from anywhere, so it simply arrives at the end.
+
+       .sb__resume joins this list in STEP 40. It used to travel; it has no
+       hero counterpart any more, because the hero's Resume button is phone
+       only and the sidebar does not exist below 900px. */
     var sbLate = [];
 
     ['.sb__blurb', '.sb__icon', '.sb__track',
@@ -877,6 +890,8 @@
       var el = sb.querySelector(sel);
       if (el) { sbLate.push(el); }
     });
+
+    if (sbResume) { sbLate.push(sbResume); }
 
     /* The real sidebar elements that travel, each with the hero box it
        starts on and its own slice of the run. */
@@ -1026,9 +1041,17 @@
         }
       }
 
-      /* 4 — Get in touch becomes Resume. Both are filled pills, so here the
-         whole box is the thing to match and height is the honest ratio. */
-      pair(sbResume, heroGo, 0.05, 1, { scale: 'height', counter: sb.querySelector('.sb__rin') });
+      /* 4 — the hero's Book a meeting becomes the sidebar's. Both are
+         filled pills with the same label and the same arrow, so here the
+         whole box is the thing to match and height is the honest ratio.
+
+         STEP 40 re-pointed this from sbResume to sbBook. pair() takes any
+         element and measures it live, so the change is which element is
+         passed as `real`: the deltas, the scale and the counter-scale are
+         all computed from getBoundingClientRect on the frame they are
+         needed, and the new button sits about 60px higher in the column
+         than the old one did. Nothing here is tuned to a position. */
+      pair(sbBook, heroGo, 0.05, 1, { scale: 'height', counter: sbBookIn });
 
       for (var u = undo.length - 1; u >= 0; u--) {
         if (undo[u][2]) { undo[u][0].style.setProperty(undo[u][1], undo[u][2]); }
@@ -1068,7 +1091,7 @@
         });
 
       [].concat(sbPanels, sbLinks, sbStats, sbLate,
-                [sbLogo, sbLogoIn, sbResume, sbR1, sbR2, sb.querySelector('.sb__rin')])
+                [sbLogo, sbLogoIn, sbBook, sbBookIn])
         .forEach(function (el) {
           if (!el) { return; }
           el.style.opacity = '';
@@ -1219,13 +1242,12 @@
         sbLogo.style.setProperty('--pill', win(shrunk, 0.62, 0.97).toFixed(3));
       }
 
-      /* Resume is accent-filled from the first frame, so only the label changes */
-      if (sbResume) {
-        var lab = win(sbResume.__q || 0, 0.5, 0.7);
-
-        if (sbR1) { sbR1.style.opacity = (1 - lab).toFixed(3); }
-        if (sbR2) { sbR2.style.opacity = lab.toFixed(3); }
-      }
+      /* The label crossfade that used to live here is gone with STEP 40.
+         It faded "Get in touch" out and "Resume" in across the window
+         0.5 to 0.7 of the travelling button's own progress, because the
+         flying element had to wear the hero button's name for the first
+         half of the journey. Both ends read "Book a meeting" now, so
+         there is nothing to fade and no window to tune. */
 
       /* Panel backgrounds build in behind the arriving items. They are
          painted on a pseudo-element, because fading the panel itself would
@@ -3700,7 +3722,13 @@
      ------------------------------------------------------------------ */
 
   var darkBand = document.getElementById('content');
-  var sbPanelsDark = document.querySelectorAll('#sb .sb__panel, #sb .sb__resume');
+  /* STEP 40: .sb__book joins the list. It is the accent-filled button now,
+     so it is the one that would land charcoal-on-charcoal over the dark
+     band without rebinding, which is exactly what .sb__resume needed when
+     it was filled. Both are listed: Resume still takes the band's panel
+     colours even as a secondary. */
+  var sbPanelsDark = document.querySelectorAll(
+    '#sb .sb__panel, #sb .sb__book, #sb .sb__resume');
 
   if (darkBand && sbPanelsDark.length) {
     var darkWide = window.matchMedia('(min-width: 900px)');
@@ -4409,165 +4437,30 @@
   }
 
   /* ------------------------------------------------------------------
-     STEP 20 - Contact: the conversation
+     STEP 38 - Contact: there is no JavaScript here any more
 
-     Replaces "The Line That Connects", which is gone from this file, from
-     style.css and from index.html, and the laptop typing scene before it.
+     The last of it was the live timestamp: the visitor's own clock,
+     written into the outgoing bubble so the panel was not claiming a
+     frozen 09:41. The bubbles are deleted, so the clock went with them,
+     along with cvTime, cvStamp and the visibilitychange listener that
+     re-read it when a tab was looked at again.
 
-     A chat panel plays a short exchange when it comes into view, then the
-     three contact methods arrive as the actions in the bar.
+     The three steps in order, because the direction is the point:
+       STEP 20  built a timed conversation scene
+       STEP 37  deleted the playback, kept the bubbles as copy
+       STEP 38  deleted the bubbles
 
-     The run is a chain of timeouts rather than one keyframe, because it
-     is a sequence of separate things happening in order at conversation
-     pace rather than one thing moving. All the handles go in one array so
-     it can be cancelled in a single pass.
+     Everything the section does now is markup and CSS. The four cards
+     are four links, the entrance is the page's shared [data-reveal]
+     riser, and the one interactive control left is the email Copy
+     button, which lives in the clipboard module below and is not
+     specific to this section.
+
+     Nothing in Contact is staked on JavaScript running. With it blocked,
+     all four cards are present, visible and clickable: `.no-js
+     [data-reveal]` pins the riser's opacity to 1, and the three plain
+     anchors plus the email card's stretched link need no script at all.
      ------------------------------------------------------------------ */
-
-  var cv = document.getElementById('cv');
-
-  if (cv) {
-    var cvSteps = [].slice.call(cv.querySelectorAll('[data-cv-step]'));
-    var cvActs = [].slice.call(cv.querySelectorAll('[data-cv-act]'));
-    var cvTime = cv.querySelector('[data-cv-time]');
-    var cvTimers = [];
-
-    /* ---- the live timestamp ----
-       The visitor's own clock, in their own locale and timezone, rather
-       than a frozen 09:41. A fixed time on a page someone opens at
-       midnight is the same small lie as a green dot that is always on.
-       Written into a <time> with a machine-readable datetime, and if
-       anything here throws the element simply stays empty and the line
-       reads "Delivered", which is why the separator is generated by CSS
-       from :not(:empty) rather than typed into the markup. */
-    function cvStamp() {
-      if (!cvTime) { return; }
-
-      try {
-        var now = new Date();
-
-        cvTime.textContent = now.toLocaleTimeString([], {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-
-        cvTime.setAttribute('datetime',
-          now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes());
-      } catch (e) {
-        cvTime.textContent = '';
-      }
-    }
-
-    cvStamp();
-
-    /* A tab left open overnight would still be claiming the message
-       arrived at breakfast. Re-read the clock when the page is looked at
-       again; nothing runs while it is hidden. */
-    document.addEventListener('visibilitychange', function () {
-      if (!document.hidden) { cvStamp(); }
-    });
-
-    /* ---- the run ---- */
-
-    function cvAt(delay, fn) {
-      cvTimers.push(window.setTimeout(fn, delay));
-    }
-
-    function cvShow(el) {
-      if (el) { el.classList.add('is-in'); }
-    }
-
-    function cvPlay() {
-      /* Message beats, not UI beats. Each bubble's own entrance is 200ms
-         (see style.css); these are the gaps BETWEEN them, and they are
-         long on purpose, because the thing being animated is a
-         conversation and a conversation has pauses. Read the pauses as
-         content, not as easing.
-
-         The typing dots do double duty. They appear before the reply, so
-         the reply looks composed rather than pasted, then disappear as it
-         lands, then come back at the end where they read as the OTHER
-         side starting to type: an invitation rather than a promise. */
-      cvAt(180, function () { cvShow(cvSteps[0]); });          /* the question */
-      cvAt(620, function () { cvShow(cvSteps[3]); });          /* dots: composing */
-      cvAt(1680, function () {
-        if (cvSteps[3]) { cvSteps[3].classList.remove('is-in'); }
-        cvShow(cvSteps[1]);                                    /* the answer */
-      });
-      cvAt(1960, function () { cvShow(cvSteps[2]); });         /* Delivered */
-
-      /* The three actions, 70ms apart. Everything arriving at once reads
-         as a single block appearing; 70ms is enough to see them as three
-         separate things without making anyone wait for the third. */
-      for (var i = 0; i < cvActs.length; i++) {
-        (function (el, n) {
-          cvAt(2240 + n * 70, function () { cvShow(el); });
-        })(cvActs[i], i);
-      }
-
-      /* And the dots return, after the last action has landed. */
-      cvAt(2240 + cvActs.length * 70 + 420, function () { cvShow(cvSteps[3]); });
-    }
-
-    function cvFinish() {
-      for (var i = 0; i < cvTimers.length; i++) { window.clearTimeout(cvTimers[i]); }
-
-      cvTimers.length = 0;
-
-      for (var s = 0; s < cvSteps.length; s++) { cvShow(cvSteps[s]); }
-      for (var a = 0; a < cvActs.length; a++) { cvShow(cvActs[a]); }
-    }
-
-    /* ---- arming ----
-       The markup is the finished state, so .is-live is what winds it back,
-       and it is only ever written immediately before the run starts. A
-       visitor whose browser never fires the observer, or who has
-       JavaScript off, keeps the whole conversation and all three
-       addresses. Those addresses are the point of the section; they are
-       never staked on a gesture that may not come. */
-    function cvArm() {
-      cv.classList.add('is-live');
-
-      /* Under reduced motion the bubbles still arrive in order, because
-         the order IS the content, but style.css takes the travel and the
-         scale out and they only fade. Nothing about the timing changes,
-         so there is one sequence to reason about rather than two. */
-      cvPlay();
-    }
-
-    if (window.IntersectionObserver) {
-      var cvIO = new IntersectionObserver(function (entries) {
-        if (!entries[0].isIntersecting) { return; }
-
-        cvIO.disconnect();
-        cvArm();
-      }, {
-        /* 0.55 of the panel, and the bottom 12% of the viewport does not
-           count as "seen".
-
-           0.4 with no margin started the conversation too early: the
-           panel is about 477px tall at 1440x900, so 40% of it is 191px,
-           and 191px creeping above the fold is enough to fire while the
-           panel is still mostly below the screen. The first bubble had
-           been and gone before you arrived.
-
-           Together these put the trigger at roughly the panel's top
-           crossing the middle of the screen, which is where a reader has
-           actually arrived at the section rather than merely approaching
-           it. Still the PANEL and not the section: the section is taller
-           than a phone screen, so a threshold on it could never be met
-           and the run would never start. That is the trap the laptop
-           scene hit. */
-        threshold: 0.55,
-        rootMargin: '0px 0px -12% 0px'
-      });
-
-      cvIO.observe(cv.querySelector('[data-cv-panel]') || cv);
-    }
-
-    /* If the panel is torn off screen mid-run, or the tab is closed, the
-       timers would keep firing into nothing. Cheap insurance. */
-    window.addEventListener('pagehide', cvFinish);
-  }
 
   /* ------------------------------------------------------------------
      Copy to clipboard
@@ -4633,14 +4526,14 @@
 
         ctCopy(btn.getAttribute('data-ct-copy'));
 
-        label.textContent = 'Copied!';
+        label.textContent = 'Copied';
 
         if (back) { clearTimeout(back); }
 
         back = setTimeout(function () {
           back = null;
           label.textContent = resting;
-        }, 2000);
+        }, 1500);
       });
     })(ctCopyBtns[cb]);
   }

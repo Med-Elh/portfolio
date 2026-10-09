@@ -148,10 +148,11 @@
   /* FIXED: the tile a real brand logo sits on in the Growth cards. A
      brand colour is designed for white, so this does not flip. */
   --gr-badge:    #f4f1ea;
-  /* FIXED: two quoted colours. The read receipt is #53bdeb in every
-     WhatsApp theme there is, and the brand green is the brand green. */
-  --cv-tick:     #53bdeb;
-  --cv-wa:       #25d366;
+  /* STEP 38: --cv-tick and --cv-wa are deleted with the chat panel. They
+     were the two colours quoted from WhatsApp, the read receipt blue and
+     the brand green, and the only things that painted them were the
+     double tick and the WhatsApp sub-label, both gone. The WhatsApp CARD
+     in Contact draws its mark in currentColor, per STEP 30. */
 
   /* The big name, wherever it appears at display size: the hero
      wordmark, the copy of it that flies into the sidebar, and the
@@ -266,40 +267,35 @@
   --gr-step-line: rgba(245, 229, 0, 0.55);
   --gr-step-fill: rgba(245, 229, 0, 0.08);
 
-  /* The Contact conversation (STEP 20, restyled as WhatsApp in STEP 31).
-     A chat panel is a surface stack the palette did not have, and the
-     WhatsApp look needs one more layer than the old one did: a PANEL (the
-     header and the action bar), a WALL behind the bubbles, and the two
-     bubble colours on top of that. --surface and --panel are the same
-     colour here, so a bubble painted --panel on a --panel sheet would be
-     invisible, which is why these exist at all.
+  /* STEP 38: the whole --cv-* family is DELETED, from this block and from
+     the dark one below. Fourteen tokens: --cv-panel, --cv-wall, --cv-in,
+     --cv-in-ink, --cv-out, --cv-out-ink, --cv-stamp, --cv-row,
+     --cv-hover, --cv-shadow, --cv-live, --cv-dot, --cv-tick, --cv-wa.
 
-     This is the one part of the page that is not beige, charcoal and
-     yellow. It is quoting an interface, the same way the Growth badges
-     quote a brand logo, and the rest of the section around it is
-     unchanged. */
-  --cv-panel:   #efece4;   /* header and action bar */
-  --cv-wall:    #efe7dd;   /* behind the bubbles */
-  --cv-in:      #ffffff;   /* incoming bubble */
-  --cv-in-ink:  #111b21;   /* 17.4:1 */
-  --cv-out:     #dcf8c6;   /* outgoing bubble */
-  --cv-out-ink: #111b21;   /* 15.2:1 */
-  --cv-stamp:   #55625a;   /* timestamp inside the bubble, 4.9:1 on --cv-out */
-  --cv-row:     #e0dcd2;   /* the action rows and the header tool buttons */
-  --cv-hover:   #d8d3c7;
-  --cv-shadow:  rgba(0, 0, 0, 0.13);
+     They existed because a chat panel is a surface STACK the palette did
+     not have: a sheet, a wall behind the bubbles, and two bubble colours
+     on top of that, with --surface and --panel being the same colour here
+     so a bubble painted --panel on a --panel sheet would have been
+     invisible. There is no such stack any more.
 
-  /* --cv-live is the status line. Green because it means "available",
-     not "brand". It carries its own text at 0.78rem, which is NOT large
-     text, so the floor is 4.5:1 rather than 3:1, and that is what stops
-     it being #25d366: WhatsApp's own green measures 1.62:1 on this panel
-     and no amount of wanting it to work changes that. #00705c is 5.1:1
-     and still reads as a status light rather than as ink.
+     This block was also the one part of the page that was not beige,
+     charcoal and yellow, because it was quoting an interface. The page is
+     back to three colours plus the two brand marks in Growth.
 
-     The DOT beside it is the real #25d366, because a dot is a graphic
-     whose meaning is spelled out in the word right next to it. */
-  --cv-live:  #00705c;
-  --cv-dot:   #25d366;
+     Do not reintroduce them for a single bubble. If a chat surface is
+     ever wanted again, the reason these were a family rather than two
+     colours is in the paragraph above and it still holds. */
+
+  /* STEP 37: the two colours the primary contact card needs, which are
+     the only things on the page set ON the accent FILL other than a
+     button label. Both are the card's own ink at reduced alpha rather
+     than new hues, so they track the accent through the theme flip.
+
+     Measured on --accent #1f1f1f: the subtitle composites to about
+     rgb(206, 204, 198) and reads 10.4:1, and the badge well is a
+     surface rather than text so it carries no floor of its own. */
+  --ctc-prim-sub:  rgba(244, 241, 234, 0.82);
+  --ctc-prim-well: rgba(244, 241, 234, 0.14);
 
   /* Spacing (STEP 10's dark override sits just below the close of this
      block; everything from here down is theme-independent) */
@@ -515,27 +511,15 @@
   --gr-step-line: rgba(107, 84, 16, 0.55);
   --gr-step-fill: rgba(245, 229, 0, 0.28);
 
-  /* The conversation, in the page's own dark neutrals rather than
-     WhatsApp's blue-greens: the card reads as one of the site's dark
-     panels, and only the bubbles still quote the interface. The wall is
-     the page background and the bands above and below it are one step
-     lighter, which is the order the real app uses and the opposite of
-     the light theme, where the wall is the darker of the two.
+  /* STEP 38: the dark half of the --cv-* family is deleted too. See the
+     note in the light block above for why it existed and why it should
+     not come back for a single bubble. */
 
-     --cv-live can be the true #25d366 here: on this panel it is 8.5:1,
-     where in light it was 1.62:1. The token exists for exactly that. */
-  --cv-panel:   var(--surface);   /* #1f1d1a, the sidebar panel colour */
-  --cv-wall:    var(--bg);        /* #141312 */
-  --cv-in:      #202c33;
-  --cv-in-ink:  #e9edef;   /* 12.1:1 */
-  --cv-out:     #005c4b;
-  --cv-out-ink: #e9edef;   /* 6.8:1 */
-  --cv-stamp:   #9fb3ac;   /* 4.9:1 on --cv-out */
-  --cv-row:     #202c33;
-  --cv-hover:   #2a3942;
-  --cv-shadow:  rgba(0, 0, 0, 0.4);
-  --cv-live:    #25d366;
-  --cv-dot:     #25d366;
+  /* The accent inverts to off-white here, so what sits ON it has to
+     invert too. Measured on --accent #f4f1ea: the subtitle composites to
+     about rgb(69, 68, 68) and reads 8.7:1. */
+  --ctc-prim-sub:  rgba(20, 19, 18, 0.78);
+  --ctc-prim-well: rgba(20, 19, 18, 0.12);
 }
 
 /* --------------------------------------------------------------------------
@@ -1253,6 +1237,7 @@ body.is-locked .nav.is-scrolled {
 /* The closing state lives here: short and undelayed, so the links clear
    out quickly. The open rules below slow it down and stagger it. */
 .menu__item,
+.menu__book,
 .menu__resume,
 .menu__foot {
   opacity: 0;
@@ -1262,6 +1247,7 @@ body.is-locked .nav.is-scrolled {
 }
 
 .menu.is-open .menu__item,
+.menu.is-open .menu__book,
 .menu.is-open .menu__resume,
 .menu.is-open .menu__foot {
   opacity: 1;
@@ -1277,8 +1263,12 @@ body.is-locked .nav.is-scrolled {
 .menu.is-open .menu__item:nth-child(4) { transition-delay: 320ms; }
 .menu.is-open .menu__item:nth-child(5) { transition-delay: 380ms; }
 .menu.is-open .menu__item:nth-child(6) { transition-delay: 440ms; }
-.menu.is-open .menu__resume { transition-delay: 500ms; }
-.menu.is-open .menu__foot { transition-delay: 560ms; }
+/* STEP 40 inserted Book a meeting at 500ms and pushed the other two back
+   one slot, so the stagger is still 60ms and still arrives in reading
+   order: six links, the primary, the secondary, the contacts. */
+.menu.is-open .menu__book { transition-delay: 500ms; }
+.menu.is-open .menu__resume { transition-delay: 560ms; }
+.menu.is-open .menu__foot { transition-delay: 620ms; }
 
 /* A row, not a line of text: number, label, and an arrow pushed to the
    right edge. align-items: center, because an arrow and a chip have no
@@ -2317,10 +2307,19 @@ body {
      width instead, which stops it widening the page without putting a
      boundary around the section's own contents. */
   overflow: visible;
-  /* Left-aligned, like every other section opener on the page. It was
-     centred while the section was three lines of text and nothing else;
-     it now carries a heading, a scene and a card column, and centring a
-     layout that wide only makes the eye hunt for where each line starts. */
+  /* Left-aligned, which is what everything INSIDE the cards needs: a
+     label above a value reads left, and four centred cards would be four
+     centred columns of text.
+
+     STEP 38 note: the HEADING BLOCK is centred again, via
+     `.ctc__intro { text-align: center }`. That reverses the STEP 19
+     decision on purpose and does not contradict this line. STEP 19 was
+     taken when the section carried "a heading, a scene and a card
+     column", where centring made the eye hunt for the start of each
+     line. The scene is gone: there is a heading block and a symmetric
+     four-across row, and a left aligned heading over a symmetric row
+     leaves a visible hole on the right. This declaration stays so that
+     only the one block opts out. */
   text-align: left;
   padding-block: clamp(5rem, 14vh, 9rem);
 }
@@ -2890,11 +2889,13 @@ body.is-locked .dots {
   /* The per-link stagger inside the menu is decoration on top of the
      panel wipe above, so the links are simply in place when it opens */
   html.rm .menu__item,
+  html.rm .menu__book,
   html.rm .menu__resume,
   html.rm .menu__foot {
     transition-delay: 0s !important;
   }
   html.rm .menu.is-open .menu__item,
+  html.rm .menu.is-open .menu__book,
   html.rm .menu.is-open .menu__resume,
   html.rm .menu.is-open .menu__foot {
     opacity: 1;
@@ -3693,6 +3694,45 @@ body.is-locked .dots {
   font-weight: 700;
 }
 
+/* ---- The two steps under the claim ------------------------------------
+   The through line is an argument in three moves: the claim, the evidence
+   for it, then what follows from it. So the three blocks step DOWN in
+   size and weight rather than sitting at one scale, which is what makes
+   the order readable as an argument instead of as three paragraphs.
+
+   Both steps keep the claim's own max-width measure so the three left
+   edges line up and the rag stays in the same column. The body-copy 65ch
+   rule is deliberately not used here: this is display text at a reading
+   size, not body copy, and 46rem is the line the claim already sets. */
+
+.pitch-band__sub,
+.pitch-band__close {
+  max-width: min(100%, 46rem);
+  letter-spacing: -0.01em;
+}
+
+/* Step two: the three parallel clauses. Clearly smaller than the claim
+   but still above body size, because three sentences at body scale under
+   a heading-scale line read as a caption. */
+.pitch-band__sub {
+  margin: clamp(1.25rem, 2.5vh, 1.9rem) 0 0;
+  font-size: clamp(1.05rem, 2.1vw, 1.45rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--body);
+}
+
+/* Step three: the conclusion. Smaller again, but it goes back UP in
+   weight and into the page's full ink, because it is the sentence the
+   rest of the page is organised around and the last thing read here. */
+.pitch-band__close {
+  margin: clamp(1rem, 2vh, 1.5rem) 0 0;
+  font-size: clamp(1rem, 1.7vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--text);
+}
+
 /* ---- The row beneath ---------------------------------------------------
    Face, status, action. Wraps rather than shrinks, so on a phone the
    button drops to its own line at full size instead of being squeezed. */
@@ -4219,8 +4259,60 @@ body.is-locked .dots {
   transition: background-color 160ms var(--ease-out);
 }
 
-.hx__btn--go  { background-color: var(--accent-fill); color: var(--on-accent); }
-.hx__btn--alt { background-color: var(--panel); color: var(--ink); }
+/* ---- STEP 40: one primary, and it is the booking link ----------------
+   Three filled-weight buttons meant no primary at all. The hierarchy is
+   fill, then outline, then plain link, which is the page's established
+   way of showing interactivity: the accent sits close to the body text
+   colour, so weight cannot come from hue and has to come from shape.
+
+   .hx__btn--book is also the morph source, so it keeps .hx__btn's
+   transform-origin: 0 0 and its nowrap. */
+.hx__btn--book {
+  gap: 0.5rem;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
+  box-shadow: 0 10px 26px var(--accent-glow);
+}
+
+/* Was the filled one. Outlined now: same box, same type, no fill, so it
+   reads as the second choice without shrinking. */
+.hx__btn--go {
+  background-color: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--accent-ring);
+}
+
+/* .hx__btn--alt is DELETED in STEP 40. Its only user was "View work",
+   which is .hx__worklink now and has no box at all. .hx__btn--cv, the
+   phone-only Resume, keeps the same treatment through its own rule. */
+.hx__btn--cv { background-color: var(--panel); color: var(--ink); }
+
+/* The two that step down sit together, so the phone can stack this whole
+   row under the filled button with one rule. */
+.hx__btnrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Not a button. It is the one plainly navigational thing in the group, so
+   it is a link with an arrow and no box at all. */
+.hx__worklink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.7em 0.2em;
+  font-size: clamp(0.72rem, 0.85vw, 0.85rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--body);
+  transition: color var(--fast) ease, gap 200ms var(--ease-out);
+}
+
+.hx__btnarrow { flex: 0 0 auto; transition: transform 200ms var(--ease-out); }
 
 /* ---- Stat cards, left of the portrait ---- */
 
@@ -4339,8 +4431,19 @@ body.is-locked .dots {
 
 @media (hover: hover) and (pointer: fine) {
   .hx__navlink:hover { color: var(--hx-accent); }
-  .hx__btn--go:hover { background-color: var(--hx-accent-hi); }
-  .hx__btn--alt:hover,
+  .hx__btn--book:hover {
+    background-color: var(--hx-accent-hi);
+    box-shadow: 0 14px 32px var(--accent-glow);
+  }
+
+  .hx__btn--book:hover .hx__btnarrow { transform: translateX(3px); }
+
+  /* The outlined one firms its rim rather than filling, or hovering it
+     would make a second filled button on the screen. */
+  .hx__btn--go:hover { box-shadow: inset 0 0 0 1px var(--accent); }
+
+  .hx__worklink:hover { color: var(--ink); gap: 0.65rem; }
+
   .hx__btn--cv:hover { background-color: var(--surface-strong); }
 }
 
@@ -4411,7 +4514,7 @@ body.is-locked .dots {
 .hx.is-gone .hx__word,
 .hx.is-gone .hx__nav,
 .hx.is-gone .hx__stats,
-.hx.is-gone .hx__btn--go { visibility: hidden; }
+.hx.is-gone .hx__btn--book { visibility: hidden; }
 
 /* --------------------------------------------------------------------------
    Sidebar — the morph destination.
@@ -4546,26 +4649,65 @@ body.is-locked .dots {
   cursor: pointer;
 }
 
+/* ---- STEP 40: two stacked buttons, primary above secondary -----------
+   The shared shape. `margin-top: auto` moved onto .sb__book, because the
+   book button is the top of the pair now and it is what has to be pushed
+   to the bottom of the column. */
+.sb__book,
 .sb__resume {
   display: block;
-  margin-top: auto;
   padding: 0.75rem;
   border-radius: 12px;
-  background-color: var(--accent-fill);
-  color: var(--on-accent);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
-  transition: background-color 160ms var(--ease-out);
+  transition: background-color 160ms var(--ease-out),
+              box-shadow 160ms var(--ease-out);
+}
+
+/* The primary, and the morph target.
+
+   transform-origin: 0 0 is NOT decoration here. pair() computes its
+   deltas on the assumption that the scale happens about the element's own
+   top-left corner, so changing this throws the landing out by the
+   element's own size. The desktop rule further down sets it too; it is
+   repeated there because that block is where the flying geometry lives. */
+.sb__book {
+  margin-top: auto;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
+  transform-origin: 0 0;
+}
+
+/* The inner label, counter-scaled every frame while the box is stretched
+   horizontally. inline-block so it has a box of its own to scale. */
+.sb__bookin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.sb__bookarrow { flex: 0 0 auto; }
+
+/* The secondary. Panel background and a hairline, so it is plainly the
+   quieter of the two without changing size. */
+.sb__resume {
+  margin-top: 0;
+  background-color: var(--panel);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--hairline);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .sb__icon:hover { background-color: var(--sink-hi); }
   .sb.is-live .sb__link:not(.is-active):hover { background-color: var(--sink); }
   .sb__copy:hover { border-color: var(--hx-accent); color: var(--hx-accent); }
-  .sb__resume:hover { background-color: var(--hx-accent-hi); }
+  .sb__book:hover { background-color: var(--hx-accent-hi); }
+  .sb__resume:hover { background-color: var(--surface-strong); }
 }
 
 @media (min-width: 900px) and (max-height: 820px) {
@@ -4573,6 +4715,7 @@ body.is-locked .dots {
   .sb__panel { padding: 0.6rem 0.75rem; }
   .sb__blurb { margin-top: 0.4rem; font-size: 0.62rem; }
   .sb__link { padding: 0.3rem 0.5rem; font-size: 0.66rem; }
+  .sb__book,
   .sb__resume { padding: 0.55rem; }
 }
 
@@ -4640,7 +4783,20 @@ body.is-locked .dots {
   .hx__portrait { order: 2; height: auto; max-width: 82%; margin-top: -10%; }
   .hx__lead { order: 3; align-items: center; }
   .hx__head { text-align: center; font-size: clamp(1.75rem, 8.5vw, 2.5rem); }
-  .hx__btns { justify-content: center; }
+  /* STEP 40: the filled button takes the full width and the two that step
+     down sit in a row beneath it. A column of three equal pills read as a
+     list of three equal choices, which is the thing this step exists to
+     stop. `align-items: stretch` is what makes the first one full width;
+     .hx__btn is inline-flex with no justify-content of its own, so the
+     label needs centring once the box is wider than the text. */
+  .hx__btns {
+    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hx__btn--book { justify-content: center; }
+  .hx__btnrow { justify-content: center; }
   .hx__stats { order: 4; flex-direction: row; gap: 0.6rem; }
   .hx__stat { flex: 1; }
 
@@ -4764,6 +4920,10 @@ body.is-locked .dots {
 .sb__addr { font-size: 14px; }
 .sb__copy { font-size: 11px; padding: 0.4em 0.7em; }
 
+/* The desktop pair. Both are 52px flex boxes so the morph's height ratio
+   is read off a box whose height is set rather than inferred from its
+   line box, which is what keeps the landing stable when the font loads. */
+.sb__book,
 .sb__resume {
   min-height: 52px;
   display: flex;
@@ -4771,8 +4931,10 @@ body.is-locked .dots {
   justify-content: center;
   font-size: 16px;
   border-radius: 14px;
-  margin-top: 0;
 }
+
+.sb__book { margin-top: auto; transform-origin: 0 0; }
+.sb__resume { margin-top: 0; }
 
 /* Short viewports: step everything down so the column still fits without
    the sidebar needing to scroll */
@@ -4790,6 +4952,13 @@ body.is-locked .dots {
   .sb__nav { padding: 6px; }
   .sb__chip { font-size: 11px; }
   .sb__addr { font-size: 12px; }
+  /* STEP 40: two buttons instead of one, so the pair steps down together.
+     Measured at 800px tall and 1440 wide, the column's natural content is
+     about 606px against 696px of room, so the second button fits with
+     roughly 90px of slack and nothing else had to shrink. Per the brief,
+     gaps come down before type does: `.js .sb { gap }` above is what was
+     already doing that at this breakpoint. */
+  .sb__book,
   .sb__resume { min-height: 42px; font-size: 13px; }
 }
 
@@ -4858,7 +5027,14 @@ body.is-locked .dots {
   .js .sb .sb__icon,
   .js .sb .sb__track,
   .js .sb .sb__addr,
-  .js .sb .sb__copy { opacity: 0; }
+  /* STEP 40: .sb__resume joins the list. It is a late arrival now rather
+   than the travelling element, so like the blurb and the email box it has
+   to start invisible and be faded up by the run. Without this it would be
+   the one thing in the sidebar sitting there fully formed while the rest
+   of the column is still assembling. .sb__book is deliberately NOT here:
+   the morph writes its opacity from the first frame. */
+.js .sb .sb__copy,
+.js .sb .sb__resume { opacity: 0; }
 }
 
 /* --------------------------------------------------------------------------
@@ -4927,27 +5103,19 @@ body.is-locked .dots {
 .sb__logoin { display: inline-block; }
 
 /* --------------------------------------------------------------------------
-   Resume — accent-filled from the first frame, two labels in one box
+   Book a meeting — accent-filled from the first frame, and the one button
+   that travels. STEP 40 moved this role here from .sb__resume.
+
+   `.sb__rin`, `.sb__r1` and `.sb__r2` are DELETED. They were two stacked
+   labels in one box: "Resume" in normal flow sizing the button, and "Get
+   in touch" absolutely positioned on top of it, borrowed from the hero
+   for the first half of the journey and crossfaded out by script.js. The
+   whole arrangement existed because the travelling element had to wear a
+   different name on the way than it did on arrival. Both ends say "Book a
+   meeting" now, so there is one label, in flow, and no crossfade.
    -------------------------------------------------------------------------- */
 
-.sb__resume { transform-origin: 0 0; }
-.sb__rin { position: relative; display: inline-block; }
-
-/* Resume is the real label and the one that sizes the button, so it is the
-   one in normal flow and visible by default. "Get in touch" is borrowed
-   from the hero for the first half of the journey only — it rides on top,
-   centred, and is invisible until script.js fades it in at p = 0. */
-.sb__r2 { display: block; white-space: nowrap; }
-
-.sb__r1 {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  display: block;
-  white-space: nowrap;
-  transform: translateX(-50%);
-  opacity: 0;
-}
+.sb__book { transform-origin: 0 0; }
 
 /* --------------------------------------------------------------------------
    Everything that travels scales about its own top-left, which is the
@@ -4971,7 +5139,7 @@ body.is-locked .dots {
 .hx.is-gone .hx__word,
 .hx.is-gone .hx__nav,
 .hx.is-gone .hx__stats,
-.hx.is-gone .hx__btn--go { visibility: hidden; }
+.hx.is-gone .hx__btn--book { visibility: hidden; }
 
 /* --------------------------------------------------------------------------
    No morph: mobile, no JS, or reduced motion. Every element above is simply
@@ -5977,7 +6145,38 @@ body.is-locked .dots {
 .wib__w.is-lift { z-index: 50; }
 
 @media (min-width: 900px) {
-  .wib { height: 200vh; }
+  /* STEP 36 took this from 200vh to 110vh, and the note it left said what
+     that cost: script.js computes the reveal's run as
+     `box.height - innerHeight`, so the run is whatever is left after the
+     sticky screen. 110vh leaves 10vh, about 90px at a 900px window, for
+     all 31 words, which is under 3px of scroll each. The reveal ran, but
+     it arrived finished: there was nothing to see.
+
+     150vh is the dial STEP 36 named, so it is the dial that was turned.
+     The run is 50vh now, about 450px, roughly 14px of scroll a word, and
+     the focus pull is something you scroll through again. span stays at
+     0.85 and the sticky screen stays a full 100vh, per the same note:
+     either of those would have bought run by desynchronising the last
+     word from the pin release. */
+  .wib { height: 150vh; }
+
+  /* The gap under the kicker was clamp(2rem, 6vh, 4rem) of margin PLUS
+     half a viewport of empty grid above the vertically centred sentence,
+     and at 1440x900 that read as a blank screen between the heading block
+     and the thing the section is about.
+
+     A negative margin, not padding inside the sticky screen. Padding
+     lifts the sentence off centre, which takes the space off the top and
+     hands the same space to the bottom: the gap moves, it does not go.
+     Pulling the whole block up takes 126px out of the top gap, leaves the
+     bottom one alone and shortens the page by the same 126px.
+
+     It cannot collide with the heading. The sentence sits
+     (100vh - its own height) / 2 below the block's top, which is about
+     266px at 1440x900 against 126px of overlap, and the clearance only
+     grows as the viewport does. Nor can it touch the reveal: the run is
+     measured from the 150vh block's own height. */
+  .wib { margin-top: -14vh; }
 
   .wib__sticky {
     position: sticky;
@@ -5986,6 +6185,13 @@ body.is-locked .dots {
     place-items: center;
     height: 100vh;
   }
+
+  /* The pin releases with the sentence centred, so the section already
+     ends on half a screen of nothing. Another 12vh of section padding
+     under it was the second half of the gap before How I Can Help. The
+     next section keeps its own padding-top, which is what separates the
+     two. */
+  #capabilities { padding-bottom: 0; }
 }
 
 /* --------------------------------------------------------------------------
@@ -6203,7 +6409,11 @@ body.is-locked .dots {
 /* --------------------------------------------------------------------------
    No motion: every word is simply in focus, and nothing pins.
    -------------------------------------------------------------------------- */
-  html.rm .wib { height: auto; }
+  /* margin-top with the height: the -14vh above exists to pull the block
+     up into the empty top half of a 100vh pinned screen, and there is no
+     pinned screen here. Left in, it would lift the sentence into the
+     kicker. */
+  html.rm .wib { height: auto; margin-top: clamp(2rem, 6vh, 4rem); }
   html.rm .wib__sticky { position: static; height: auto; padding-block: 1rem 3rem; }
   html.rm .wib__w { opacity: 1; filter: none; will-change: auto; }
   html.rm .wib__card { transition: opacity 120ms linear, visibility 120ms; transform: none; }
@@ -6211,7 +6421,9 @@ body.is-locked .dots {
 
 
 .no-js .wib__w { opacity: 1; filter: none; }
-.no-js .wib { height: auto; }
+/* Same reason as the html.rm rule above: no pin, so nothing to pull up
+   into. */
+.no-js .wib { height: auto; margin-top: clamp(2rem, 6vh, 4rem); }
 .no-js .wib__sticky { position: static; height: auto; }
 
 /* ==========================================================================
@@ -6374,6 +6586,26 @@ body.is-locked .dots {
   color: var(--body);
 }
 
+/* STEP 36: the automation evidence, in the Customer Success card.
+
+   A step down in size and a hairline above it, so it reads as a
+   supporting detail under the card's own claim rather than as a second
+   claim of equal weight. It is the only place on the page where the
+   automation work is named, so it is not allowed to look like a
+   footnote either: it keeps the body colour rather than the muted one.
+
+   Only this one card carries it, which makes card one taller than the
+   other two. That is already handled: .hlp__getlab has `margin-top:
+   auto`, so the three checklists stay flush on the bottom edge whatever
+   the copy above them does. */
+.hlp__text--auto {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
 
 /* The grid stretches all three cards to the tallest one, and the copy above
    this point wraps to a different number of lines in each. `margin-top: auto`
@@ -6518,6 +6750,7 @@ body.is-locked .dots {
    create. Redeclaring the alias is what makes it resolve locally. */
 .gr,
 .sb__panel.is-dark,
+.sb__book.is-dark,
 .sb__resume.is-dark {
   --accent:         var(--vid-ink);
   --accent-hover:   var(--vid-ink-hi);
@@ -6978,6 +7211,55 @@ body.is-locked .dots {
   list-style: none;
 }
 
+/* ---- STEP 36: the section's call to action -----------------------------
+   The band is the strongest evidence on the page and it had nothing to
+   click. One line and one button, centred under the two cards, which is
+   the same shape .hlp__cta uses so the two sections read as one offer.
+
+   Centred here although every heading in the band is left aligned: this
+   sits under a two-column grid rather than inside a text column, so the
+   button belongs to both cards rather than to the left one.
+
+   --accent is rebound to the --vid-* set on .gr, so .btn--filled reads
+   the band's palette and inverts with the theme without a rule here. */
+.gr__cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.9rem, 2vw, 1.5rem);
+  margin: clamp(2rem, 4vh, 2.75rem) 0 0;
+  text-align: center;
+}
+
+.gr__ctaline {
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--vid-ink);
+}
+
+/* The arrow opens up on hover, the same 200ms as the Help button's, so
+   the one gesture is consistent wherever this pair appears. */
+.gr__ctabtn {
+  gap: 0.5rem;
+  transition: background-color var(--fast) ease,
+              border-color var(--fast) ease,
+              gap 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gr__ctabtn:hover { gap: 0.8rem; }
+}
+
+/* On a phone the line and the button stack, and the button goes full
+   width rather than sitting as a small centred pill under a full-width
+   line, which reads as an afterthought. */
+@media (max-width: 599px) {
+  .gr__cta { flex-direction: column; gap: 1rem; }
+  .gr__ctabtn { width: 100%; justify-content: center; }
+}
+
 .gr__stat {
   display: flex;
   flex-direction: column;
@@ -7110,6 +7392,7 @@ html.rm .gr__step { transform: none; }
    ========================================================================== */
 
 .sb__panel,
+.sb__book,
 .sb__resume,
 .sb__panel::before,
 .sb__link,
@@ -7160,6 +7443,7 @@ html.rm .gr__step { transform: none; }
   .sb__panel.is-dark .sb__copy:hover { border-color: var(--accent-2); color: var(--accent-2); }
 }
   html.rm .sb__panel,
+  html.rm .sb__book,
   html.rm .sb__resume,
   html.rm .sb__panel::before,
   html.rm .sb__link,
@@ -7452,8 +7736,23 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
    vw value that only holds at the width it was tuned at.
    ========================================================================== */
 
+/* STEP 42: the bottom padding is gone and the box is cropped.
+
+   Three separate things were stacking into one void between ELHAYYANY
+   and Contact, and only the first of them was visible as padding:
+
+     1. 44 of the viewBox's 420 units sit BELOW the second baseline,
+        reserved for descenders that MOHAMED and ELHAYYANY do not have.
+        The svg is width: 100%, so that is a dead 4.4% of the section's
+        own width: about 66px at 1500. See .mb__svg below.
+     2. this padding-block's second value, 9vh, about 87px at 970.
+     3. Contact's own top padding on top of both.
+
+   The crop is a negative margin rather than a shorter viewBox, because
+   the viewBox is what mbFit() and the collage clipPath are measured
+   against and neither should have to know about the trim. */
 .mb {
-  padding-block: clamp(2.5rem, 9vh, 6rem);
+  padding-block: clamp(2.5rem, 9vh, 6rem) 0;
   overflow: hidden;
 }
 
@@ -7461,6 +7760,11 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
   display: block;
   width: 100%;
   height: auto;
+  /* A percentage margin resolves against the containing block's WIDTH,
+     which is exactly what is wanted here: the svg's rendered height is
+     0.42 x its width, so 4.4% of the width is precisely the 44 empty
+     units under the baseline, at every screen size with no query. */
+  margin-bottom: -4.4%;
 }
 
 .mb__t {
@@ -7526,17 +7830,29 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
 
 /* ---- header ---- */
 
+/* STEP 37 brought the size down from clamp(56px, 6.5vw, 96px).
+
+   That was tuned for "Let's Work / Together", two short words on two
+   lines. The heading is one 31-character sentence now, and at 96px it ran
+   to three lines, took the section past one screen at 1280x720 on its own
+   and shouted over the primary card, which is the thing on this screen
+   that is supposed to be loudest.
+
+   Everything else is untouched, which is what keeps the section's
+   identity: same weight, same tracking, same colour, same scale family
+   as every other section heading on the page.
+
+   `.ct__headln` went with the two-line version. The heading is a single
+   run of text now and needs no per-line block. */
 .ct__head {
   margin: 0;
-  font-size: clamp(56px, 6.5vw, 96px);
+  font-size: clamp(2rem, 4.4vw, 3.4rem);
   font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
   color: var(--text);
 }
-
-.ct__headln { display: block; }
-.ct__headln--soft { color: var(--body); }
 
 .ct__line {
   margin: 1.5rem 0 0;
@@ -7664,7 +7980,10 @@ body.is-say-drag .cursor-glow { opacity: 0 !important; }
 
 
 
-  .ct__head { font-size: clamp(2.25rem, 11vw, 3.5rem); }
+  /* STEP 37: 7.6vw, not 11vw. 11vw of a 390px screen is 43px, which was
+     right for the two-word heading and sets the 31-character sentence in
+     four lines. 7.6vw is 30px and sets it in two. */
+  .ct__head { font-size: clamp(1.6rem, 7.6vw, 2.4rem); }
   .ct__line { font-size: 1rem; }
 
 }
@@ -8266,7 +8585,8 @@ html:has(.sb.is-live) .tt--hx {
 
   /* The one action in the panel, and the only route to the CV on a phone
      besides the hero, so it takes the full width of the column. */
-  .menu__resume { align-self: stretch; }
+  .menu__book,
+.menu__resume { align-self: stretch; }
 }
 
 /* ---- the reduced-motion intro ----
@@ -8487,7 +8807,7 @@ html:has(.sb.is-live) .tt--hx {
   /* The heading keeps the full size here too. It is allowed to be the
      thing you land on: what has to fit together below it is the scene
      and the three rows. */
-  .ct__head { line-height: 1; }
+  .ct__head { line-height: 1.08; }
   .ct__line { margin-top: 0.75rem; font-size: 0.95rem; }
 
 
@@ -8498,498 +8818,382 @@ html:has(.sb.is-live) .tt--hx {
    so there is no height to subtract from anything. */
 
 /* ==========================================================================
-   STEP 20 - Contact: the conversation
+   STEP 38 - Contact: the chat is gone
 
-   A chat panel: a short exchange, then the three contact methods as the
-   actions in the bar beneath it. It replaces "The Line That Connects",
-   whose CSS, markup and JavaScript are all deleted, and the laptop typing
-   scene before that.
+   Three steps and each one removed something:
 
-   Everything paints from the ordinary palette, so both themes come free.
-   The one new pair of tokens is the bubble colours, because a message
-   bubble is a surface that needs to sit ON --panel rather than be it.
+   STEP 20 built a WhatsApp scene that played a timed conversation.
+   STEP 31 restyled it to the real thing, with four surface tokens and a
+   radial-gradient bubble tail. STEP 37 deleted the 2.2 second playback
+   and kept the two bubbles as copy. STEP 38 deletes the bubbles too.
+
+   The section read better after every one of those deletions, which is
+   the signal worth keeping: the scene was never the content. What is
+   left is a heading block and four cards.
+
+   DELETED FROM THIS FILE, the full list, so nobody looks for them:
+     .cv, .cv__panel, .cv__head, .cv__av, .cv__avimg, .cv__name,
+     .cv__status, .cv__live, .cv__thread, .cv__msg, .cv__msg--in,
+     .cv__msg--out, .cv__meta, .cv__time, .cv__ticks, and their phone
+     overrides. The .cv__av / .cv__avimg entries also came out of the
+     STEP 23 selection and drag lists further down, where they were
+     stopping the avatar being selected or dragged.
+
+   DELETED IN STEP 37 and listed here for the same reason:
+     .cv__typing, @keyframes cv-bounce, .cv__bar, .cv__act, .cv__hit,
+     .cv__ico, .cv__txt, .cv__val, .cv__sub, .cv__copy, .cv__sub--brand,
+     .cv__brandico, .cv__tools, .cv__tool, and the .cv.is-live sequence
+     block with its reduced-motion counterpart.
+
+   TOKENS DELETED: the whole --cv-* family, from BOTH theme blocks at the
+   top of this file. That is --cv-panel, --cv-wall, --cv-in, --cv-in-ink,
+   --cv-out, --cv-out-ink, --cv-stamp, --cv-row, --cv-hover, --cv-shadow,
+   --cv-live, --cv-dot, --cv-tick and --cv-wa. Fourteen tokens in two
+   themes. They existed because a chat panel is a stack the palette did
+   not have, a sheet with bubbles sitting ON it, and there is no such
+   stack here any more. The ordinary palette covers everything that is
+   left.
+
+   Nothing in this section carries a colour literal now, and nothing in
+   it needs a token the rest of the page does not already have.
    ========================================================================== */
 
-.cv { margin-top: clamp(1.5rem, 4vh, 2.75rem); }
+/* ---- the heading block, centred over the card row ---- */
 
-/* The panel is now three bands stacked: header, wall, action bar. The
-   padding moved off the panel and onto each band, because the wall has to
-   run edge to edge the way a chat background does, and a padded parent
-   would have inset it. `overflow: hidden` clips the wall to the radius. */
-.cv__panel {
-  overflow: hidden;
-  max-width: 900px;
-  border-radius: 28px;
-  background-color: var(--cv-panel);
-  box-shadow: 0 26px 64px var(--shadow-2), 0 2px 6px var(--shadow-1);
+/* Centred, which reverses the STEP 19 decision deliberately. That one was
+   taken when the section held "a heading, a scene and a card column", and
+   left alignment is right for a layout with a tall asymmetric scene in
+   it. There is no scene now: there is a heading block and a symmetric
+   four-across row, and a left aligned heading over a symmetric row leaves
+   a visible hole on the right.
+
+   Only this block overrides it. `.contact` keeps `text-align: left` so
+   everything inside the cards stays left aligned, which is what a label
+   above a value needs. */
+.ctc__intro {
+  margin-top: 0;
+  text-align: center;
 }
 
-/* ---- the header ---- */
+/* The eyebrow's own bottom margin is --space-lg, which is right when it
+   opens a section. Here it is inside a block whose four lines belong
+   together, so it tightens. */
+.ctc__intro .contact__eyebrow { margin-bottom: 0.5rem; }
 
-.cv__head {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  padding: clamp(16px, 2vw, 20px) clamp(18px, 2.2vw, 24px);
-  border-bottom: 1px solid var(--border);
+/* Both measures centre on the column rather than sitting left in it, or
+   the block would be centred text hanging off a left edge. */
+.ctc__intro .ct__line,
+.ct__avail { margin-inline: auto; }
+
+/* The availability, which the outgoing bubble used to carry. Smaller and
+   muted on purpose: it is a qualifier on the invitation above it, not a
+   second invitation, and at the invitation's own size the two competed.
+
+   --muted is 5.6:1 in light and 7.4:1 in dark at this size, so it is
+   quiet without being decoration. */
+.ct__avail {
+  max-width: 52ch;
+  margin-top: 0.85rem;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--muted);
 }
 
-.cv__av {
+/* ---- the four cards --------------------------------------------------
+   Two columns from 600px up, so the four actions read as a 2x2 block
+   inside the frame. One column below 600. The four-across arrangement
+   that used to take over at 1200px is gone; the note on the deleted
+   media query below has the measurement that killed it.
+
+   Explicit breakpoints rather than auto-fit: auto-fit would give three
+   across plus an orphan somewhere in the middle of the range, and a row
+   of four actions reading 3 + 1 looks like a mistake rather than a
+   layout. */
+.ctc {
   display: grid;
-  place-items: center;
-  /* The photo is laid OVER the initials rather than replacing them, so
-     these two are the positioning context and the clip it needs. */
-  position: relative;
-  overflow: hidden;
-  width: 44px;
-  height: 44px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background-color: var(--accent-fill);
-  color: var(--on-accent);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-/* The profile picture in the chat header, which is what WhatsApp puts there
-   and therefore what the rest of this panel was already quoting.
-
-   It sits on top of the "ME" initials, which stay in the markup. If the
-   file ever goes missing the circle is still an avatar rather than a hole,
-   and that fallback costs one element and no code path.
-
-   Sized in per cent, not pixels, so the phone rule further down that takes
-   the circle to 40px carries the photo with it: one number to change
-   instead of two that can drift apart.
-
-   `object-position: 50% 18%` is the same crop the pitch band's avatar uses.
-   The source is 184 x 228, so a square taken from its middle would cut the
-   face in half. 184px of source into a 44px circle is still sharp at a
-   phone's 3x density, which needs 132. */
-.cv__avimg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: 50% 18%;
-}
-
-.cv__name { margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: -0.015em; }
-
-.cv__status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 2px 0 0;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--cv-live);
-}
-
-.cv__live {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background-color: var(--cv-dot);
-}
-
-.cv__tools { display: flex; gap: 8px; margin: 0 0 0 auto; }
-
-/* Neutral, per the brief: a call button that wore the accent read as the
-   primary action of the whole section, which it is not. The three rows
-   in the bar below are. */
-.cv__tool {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background-color: var(--cv-row);
-  color: var(--body);
-  transition: background-color var(--fast) ease, color var(--fast) ease;
-}
-
-.cv__tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* ---- the thread ---- */
-
-/* The wall. It is a band of the panel rather than a padded child, so the
-   colour runs the full width the way a chat background does. The extra
-   bottom padding is the gutter a thread leaves under its last message. */
-.cv__thread {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 0;
-  padding: clamp(18px, 2.2vw, 24px) clamp(18px, 2.2vw, 24px) clamp(20px, 2.4vw, 26px);
-  background-color: var(--cv-wall);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: clamp(1.75rem, 4vh, 2.5rem) 0 0;
+  padding: 0;
   list-style: none;
 }
 
-/* `position: relative` for the tail, which is a pseudo-element hung off
-   the bubble's bottom corner. `min-width: 0` so a long unbroken run
-   cannot push the bubble past its max-width. */
-.cv__msg {
-  position: relative;
-  max-width: 75%;
-  min-width: 0;
-  padding: 9px 13px 8px;
-  border-radius: 18px;
-  font-size: 0.975rem;
-  line-height: 1.42;
-  box-shadow: 0 1px 1px var(--cv-shadow);
+/* STEP 42b: the row of four is gone. Two columns at every width from
+   600px up, so the grid is a 2x2 block inside the frame.
+
+   The reason is the email address, and it is arithmetic rather than a
+   preference. At 1440 the sidebar takes ~357px, the wrap caps the rest
+   at 1035px of content and STEP 42's frame takes another 112px, which
+   leaves 923px. Four columns with a 12px gap is a 222px card:
+
+     222 card
+     -28  its own horizontal padding
+     -48  the 38px badge and the gap after it
+     -55  the Copy button and the gap before it
+     ---
+      91px of inline room for the address
+
+   "mohamedelhayyany@gmail.com" is 26 characters and measures about
+   170px at 0.8125rem, so it was never going to be one line there. The
+   font size that would fit 170px of text into 91px is 7px, which is
+   not a readable address, and taking the Copy button out buys 55px of
+   the 79 that are missing. A fourth column and this address are
+   mutually exclusive at this page width.
+
+   Two columns make the same card 455px, which leaves 324px for a 170px
+   address: one line with room to spare, and still one line at a 1200px
+   window, where the card is 351px and the room is 220px.
+
+   The <wbr> at the @ stays in the markup. It does nothing at these
+   widths and it is the safety valve on a 360px phone, where the single
+   column leaves about 141px. */
+
+@media (max-width: 599px) {
+  .ctc { grid-template-columns: minmax(0, 1fr); }
 }
 
-.cv__msg--in {
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
-  background-color: var(--cv-in);
-  color: var(--cv-in-ink);
-}
+.ctc__item { min-width: 0; }
 
-.cv__msg--out {
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
-  background-color: var(--cv-out);
-  color: var(--cv-out-ink);
-  /* Room at the bottom right for the timestamp and the ticks, which sit
-     INSIDE the bubble and must not end up under the last word. */
-  padding-bottom: 8px;
-}
-
-/* ---- the timestamp and the read receipt, inside the outgoing bubble ---- */
-
-/* Floated right and dropped into the last line, which is how the real
-   thing does it: the text wraps around the stamp rather than the stamp
-   sitting on a line of its own and making every bubble two lines taller.
-   `shape-outside` is not needed because the float is a plain rectangle. */
-.cv__meta {
-  float: right;
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  height: 15px;
-  margin: 6px -3px -2px 8px;
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: var(--cv-stamp);
-}
-
-/* The separator is generated rather than typed, so a missing live time
-   never leaves a dangling middle dot on the page. Non-breaking spaces:
-   ordinary ones in generated content collapse against the text node
-   beside them and the line set as "Delivered ·04:12". Now that the
-   timestamp stands alone in the corner there is nothing before it to
-   separate from, so the rule only fires when both parts are present. */
-.cv__time:not(:empty) + .cv__ticks { margin-left: 1px; }
-
-/* #53bdeb is the read-receipt blue in every WhatsApp theme there is, and
-   it is 1.86:1 on the pale green bubble. That is BELOW the 3:1 graphic
-   floor and it is allowed to be: the ticks are decoration whose meaning
-   is carried by the visually hidden "Read" beside them, exactly as the
-   status dot leans on the word "online". Darkening it would be inventing
-   a colour the interface being quoted does not have. */
-.cv__ticks {
-  flex: 0 0 auto;
-  color: var(--cv-tick);
-}
-
-.cv__typing {
-  position: relative;
-  display: inline-flex;
-  align-self: flex-start;
-  gap: 5px;
-  padding: 12px 14px;
-  border-radius: 18px;
-  border-bottom-left-radius: 4px;
-  background-color: var(--cv-in);
-  box-shadow: 0 1px 1px var(--cv-shadow);
-}
-
-.cv__typing s {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--cv-stamp);
-  /* A CSS animation, not a rAF loop: it is predetermined, it repeats for
-     as long as the section is on screen, and CSS keeps it off the main
-     thread so it stays smooth while the rest of the page is still
-     loading. transform and opacity only. */
-  animation: cv-bounce 1.25s var(--ease-in-out) infinite;
-}
-
-.cv__typing s:nth-child(2) { animation-delay: 0.16s; }
-.cv__typing s:nth-child(3) { animation-delay: 0.32s; }
-
-@keyframes cv-bounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
-  30% { transform: translateY(-5px); opacity: 1; }
-}
-
-/* ---- the action bar ---- */
-
-.cv__bar {
-  display: grid;
-  /* Not three equal columns. The address is one unbreakable 26 character
-     run and the other two values are half that, so an even split gave the
-     email 181px against the 190px it needs and broke it over two lines
-     while the phone row sat half empty. */
-  grid-template-columns: 1.25fr 1fr 1fr;
-  gap: 10px;
-  /* The panel's own padding moved onto its three bands when the wall had
-     to run edge to edge, so the bar carries its own now. No top border:
-     the wall's colour change already draws that line. */
-  margin: 0;
-  padding: clamp(14px, 1.8vw, 18px) clamp(18px, 2.2vw, 24px) clamp(16px, 2vw, 20px);
-  list-style: none;
-}
-
-.cv__act {
+/* 72px is the floor the brief sets and it is also what two lines of text
+   plus the padding comes to, so nothing here is padding for its own sake.
+   `position: relative` is for the email card's stretched link. */
+.ctc__card {
   position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 13px 15px;
-  border-radius: 15px;
-  background-color: var(--cv-row);
-  /* The whole row is the target, so the whole row says so. */
-  cursor: pointer;
-  transition: background-color var(--fast) ease, transform var(--fast) var(--ease-out),
-              box-shadow var(--fast) var(--ease-out);
+  width: 100%;
+  min-height: 72px;
+  height: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background-color: var(--panel);
+  transition: transform var(--fast) var(--ease-out),
+              border-color var(--fast) ease,
+              box-shadow var(--fast) ease,
+              background-color var(--fast) ease;
 }
 
-/* The stretched link. Transparent and the full card, with the card's own
-   radius so the focus ring traces the card rather than a square inside it.
-   z-index 1 puts it over the unpositioned icon and text and UNDER the copy
-   button, which takes a layer of its own below. */
-.cv__hit {
+/* The one primary action on the screen. Accent FILL with inverted text,
+   which is the page's established rule for "this is the button": the
+   accent is close to the body text colour, so interactivity cannot come
+   from hue here and has to come from shape and fill.
+
+   Measured, because the whole card is type on a saturated field:
+   --accent-on on --accent is 14.6:1 in light and 14.6:1 in dark, and the
+   subtitle token below is 10.4:1 light / 8.7:1 dark. Both clear 4.5:1
+   with room, in both themes. */
+.ctc__card--primary {
+  border-color: transparent;
+  background-color: var(--accent);
+  color: var(--accent-on);
+  box-shadow: 0 14px 34px var(--accent-glow), 0 2px 6px var(--shadow-2);
+}
+
+.ctc__badge {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 11px;
+  background-color: var(--surface);
+  color: var(--accent-text);
+}
+
+/* On the accent card the badge cannot be a lighter tile: a panel-coloured
+   square on a charcoal fill reads as a hole punched in the card. It is a
+   translucent well of the card's own ink instead, which works in both
+   themes without a second token. */
+.ctc__card--primary .ctc__badge {
+  background-color: var(--ctc-prim-well);
+  color: var(--accent-on);
+}
+
+.ctc__txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ctc__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.975rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text);
+}
+
+.ctc__card--primary .ctc__title { color: var(--accent-on); }
+
+/* The address is the long one. `overflow-wrap` rather than a smaller
+   font: the <wbr> in the markup gives it a clean break at the @, and a
+   card that is allowed two lines does not need the type shrinking. */
+.ctc__sub {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.ctc__card--primary .ctc__sub { color: var(--ctc-prim-sub); }
+
+.ctc__arrow { flex: 0 0 auto; transition: transform var(--fast) var(--ease-out); }
+
+/* The stretched link, for the email card only. It covers the card so the
+   whole thing is one target, while the icon, the title and the address
+   stay plain text in the accessibility tree and the link keeps one name
+   of its own. The Copy button sits ABOVE it on z-index and cancels the
+   event, so a copy never also opens the mail app. */
+.ctc__hit {
   position: absolute;
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  text-decoration: none;
 }
 
-.cv__hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+/* STEP 42b put this back to its ordinary size.
 
-.cv__ico {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 auto;
-  border-radius: 10px;
-  background-color: var(--accent-fill);
-  color: var(--on-accent);
-  transition: background-color var(--fast) ease;
-}
+   It was 5px/9px at 0.65rem, and the reason was pure arithmetic: at the
+   four-column breakpoint a card was ~248px, which left about 114px of
+   inline room for the address, so every pixel this button took came
+   straight off it and the usual size pushed the address to three lines.
+   Two columns give the card 455px and the address 324px of room for
+   170px of text, so the constraint is gone and the button has no reason
+   to be undersized any more.
 
-.cv__txt { min-width: 0; }
-
-.cv__val {
-  display: block;
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
-  text-decoration: none;
-  /* The address is one unbreakable 26 character run in a third of 900px */
-  overflow-wrap: anywhere;
-}
-
-a.cv__val:hover { color: var(--accent-text, var(--accent)); }
-
-.cv__sub {
-  display: inline-block;
-  margin-top: 2px;
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--accent-text, var(--accent));
-  text-decoration: none;
-  cursor: pointer;
-}
-
-/* The copy button is the one control that has to sit above the stretched
-   link, or the click would land on the mailto underneath it. Everything
-   else in the row is plain text and stays where it is. */
-   It is already `display: inline-block`, so the layer it lifts is the size
-   of its own label and covers nothing else. */
-.cv__copy {
+   It is still a 28px-tall target inside a 72px row, and the whole card
+   is a mailto underneath it, so the button is the convenience rather
+   than the only way through. */
+.ctc__copy {
   position: relative;
   z-index: 2;
+  margin-left: auto;
+  padding: 6px 10px;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background-color: var(--surface);
+  color: var(--accent-text);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--fast) ease, color var(--fast) ease;
 }
 
-/* The WhatsApp row. inline-flex rather than inline-block, so the real
-   mark sits on the text's own baseline block instead of hanging off it.
-   `text-underline-offset` because an icon in the flex row makes the
-   default underline sit tight against the glyph's descender. */
-.cv__sub--brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  text-underline-offset: 2px;
+/* ---- focus, which has to clear the stretched link ---- */
+
+.ctc__card:focus-visible,
+.ctc__hit:focus-visible,
+.ctc__copy:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
-/* The one row whose mark keeps its brand colour, per the brief. It is a
-   logo, so WCAG 1.4.11 exempts it from the non-text contrast floor, and
-   the word "WhatsApp" is right beside it carrying the meaning. */
-.cv__brandico { flex-shrink: 0; color: var(--cv-wa); }
+.ctc__card--primary:focus-visible {
+  outline-color: var(--accent);
+  outline-offset: 4px;
+}
 
-.cv__val:focus-visible,
-.cv__sub:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* ---- hover, desktop only ----
-   Gated on a fine pointer so a tap never leaves a row stuck lifted. */
+/* ---- hover, fine pointers only ------------------------------------------
+   Gated, or a tap on a phone leaves the card stuck in its hover state.
+   The lift is 3px and the arrow slides 3px: small, because this is a row
+   of four and four cards rearing up as the cursor crosses them is noise. */
 @media (hover: hover) and (pointer: fine) {
-  /* The lift and the darker fill are the whole feedback: the row is one
-     target, so it responds as one thing. 3px rather than 2, now that the
-     hover means "this is clickable" rather than "there is a link in here",
-     with a shadow under it so the lift reads as a lift. */
-  .cv__act:hover,
-  .cv__act:focus-within {
-    background-color: var(--cv-hover);
+  .ctc__card:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-2);
+    border-color: var(--accent-ring);
+    box-shadow: 0 16px 36px var(--shadow-2), 0 2px 6px var(--shadow-1);
   }
 
-  .cv__act:hover .cv__ico,
-  .cv__act:focus-within .cv__ico { background-color: var(--accent-fill-hi); }
+  .ctc__card--primary:hover {
+    border-color: transparent;
+    background-color: var(--accent-hover);
+    box-shadow: 0 20px 44px var(--accent-glow), 0 3px 8px var(--shadow-2);
+  }
 
-  /* The sub-label underlines with the card, since it is plain text now and
-     can never be hovered on its own. The copy button keeps its own. */
-  .cv__act:hover .cv__sub:not(.cv__copy) { text-decoration: underline; }
-  .cv__copy:hover { text-decoration: underline; }
+  .ctc__card--primary:hover .ctc__arrow { transform: translateX(3px); }
 
-  .cv__tool:hover { background-color: var(--accent-fill); color: var(--on-accent); }
+  .ctc__card:has(.ctc__hit:focus-visible) { transform: translateY(-3px); }
+
+  .ctc__copy:hover {
+    background-color: var(--accent);
+    color: var(--on-accent);
+    border-color: transparent;
+  }
 }
 
-/* ==========================================================================
-   The sequence
+/* ---- the entrance ------------------------------------------------------
+   The ONLY motion in this section. It is the page's shared [data-reveal]
+   riser, not a scene of its own: six revealables (the exchange, the
+   heading block, and each of the four cards), which the observer in
+   script.js stages at 100ms apart in document order by writing an inline
+   transition-delay. Nothing is sequential, nothing blocks, and no timer
+   is involved.
 
-   THE MARKUP IS THE FINISHED STATE and script.js winds it back to play
-   it, the same contract every scene in this section has had. `.is-live`
-   is written only once the module is actually driving the thread, so no
-   JavaScript, an exception before that point, or the frame before the
-   observer fires all leave the finished conversation on screen rather
-   than an empty panel. Hiding by default and revealing on init is the
-   other way round, and it shows a flash of nothing on every load.
-   ========================================================================== */
+   [data-reveal] is on each card rather than on the `.ctc` list, and that
+   is deliberate: the list would be a revealable too, so its opacity would
+   multiply with each card's and the row would fade in twice.
 
-.cv__msg,
-.cv__meta,
-.cv__typing,
-.cv__act {
-  /* Named properties, never `all`: a transition on `all` here would also
-     animate the background-color the hover rule above changes, and the
-     two would fight over the same 200ms. */
-  transition: opacity 200ms var(--ease-out), transform 200ms var(--ease-out);
-}
+   Reduced motion and the no-JS fallback both come free, because they are
+   properties of the shared riser: `html.rm` keeps the opacity at 1 and
+   cuts the travel to --rm-shift, and `.no-js [data-reveal]` leaves
+   everything simply present. Every link is in the DOM, focusable and
+   clickable from the first frame either way. */
 
-/* 8px and 0.96, not scale(0). Nothing in the real world appears out of
-   nothing, and a bubble that grows from a point reads as a balloon rather
-   than as a message arriving. */
-.cv.is-live .cv__msg,
-.cv.is-live .cv__meta,
-.cv.is-live .cv__typing {
-  opacity: 0;
-  transform: translateY(8px) scale(0.96);
-}
+/* ---- short viewports: the override is DELETED in STEP 38 --------------
+   STEP 37 needed one. The chat panel was about 245px on its own, which
+   put the section near 750px at 1280x720 on top of the 202px its own 14vh
+   padding already spends, so the padding had to give.
 
-/* Each bubble comes from its own side, which is the one piece of spatial
-   information a thread carries: who said it. */
-.cv.is-live .cv__msg--in { transform: translate(-10px, 8px) scale(0.96); }
-.cv.is-live .cv__msg--out { transform: translate(10px, 8px) scale(0.96); }
+   With the panel gone the content is about 344px and the section fits at
+   546px on a 720px screen with the DEFAULT padding, 174px clear. Keeping
+   the override would now only make a section that already fits look
+   top-heavy on a laptop, which is the opposite of the problem it solved.
 
-/* The stamp now lives INSIDE the outgoing bubble, so it is nested in an
-   element that is itself animating. It must not travel as well: the
-   bubble carries it, and a second translate on top read as the timestamp
-   sliding around inside a box that had already landed. It fades only. */
-.cv.is-live .cv__msg--out .cv__meta { transform: none; }
+   Measured, all three required sizes, default padding, no special case:
+     1280x720   202 + 344 = 546px
+     1440x900   252 + 344 = 596px
+     1920x1080  288 + 344 = 632px
 
-.cv.is-live .cv__act { opacity: 0; transform: translateY(10px); }
-
-.cv.is-live [data-cv-step].is-in,
-.cv.is-live [data-cv-act].is-in {
-  opacity: 1;
-  transform: none;
-}
-
-/* The bar keeps its hover lift once it has arrived. Matched to the weight
-   of the rule above, or hovering would lose to it on specificity and the
-   row would sit still. */
-@media (hover: hover) and (pointer: fine) {
-  .cv.is-live [data-cv-act].is-in:hover,
-  .cv.is-live [data-cv-act].is-in:focus-within { transform: translateY(-3px); }
-}
+   If a scene is ever added back here this is the first rule to reinstate,
+   and `(min-width: 900px) and (max-height: 820px)` is the query the rest
+   of this file already uses for exactly that. */
 
 /* ==========================================================================
    Phone
    ========================================================================== */
 
 @media (max-width: 899px) {
-  .cv__panel { border-radius: 22px; }
+  /* The five chat overrides that were here (.cv__panel, .cv__head,
+     .cv__thread, .cv__msg and .cv__av) went with the panel in STEP 38. */
 
-  .cv__head { padding: 14px 15px; }
-  .cv__thread { padding: 16px 14px 20px; gap: 8px; }
-  .cv__bar { padding: 12px 14px 14px; }
-
-  /* 82%, not the 75% desktop uses. 75% of a 326px column is 245px, and
-     the reply is 72 characters: at 0.95rem that is six lines in a bubble
-     taller than it is wide, which stops reading as a message. 82% is
-     267px and five lines, and still leaves the incoming bubble visibly
-     short of the edge, which is the point of a max-width here. */
-  .cv__msg { max-width: 82%; font-size: 0.95rem; padding: 9px 12px 8px; }
-  .cv__av { width: 40px; height: 40px; font-size: 14px; }
-  .cv__tools { display: none; }
-
-  /* Three across would give each row about 110px on a 390px screen and
-     break the address over four lines. They stack, and each one is a
-     56px tap target with room to spare. */
-  .cv__bar { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-  .cv__act { display: flex; }
-  .cv__act { min-height: 56px; padding: 12px 14px; }
-  .cv__val { font-size: 0.95rem; }
+  /* Full width and stacked. The 72px floor already clears the 56px tap
+     target the brief asks for, so there is no separate minimum to set
+     here and nothing shrinks below it. */
+  .ctc__card { min-height: 72px; padding: 13px 14px; }
+  .ctc__title { font-size: 1rem; }
+  .ctc__sub { font-size: 0.875rem; }
 }
 
 /* ==========================================================================
    Reduced motion
 
-   Fewer and gentler, not none. The bubbles still arrive in order, because
-   the ORDER is the content here and removing it would leave the panel
-   telling no story at all. What goes is the travel and the scale: they
-   fade in where they already are. The typing dots stop bouncing and
-   simply sit there, so nothing loops forever in the corner of the eye.
+   There is almost nothing left to turn down: the entrance is the shared
+   riser, which html.rm already softens globally, and the typing dots that
+   used to loop forever in the corner of the eye are deleted. What is left
+   is the hover lift and the arrow, both of which are travel.
    ========================================================================== */
-  html.rm .cv.is-live .cv__msg,
-  html.rm .cv.is-live .cv__msg--in,
-  html.rm .cv.is-live .cv__msg--out,
-  html.rm .cv.is-live .cv__meta,
-  html.rm .cv.is-live .cv__typing,
-  html.rm .cv.is-live .cv__act { transform: none; }
-  html.rm .cv__msg,
-  html.rm .cv__meta,
-  html.rm .cv__typing,
-  html.rm .cv__act { transition: opacity 200ms var(--ease-out); }
-  html.rm .cv__typing s { animation: none; opacity: 0.55; }
-  /* Written to out-weigh `.cv.is-live [data-cv-act].is-in:hover` above, or
-     the arrived row keeps its lift under reduced motion: that selector
-     carries four classes and this one has to match them. The darker fill
-     and the shadow stay, because neither of them is travel. */
-  html.rm .cv .cv__act:hover,
-  html.rm .cv .cv__act:focus-within,
-  html.rm .cv.is-live [data-cv-act].is-in:hover,
-  html.rm .cv.is-live [data-cv-act].is-in:focus-within { transform: none; }
-
+html.rm .ctc__card:hover,
+html.rm .ctc__card:has(.ctc__hit:focus-visible) { transform: none; }
+html.rm .ctc__card--primary:hover .ctc__arrow { transform: none; }
 
 /* ==========================================================================
    STEP 23 - what a visitor can select, and what they cannot
@@ -9028,7 +9232,6 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 .marquee__item,
 .jr__year,
 .say__avatar,
-.cv__av,
 .logo-pill,
 .sb__logo,
 .gr__num,
@@ -9058,7 +9261,6 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 .marquee__item::selection,
 .jr__year::selection,
 .say__avatar::selection,
-.cv__av::selection,
 .logo-pill::selection,
 .gr__num::selection,
 .gr__statnum::selection {
@@ -9082,7 +9284,6 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
    common way a drag carousel feels broken. */
 .hx__portrait,
 .pitch-band__avatar,
-.cv__avimg,
 .certbox__img {
   -webkit-user-drag: none;
   user-drag: none;
@@ -9165,8 +9366,10 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
   .hx__btn--cv {
     display: inline-flex;
     gap: 0.45rem;
-    /* The same panel fill as View work: Get in touch is the one filled
-       button in the row and stays the only one. */
+    /* A panel fill, which STEP 40 left as the only panel-filled button
+       in the hero: "View work" lost its box entirely and became
+       .hx__worklink, and "Get in touch" is outlined. Book a meeting is
+       the one ACCENT-filled button here and stays the only one. */
     background-color: var(--panel);
     color: var(--ink);
     /* transform joins the transition for the press below. The row's own
@@ -9197,14 +9400,22 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
 }
 
 /* ---- b. the open menu ----
-   .menu__resume already had its slot in the open-menu stagger, 500ms,
-   after the six links and before the contact block. It needed the link,
-   not new motion. Filled and full width: it is the one action in a panel
-   that is otherwise six ways of going somewhere. */
+   Two actions at the foot of a panel that is otherwise six ways of going
+   somewhere. Book a meeting is the filled one and takes the 500ms slot;
+   Resume dropped `btn--filled` in STEP 40 and moved to 560ms, because
+   only one filled button may be visible on a screen and the menu is a
+   screen of its own. */
+.menu__book,
 .menu__resume {
   gap: 0.5rem;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* The secondary in the menu uses the shared `.btn--outline`, which already
+   existed, rather than a rule of its own. One fewer button style on the
+   page, and it tracks the palette through both themes for free. */
+
+.menu__bookarrow { flex: 0 0 auto; }
 
 /* No press scale on this one: the open-menu stagger owns its transform
    and runs it at --slow, so a press would ease over half a second. The
@@ -9512,5 +9723,111 @@ a.cv__val:hover { color: var(--accent-text, var(--accent)); }
         was never the motion. */
   html.rm .hx__portrait {
     filter: none !important;
+  }
+}
+
+
+/* ==========================================================================
+   STEP 42 - Contact gets a frame, and the void above it closes
+
+   Two problems, one pass.
+
+   THE VOID. About 200px of nothing sat between ELHAYYANY and the 06 /
+   Contact marker, and it was three things stacked rather than one bad
+   number: 44 dead units inside the name divider's own viewBox, the
+   divider's 9vh bottom padding, and Contact's top padding under both.
+   The first two are handled up at .mb; nothing here touches them.
+
+   THE SECTION READ AS LOOSE PARTS. A centred heading block floating
+   above a symmetric four-across row is two objects, and Contact is the
+   one section where the visitor has already decided to act. It is one
+   framed panel now: border, radius and the page's own surface colour,
+   and nothing else. A 3px yellow rule across the top edge was built
+   here and then removed; see the note below the frame.
+
+   NOTHING IN THIS SECTION ANIMATES, and that is the third time Contact
+   has arrived at that answer. STEP 37 deleted a 2.2s conversation
+   playback, STEP 38 deleted the bubbles that were left, and STEP 42
+   built a drawn-in yellow rule and took it out again. The entrance is
+   the page's shared [data-reveal] riser on the heading block and the
+   four cards, exactly as it was.
+
+   TWO THINGS THAT ARE DELIBERATE, not oversights:
+
+   1. The frame carries no [data-reveal]. The shared riser sets opacity
+      per revealable, so a revealable parent multiplies its opacity with
+      every child's and the row fades in twice. That is already written
+      down for .ctc and it applies with more force to a wrapper holding
+      all five. The children keep their own reveals; the panel is there
+      from the first frame.
+
+   2. The marker does not animate. Every other yellow marker on this
+      page is simply painted, and a marker that wipes itself in here
+      would make Contact's the one that behaves differently. The
+      marker's job is emphasis, which is a colour, not a movement.
+   ========================================================================== */
+
+.ctc__frame {
+  position: relative;
+  padding: clamp(28px, 4.5vw, 56px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background-color: var(--surface);
+}
+
+/* THE YELLOW RULE IS GONE, and it took the frame's isolation, its
+   overflow clip and the only animation in the section with it.
+
+   It was a 3px ::before across the top edge that drew itself left to
+   right as the heading landed. It worked, and it was still wrong: the
+   border already says where the panel starts, so the rule was a second
+   answer to a question that had one, and it put the page's result
+   colour along the top of a block that states no result. The marker on
+   the heading is the yellow this section is allowed.
+
+   Written down rather than just deleted, because it is the fourth
+   deletion in a row in Contact and the pattern is the useful part. STEP
+   37 removed a 2.2s playback, STEP 38 removed the bubbles it had been
+   playing in, and this removes an entrance built one message earlier in
+   the same session. Each one defended at the time, each one leaving the
+   section better. If something here looks like it needs one more
+   element, the odds are it needs one fewer.
+
+   If it is ever wanted back: a ::before at z-index 1, which needs
+   `isolation: isolate` on the frame or it paints over the heading, and
+   `overflow: hidden` or it runs out square past the radius. */
+
+/* The warm bloom was behind the heading, and the panel's own opaque
+   surface now covers the half of it that was doing the work. What is
+   left would be a ring of haze around a hard-edged box. */
+.contact .contact__glow { display: none; }
+
+/* The marker. It used to sit on the heading's verb at clamp(2rem, 4.4vw,
+   3.4rem), where it needed a 6px radius or it read as a square; it is on
+   two words of .ct__line now, which is 1rem to 1.125rem, so it takes the
+   same 3px .jr__hl uses at that size. Keep the radius with the text size:
+   6px on a 1rem line reads as a lozenge rather than a marker. The two
+   rules that matter are unchanged and for the same reasons:
+   --on-accent-2 rather than --text, because the yellow does not flip with
+   the theme so its ink must not either, and box-decoration-break so a
+   wrap gets two rounded boxes rather than one with its middle cut out. */
+.ct__hl {
+  padding: 0 0.16em;
+  border-radius: 3px;
+  background-color: var(--accent-2);
+  color: var(--on-accent-2);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* On a phone the frame's padding is added to .wrap's own gutter, so at
+   the desktop value a 390px screen would give the cards 286px. 16px
+   inside a 24px gutter holds it at 310px, and the radius comes down
+   with it: a 28px corner on a box that is nearly screen-wide reads as a
+   bubble. */
+@media (max-width: 599px) {
+  .ctc__frame {
+    padding: 24px 16px;
+    border-radius: 20px;
   }
 }

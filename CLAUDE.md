@@ -50,9 +50,19 @@ Spelling is exact in both. "Technical Customer Success Manager", never
 the full version.
 
 **Full: `Technical Customer Success Manager & Business Developer`**
-Used wherever there is room: the `<title>`, the meta description, the
-og:title, og:image:alt and twitter:title, the sidebar blurb, the hero
-portrait's `alt`, the hero tagline above 900px, and the footer.
+Used wherever there is room: the sidebar blurb, the hero portrait's
+`alt`, the hero tagline above 900px, and the footer.
+
+**STEP 36: the `<head>` is the one exception, and it spells out "and".**
+The `<title>`, `og:title`, `og:image:alt` and `twitter:title` now read
+`Technical Customer Success Manager and Business Developer`, with the
+word, not the ampersand. This was asked for explicitly. It is a
+deliberate divergence from the rule above rather than a drift, and it is
+confined to those four tags: the on-page uses all keep `&amp;`.
+
+If the two are ever reunified, the `<head>` is the half to change, not
+the page, because a search result and a share card are read as prose
+while the sidebar blurb and the footer are read as a label.
 
 **Short: `Customer Success & Business Development`**
 For tight spaces. Currently one use: the hero tagline below 900px, where
@@ -395,6 +405,368 @@ marquee tracks keep theirs, because they genuinely animate. `.nav`,
 `.hero__glow`, `.hero__media`, `.menu__glow` and `.mig-stat` are dead CSS
 with no element in the markup.
 
+## What the bisect actually found (STEP 35)
+STEP 33 and STEP 34 both reduced real memory and neither one stopped the
+crash. At that point the right move was to stop reading code and measure,
+so the page was bisected **on the device**, with the browser's 27 tabs left
+open so the test ran under the hard condition rather than the easy one.
+Seven builds, each the real site with exactly one thing removed:
+
+```
+  no JavaScript ........ pass
+  no CSS ............... pass
+  NO PORTRAIT .......... pass
+  MOTION TURNED DOWN ... pass
+  no particle canvas ... intermittent
+  HERO ONLY ............ intermittent
+  the real page ........ intermittent
+```
+
+**Read those three capitals together and there is only one answer left.**
+Hero-only failing kills "the page is too long" outright. No-portrait
+passing and motion-down passing, while hero-only fails, leaves the
+portrait **while it is being animated**. Not the portrait, which is fine
+sitting still. Not animation, which is fine on everything else on the
+page. The combination.
+
+**Why that combination and nothing else.** The portrait carries three mask
+layers composited with `intersect`, which cannot be done in one pass, plus
+a `drop-shadow` that reads the MASKED alpha and therefore cannot begin
+until that intersection is resolved. Standing still, that stack is paid
+once. Under an animation that changes the size it rasterises at, it is
+paid again and again.
+
+**So the `scale` went first, and it is the important one.** A translate
+moves a texture the compositor already has. A scale changes the size that
+texture has to exist at. `scale(1.05)` came out of `@keyframes
+mi-portrait` and `1 + p * 0.06` came out of the parallax; both keep their
+travel and their fade, which is what the effect reads as anyway. Nothing
+else on the page scales the portrait now.
+
+Then, below 900px only:
+- **No `drop-shadow`.** The single most expensive declaration on the
+  element, because it is a second full-size pass over the first one's
+  result. On a phone the portrait sits on a flat background at 82% of a
+  390px screen and the depth was not doing work. This takes the dark
+  theme's `brightness(1.1) contrast(0.95)` with it, since they ride in the
+  same token: the portrait is a shade flatter on a dark phone.
+- **Two mask layers, not three**, and the radial is retuned to
+  `ellipse 50% 86% at 50% 38%, #000 62%, rgba(0,0,0,0.6) 81%, transparent
+  100%`. Both numbers were picked by looking at the page on the device,
+  through `_crashtest/mask.html` (the radius) and `_crashtest/fade.html`
+  (the stops), one axis at a time. Dropping the horizontal layer without
+  retuning left the sides visibly hard cut, because at the original
+  `ellipse 80%` the falloff sat outside the picture and the outer columns
+  were landing at about 42% opacity; a 42% edge running down the image
+  reads as a cut. Tuning the two axes separately is safe in this order and
+  only this order: once the horizontal radius is 50% the outer column is
+  outside the ellipse and therefore fully transparent whatever the stops
+  say, so moving the stops can pull the fade off the jacket without ever
+  touching the edges that were already approved.
+  The horizontal layer goes because the radial is an ellipse centred on
+  the face and already pulls the sides in.
+  The vertical stays (it dissolves the shoulders into the section below)
+  and the radial stays (it keeps the falloff on the head rather than on
+  the middle of a box whose bottom third is a hard crop). One fewer
+  surface to intersect against. The dark theme's background glow is still
+  cut correctly, because it is a background on this element and two layers
+  clip it as well as three.
+
+**Two cascade traps, both real, both caught by looking rather than
+assuming:**
+
+1. `html.rm .hx__portrait` carries `filter: var(--hx-shadow) !important`,
+   so that the blanket `filter: none !important` which strips blur
+   transitions cannot take the drop-shadow with it. Sound on desktop. On a
+   phone it would have silently undone the rule above **for exactly the
+   visitors who have turned motion down**, who are the likeliest to be on
+   a struggling device. STEP 35 re-declares it at the same specificity and
+   importance, later in the file.
+2. script.js's reduced-motion branch was writing
+   `hxPortrait.style.filter = HX_SHADOW` every frame. An inline style beats
+   a stylesheet, so that one line would have reinstated the shadow too. It
+   existed only to overwrite a leftover blur from the other branch, and
+   there is no blur in either branch since STEP 33. It is gone; the
+   cascade decides now.
+
+**The lesson, and it is about method rather than CSS.** Two confident
+diagnoses in a row were each partly right and each insufficient, and both
+were reached by reading the code. The thing that actually resolved it was
+seven builds and a phone. When a fix does not land, the next step is a
+measurement, not a better theory.
+
+## The site presented skills, not evidence (STEP 36)
+An audit of the finished page found the layout and the engineering sound
+and the CONTENT arranged against itself. Three measurements made the
+case, and they are worth keeping because they are the reason for every
+change in this step:
+
+1. **Of 1,212 visible words, about 382 were unique substance** about what
+   he actually did. Another 205 were the SAME facts restated, and roughly
+   625 were headings, labels, navigation and category names. For every
+   word about the work there were about 1.6 words of framing.
+2. **Five of the six headline numbers could not be judged by a stranger**
+   (`100+` accounts, `100+` sales, `15%`, `98%`, `250+`), and they
+   appeared between four and seven times each, so the repetition
+   compounded the ambiguity instead of the credibility. Only
+   `0 to 8,000 followers in 3 months` had a start point, a duration and
+   an outcome.
+3. **The strongest evidence on the page sat at screen 10.3 of 14.7**,
+   behind both drop-off zones: the Growth band is the only section with a
+   starting condition, named decisions and measured outcomes.
+
+**This step is positioning, structure and height. It deliberately does
+NOT write the case studies**, which are the next pass. What it does is
+make room for them and stop the page arguing with itself.
+
+What changed, in one list: the through line went into the pitch band;
+Growth moved from fourth to second; `.wib` went from 200vh to 110vh and
+its seven cards from results to method; the automation claim got its
+first evidence; both full-width marquees were deleted; Growth got a call
+to action; the `<head>` meta was rewritten; and four facts were corrected.
+
+**Measured, 1440x900, computed from the CSS tokens rather than a browser:
+13,238px to 12,456px, 14.7 screens to 13.8.** The reclaim was 1,132px
+(810 from the pin, 322 from the two marquees) and 350px went back into
+new content. The height is the smaller half of the result. The larger
+half is that Growth is now at screen 5.4 instead of 10.3.
+
+**One thing got worse and is written down rather than hidden.** Work
+still carries no call to action across its 3.9 screens, and Growth's sits
+at the END of Growth, so the first clickable thing after the hero is now
+6.9 screens down where it used to be 6.2. The next pass should put a CTA
+inside or immediately after Work.
+
+### The four facts that were wrong, and where they lived
+- **Majorel's client account was invisible.** `Majorel` was named in four
+  visible places and `ByteDance` / `TikTok` in none. All four now carry
+  the account, because it is what gives the moderation work its scale.
+- **No team size appeared anywhere on the site.** Zero occurrences. Four
+  places described the leadership work unquantified, which is also why
+  `98%` could not be judged. It is **a team of 12** now.
+- **The `15%` had no subject in the hero and sidebar stats**, which read
+  as his personal revenue. It is **company revenue overall, driven mainly
+  by new sales from outreach**. The stat label is now
+  `Company revenue growth in 2 months`, the '25 card says
+  `+15% company revenue`, and the '25 panel names the driver.
+- **eGrow's customer type was never described at all.** Nothing on the
+  page restricted it to e-commerce, which was checked; the gap is that a
+  reader cannot tell what the product does or who buys it. **It is a SaaS
+  tool sold to businesses of all kinds.** Not fixed in this pass, because
+  it needs copy rather than a correction. See the Growth card 2 note.
+
+## An animation the reader has to outlast (STEP 37)
+The Contact section was rebuilt. The structure and the reasoning are under
+Contact in the Content section; this is the lesson, because it generalises
+and the site is likely to hit it again.
+
+**The section's own animation was the thing standing between a visitor and
+the action.** The STEP 20 conversation played four timed message beats
+with typing dots, then staged three action rows 70ms apart: about **2.2
+seconds to the first address and 2.5 to the last**. Every part of it was
+built carefully. The beats were tuned as conversation pace, the dots did
+double duty, the markup was the finished state so a failed observer left
+everything on screen, and the contrast was measured in both themes. None
+of that was wrong. It was all in service of something that should not have
+been there.
+
+**The test that matters is not "is this animation good", it is "what is
+the reader waiting for".** A visitor who has scrolled to Contact has
+already decided to get in touch. The one thing they want is an address,
+and the animation delivered addresses last, in the order the designer
+found most satisfying rather than the order the reader needed. On a
+section like Growth or the hero, where the reader is still being
+persuaded, an entrance earns its time. On the section where they act, it
+is a toll.
+
+**So the rule for this page: motion may introduce content, never gate an
+action.** The entrance that is left is the page's ordinary
+`[data-reveal]` riser, six elements 100ms apart, fading up over 600ms.
+Nothing is sequential, nothing is on a timer, nothing has a `.is-live`
+state to wind back, and every link is in the DOM, focusable and clickable
+from the first frame with JavaScript on, off, or reduced.
+
+**Deleting the sequencer deleted more than it added.** 99 lines out of
+script.js, about 250 out of style.css, and the section gained a fourth
+contact method and a primary action. The scene was the most intricate
+thing in the file and the simplest thing replaced it better. That is
+worth remembering the next time a section seems to need a scene.
+
+**What survived, and why it is the right half.** The exchange is copy: two
+bubbles that say what he is open to. Keeping it cost nothing, because a
+bubble that is simply present has no timing to get wrong. The performance
+around it is what went. When something in this file looks like it has to
+go, check first whether only its CHOREOGRAPHY has to go.
+
+### STEP 38's postscript: the bubbles went too
+The paragraph above was written one step too early. STEP 38 deleted the
+exchange as well, and the section is better again.
+
+**That is the part worth keeping.** The STEP 37 reasoning was right about
+the playback and wrong about the panel: it treated "it is copy" as
+sufficient justification for keeping something, when the real test is
+whether the copy needed that container. Two bubbles, a chat header, an
+avatar, a status line, a timestamp, a read receipt and fourteen palette
+tokens were carrying one sentence, which is now a single muted line in
+the heading block.
+
+So the test is not "is this content or decoration". It is **"how much
+structure is this content paying for"**. A sentence that needs a quoted
+interface around it to be read is a sentence in the wrong place.
+
+Three deletions in a row, each one defended at the time, each one leaving
+the section better. **When that happens twice, stop defending the next
+one and try removing it.**
+
+## What eGrow actually is (STEP 39)
+**The brief never said, and the site never said either.** For a long time
+the page described the product as "SaaS accounts" and "a SaaS product",
+which is a category, not a product. Written down here because it is the
+one fact about his current job that cannot be derived from anything in
+the repository, and because half his job title depends on it.
+
+> **eGrow is a SaaS platform that lets businesses run and automate their
+> operations from one place. It is built on the WhatsApp API and
+> integrates with Shopify, delivery companies and other platforms, so a
+> business manages everything in one tool instead of switching between
+> several.**
+
+SafeApps is the company, eGrow is the product. The site writes it as
+`SafeApps (eGrow)` in the '25 card's label and `@egrowdotcom` in the
+Growth card's handle.
+
+**Who buys it: businesses of all kinds, NOT only e-commerce.** This was
+checked before and nothing on the page ever claimed otherwise, but the
+name reads as an e-commerce tool by implication and a DTC wall art brand
+sits one card below it, so the ambiguity was real. The Shopify
+integration is one of several, not the whole product.
+
+**This is what makes "Technical Customer Success Manager" mean
+something**, and that connection is now on the page rather than implied.
+The product IS APIs and integrations, so supporting it means working in
+them. What he built himself: the WhatsApp order confirmation and delivery
+tracking flows, the transactional email sequences, and the Meta
+Conversions API integrations that fixed attribution for customers' ad
+campaigns. That is the evidence for the word "Technical" in the title and
+for the "Automation-minded" trait chip in the hero.
+
+**It is said in three places, at three depths**, and that layering is
+deliberate rather than repetition:
+1. The '25 card FACE, one line: "SafeApps makes eGrow, one platform a
+   business runs its whole operation from." A reader learns what the
+   company does without opening the card.
+2. The '25 Read more panel, the full paragraph above, then a second
+   paragraph on the integrations he built.
+3. The Growth eGrow card's "The challenge" block, which names the product
+   because the product IS the challenge: "eGrow runs a business's whole
+   operation from one place, on the WhatsApp API. Explaining that in a
+   video people actually watch is the hard part." It used to read "A SaaS
+   product that needed content people actually watch", which told a
+   reader nothing about why the content was hard to make.
+
+**Known duplication, left in on purpose.** The integrations are named
+twice: in the '25 panel, framed as what technical means in the role, and
+in the Help section's Customer Success card as `.hlp__text--auto`, framed
+as a capability. Different frames, same facts. If one has to go, the Help
+one is the weaker of the two now that the timeline explains the product.
+
+**The `<head>` meta description still says "100+ SaaS accounts
+managed"** and was not in scope for STEP 39. It is the last place on the
+page that uses "SaaS" as if it explained something.
+
+## Booking is available from everywhere, and the morph moved (STEP 40)
+The calendar link is `https://cal.com/mohamed-elhayyany-my4ujj/15min`.
+**Four places, one label, one URL, `target="_blank"`, `rel="noopener
+noreferrer"` on every one.** If a fifth is ever added, it matches all
+four of those or it is wrong.
+
+```
+  hero      .hx__btn--book    FILLED, first, and the morph source
+  sidebar   .sb__book         FILLED, above Resume, the morph TARGET
+  menu      .menu__book       FILLED, above the Resume and contact links
+  contact   .ctc__card--primary   the primary of the four cards
+```
+
+### The morph re-target, and why it was not fragile
+The hero's filled button flies into `#sb-book` now instead of
+`#sb-resume`. **The change is one argument to `pair()`**, and that is
+worth understanding before touching this again: `pair(real, hero, from,
+to, opts)` measures both elements with `getBoundingClientRect()` on the
+frame it needs them and derives the deltas, the scale and the
+counter-scale from that. Nothing in it is tuned to a position. The new
+button sits about 60px higher in the column and the arithmetic does not
+care.
+
+**What IS load-bearing on the target**, all three carried over from
+`.sb__resume`:
+1. `transform-origin: 0 0`. `pair()` computes `dx`/`dy` on the assumption
+   that the scale happens about the element's own top-left corner. Change
+   this and the landing is out by the element's own size.
+2. An inner label (`.sb__bookin`) passed as `counter`, which gets
+   `scale(sy / sx, 1)` every frame so the type does not stretch while the
+   box does.
+3. A set `min-height` rather than a height inferred from the line box, so
+   the height ratio `scale: 'height'` reads is stable once the font loads.
+
+**DELETED with the old arrangement:** `.sb__rin`, `.sb__r1`, `.sb__r2`,
+the `sbR1` / `sbR2` variables, and the crossfade block in `apply()` that
+faded "Get in touch" out and "Resume" in across the window 0.5 to 0.7 of
+the travelling button's progress. All of it existed for one reason: the
+flying element had to wear a different name on the way than it had on
+arrival. Both ends say "Book a meeting", so there is nothing to fade.
+**That is the real win here. The morph has one fewer moving part than it
+did.**
+
+**`.sb__resume` became a late arrival.** It keeps its id, class and place
+as the last element of the sidebar, it reads "Resume" from the first
+frame, and script.js pushes it into `sbLate` so it fades up over the last
+20% of the run like the blurb and the email box. It needed
+`.js .sb .sb__resume { opacity: 0 }` adding to the morph-start list, or it
+would sit there fully formed while the rest of the column assembled.
+
+**One deviation from the brief, stated plainly.** It asked for the hero's
+"Get in touch" to keep flying and land on the new Book button.
+`data-fly-btn="0"` moved to the Book button instead, so the morph pairs
+like with like. Pairing "Get in touch" to "Book a meeting" would have
+meant the label, the fill and the arrow all changing inside the first 8%
+of the run, which is a button turning into a different button in mid-air
+rather than one object moving. **The revert is moving that one attribute
+back and repointing the two `.hx.is-gone .hx__btn--book` rules.**
+
+### Only one filled button per screen: where that holds and where it does not
+It holds WITHIN every section, and on the hero, and in the menu. STEP 40
+fixed the one case it had just broken: the pitch band's "Get in touch"
+was filled, which put a second filled button on the same screen as the
+sidebar's AND made the same words primary there and secondary in the
+hero. It is `.btn--outline` now.
+
+**It does NOT hold on desktop between the sidebar and three sections.**
+`.sb__book` is `position: fixed` and on screen from 900px up, so in
+Growth, How I Can Help and Contact there are two filled buttons visible
+at once. **This is not new**: `.sb__resume` was `--accent-fill` before
+this step and did exactly the same thing. It is recorded rather than
+fixed because fixing it means a decision about the whole page, not about
+this step:
+- demote `.gr__ctabtn`, `.hlp__btn` and `.ctc__card--primary` to
+  outlined, leaving the sidebar as the page's one standing primary; or
+- tint `.sb__book` instead of filling it, which costs the morph its
+  like-for-like landing.
+
+The hero is exempt by construction: the hero button fades out as the
+sidebar button fades in, in the same place, over the first 8%.
+
+### The sidebar fits, measured
+Seven children now (intro, stats, nav, ticker, mail, book, resume). At
+**800px tall and 1440 wide** the column's natural content is about 606px
+against 696px of room, so the second button lands with roughly 90px of
+slack and **no font size had to change**. The brief's instruction was gaps
+before type, and the existing
+`@media (min-width: 900px) and (max-height: 920px)` block was already
+doing that: it takes `.js .sb` to `gap: 8px` and `padding-block: 12px`,
+and STEP 40 only added `.sb__book` alongside `.sb__resume` in the two
+step-down blocks at 920px and 820px. `.sb__nav` is `flex: 1`, so it is
+what gives up the room.
+
 ## CRITICAL RULE
 Never invent content. No fabricated metrics, client names, project names,
 testimonials, or outcomes. Anything marked `[TO CONFIRM]` must be left as a
@@ -666,6 +1038,38 @@ an asset fault. If it needs repairing, remap the channel linearly
 (`new = (old - floor) / (255 - floor) * 255`, clamped at 0) rather than
 thresholding it, or the feathered edge around the hair goes jagged.
 
+**STEP 36c: the asset is 1000x1250 truecolour now, and the reason was a
+line down the jacket.** The 280KB file was an INDEXED PNG quantised to 256
+colours, and a large near-black jacket is exactly what that ruins: the
+whole jacket held **15 distinct colours**, so the soft edge of the lapel
+became a one-pixel step from luma 16 to luma 33 and read as a drawn line.
+It survived every change to the mask, which is what proved it was in the
+asset. Measured on the 3750x4688 original, that same block holds 893
+colours and the edge is a gradual ten-pixel transition.
+
+It is regenerated from the archived original in `_baseline-step33/`, not
+re-saved from the small file, because the colour information was already
+gone. Resampled **premultiplied**: interpolating straight alpha bleeds
+colour out of transparent pixels and leaves a dark halo round the hair,
+which is the standard way a cutout is ruined on resize. Encoded through
+WIC rather than GDI+, worth about 40% of the file size.
+
+`1000x1250, 1047KB` is a chosen point on a measured curve. 1000px covers a
+phone exactly (320 CSS px at 3x needs 960) and is mildly soft on a 2x
+desktop, which wants ~1224. It costs 767KB of download against the banded
+file and **hands back 2.1MB of decoded memory**, 6.9MB to 4.8MB, which on
+this page is the number that matters. A denoise pass over the dark areas
+saved a further 140KB and cost 18% of the measured hair detail, so it was
+dropped.
+
+**If it is ever re-compressed, the quantiser MUST dither.** That is the
+whole difference between 280KB that looks right and 280KB with a line in
+it. An undithered 256-colour pass over this image puts the line straight
+back, and it reads as a CSS fault rather than an asset fault, exactly as
+the wash in STEP 22 did. Note also that WPF's own Indexed8 conversion was
+tried and **destroys the alpha channel outright** (100% opaque out), so it
+is not an option.
+
 The STEP 33 replacement was measured against exactly that and passes:
 **41.35% fully transparent**, 57.28% fully opaque, **1.36% in between**,
 which is a proper anti-aliased outline rather than a threshold, and **no
@@ -765,9 +1169,15 @@ landing off.
 
 ### Section headers
 Every section opens with a two-part label in the small label style:
-`01 / Work`, `02 / What I Bring`, `03 / How I Can Help`,
-`04 / Growth`, `05 / What People Say`, `06 / Contact`.
+`01 / Work`, `02 / Growth`, `03 / What I Bring`,
+`04 / How I Can Help`, `05 / What People Say`, `06 / Contact`.
 Number in `--accent`, title in `--muted`.
+
+**The numbers are positional and were renumbered in STEP 36** when
+Growth moved up from fourth to second. They are typed into the markup in
+six places plus the six `.menu__num` values in the mobile menu, so a
+future reorder has to touch both lists. Growth's marker renders its title
+uppercase from the markup (`GROWTH`), which is unchanged.
 
 ### Motion
 - Scroll reveals: children rise 24px and fade, 100ms stagger, 600ms,
@@ -799,6 +1209,49 @@ rather than a vh-based reserve.
 
 ## Page sections, in order
 
+**STEP 36 reordered the page and renumbered it. The live order is:**
+
+```
+  Hero
+  01 / Work          #work
+  02 / Growth        #content     <- moved up from 04
+  pitch band                      <- moved down, and rewritten
+  03 / What I Bring  #capabilities
+  04 / How I Can Help #help
+  05 / What People Say #say
+  name divider       #mb
+  06 / Contact       #contact
+```
+
+**Why Growth moved, and it is the whole point of the reorder.** It is the
+only section on the page with a complete causal chain, a starting
+condition, named decisions and measured outcomes, and it was sitting at
+screen 10.3 of 14.7, behind both of the page's drop-off zones. It is now
+at screen 5.4, directly after Work, where the reader arrives with the
+career context and nothing else in between.
+
+**The numbering is positional, so it moves when a section does.** Three
+markers changed: Growth 04 to 02, What I Bring 02 to 03, How I Can Help
+03 to 04. Work stays 01, What People Say stays 05, Contact stays 06. The
+mobile menu's `.menu__num` values carry the same numbers and were changed
+with them.
+
+**Three nav lists have to agree, and two of them agree BY INDEX.** The
+hero-to-sidebar morph pairs them with `data-fly-nav="N"` on the hero link
+and `sbLinks[N]` in sidebar DOCUMENT order, so reordering one without the
+other silently flies each link to the wrong row. All three are now:
+Work, Growth, What I Bring, How I Can Help, What People Say, Contact.
+Verified index for index after the move. The hero row keeps its short
+labels (`Help`, `Reviews`), which is unchanged and intended.
+
+**The sidebar's active-state observer is order-agnostic** and needed no
+change: it looks a link up by `[data-sb-link][href="#" + id]` from the
+observed section's own id.
+
+**`id="content"` still names the Growth band** and must keep doing so:
+the sidebar's dark-panel switch finds the band with
+`getElementById('content')`. Moving the section does not affect it.
+
 1. **Nav**. Fixed. Name at left, links at right, plus a Resume link that
    downloads `cv.pdf`. Transparent over the hero, translucent blurred
    background once scrolled. Active section highlighted. Mobile: full-screen
@@ -807,23 +1260,41 @@ rather than a vh-based reserve.
 2. **Hero**. Full height.
    - Eyebrow label: `Technical Customer Success`
    - Name, huge, with an accent full stop
-   - Buttons: `Get in touch`, `View work`, `Resume`
+   - Buttons, STEP 40, and the hierarchy is the point: `Book a meeting`
+     FILLED and first, `Get in touch` outlined, `View work` a plain link
+     with an arrow, `Resume` phone only. Three buttons of equal weight
+     meant no primary at all.
    - A row of four stat blocks beneath: value large, label small
    - Portrait to the right on desktop, greyscale, colour on scroll position
      on touch and on hover on desktop
    - `Scroll` indicator at the bottom
    - Availability line: `Based in Morocco. Working with the world.`
 
-2b. **Pitch band**. The pitch, moved out from under the name and given a
-   screen of its own between the Hero and Work. Section-heading scale,
-   left-aligned, weight 400 with the one emphasised clause at 700 in
-   `--accent`. Beneath it a small row: circular portrait avatar, an
-   "Working with the world" pill, and a `Get in touch` button to `#contact`.
-   Fades in on scroll. It is also what the hero-to-sidebar migration
-   measures its run against. script.js anchors on the first
-   `[data-reveal]` below the hero zone, which is this.
+2b. **Pitch band**. **This entry was stale until STEP 40; the Content
+   section's own Pitch band entry is the authority.** It does NOT sit
+   between the Hero and Work: STEP 36 moved it to between Growth and What
+   I Bring, and replaced its single line with the three stepped blocks of
+   the through line.
 
-3. **Marquee**. Infinite horizontal strip of capability keywords, repeating.
+   Beneath it a small row: circular portrait avatar, a "Working with the
+   world" pill, and a `Get in touch` button to `#contact`. **That button
+   is `.btn--outline` since STEP 40**, not filled: it was a second filled
+   button on the same desktop screen as the sidebar's, and the hero's own
+   "Get in touch" is the outlined secondary, so the same words were
+   carrying two different weights.
+
+   Fades in on scroll with the shared `[data-reveal]` riser.
+
+   The old claim that this is what the hero-to-sidebar migration measures
+   its run against was also stale: the run is `RUN = 0.75` of a viewport
+   in script.js and the pin height is `.js .hz { height: 150vh }`. No
+   element is measured for it.
+
+3. **Marquee. DELETED in STEP 36.** It was an infinite horizontal strip
+   of capability keywords between the pitch band and What I Bring. Every
+   word in it was a heading somewhere else on the page. The sidebar
+   ticker survives and is the page's only marquee now. See the Marquee
+   keywords note in the Content section.
 
 4. **Work (01)** - the whole of it. The old Selected Work section is gone;
    this one absorbed it, and the old Background section before that.
@@ -933,7 +1404,7 @@ rather than a vh-based reserve.
    text, what I brought. One at a time, closed by the button or Escape.
    Below 900px the column is single and the curve straightens into a rail.
 
-5. **What I Bring (02)** - a huge two-line gradient heading, then one
+5. **What I Bring (03)** - a huge two-line gradient heading, then one
    sentence with an inline chip on each capability. Hovering, tapping or
    pressing Enter on a chip opens a card anchored to it. The sentence is
    pinned for one extra viewport height and its words come into focus
@@ -949,7 +1420,7 @@ rather than a vh-based reserve.
    two opt-ins, data-rail-nowheel (leave the wheel to the page) and
    data-rail-momentum (throw, then settle on the nearest card).
 
-6. **How I Can Help (03)** - a two-line heading, one dark line and one
+6. **How I Can Help (04)** - a two-line heading, one dark line and one
    in --body, then a single panel holding three cards: Customer
    Success, Business Development, Marketing. Each is an accent badge and
    title, a result line with its number on the yellow marker, a short
@@ -973,10 +1444,25 @@ rather than a vh-based reserve.
    reduced motion they are simply there and the highlight jumps rather
    than travels.
 
-7. **Marquee CTA**. Large infinite scrolling text: `Keep Customers · Grow
-   Revenue · Automate The Rest ·` repeating, accent-tinted.
+7. **Marquee CTA. Deleted in STEP 36, RESTORED in STEP 38** with new
+   words and a new position. Large accent-tinted scrolling text, 252px of
+   desktop height, now sitting between How I Can Help and What People Say.
+   It reads `Customer Success · Business Development · Growth Marketing ·
+   Team Leadership ·`.
 
-8. **Growth (04)** - the page's one dark band, full width and passing
+   The old words were `Keep Customers · Grow Revenue · Automate The
+   Rest ·`, and "Automate The Rest" is not coming back: it was the page's
+   third unevidenced automation claim, and STEP 36 removed it on that
+   basis. The four words here are the four things the sections on either
+   side of it actually demonstrate.
+
+   **It was restored from `_baseline-step36/`, not rebuilt.** STEP 36 only
+   ever deleted the markup; the eight `.marquee--cta` CSS blocks and
+   `body.is-migrating .marquee + .section` were left in the file and
+   flagged as dead, so there was nothing to put back in style.css.
+
+8. **Growth (02), and since STEP 36 it sits directly after Work** - the
+   page's one dark band, full width and passing
    under the sidebar. The inner content keeps the ordinary section gutter
    and the ordinary `.wrap`, so the pill, heading, paragraph and the
    cards land on exactly the same left edge as every section above.
@@ -1092,33 +1578,44 @@ rather than a vh-based reserve.
    shows a 90px accent puck reading DRAG with an arrow either side. It
    follows by lerp, scales in and out, and shrinks while held. It does
    not exist at all on a touch screen.
-9. **Contact (06)** - a two-line heading, an animated typing scene and
-   three contact cards. No form. The old version (a large closing
-   statement with magnetic email and phone links) is gone, and so is the
-   magnetic module itself: it was built for those links, nothing else
-   used it, and `data-magnetic` no longer appears anywhere.
+9. **Contact (06). STEP 37 rebuilt it, STEP 38 stripped it.** No form, no
+   sequence and no chat. The order is the heading block, centred, then
+   four cards full width: one primary and three secondary. Described in
+   full under Contact in the Content section below.
 
-   **The section is no longer pinned to one screen.** STEP 18c reserved
-   `calc(100svh - var(--ct-footer))` so the heading, the laptop and the
-   cards shared a view; STEP 19 dropped that along with `--ct-footer` and
-   the `display: contents` grid that went with it. The heading is at full
-   size and allowed above the fold, and what has to share a screen is the
-   LINE and the THREE CARDS, which is the smaller promise and the one
-   that matters. The section is as tall as its content and the footer
-   follows it.
+   **Everything is readable and clickable on arrival.** The STEP 20
+   conversation sequencer took about 2.2 seconds to reach the first
+   address, and the addresses are the purpose of the section. STEP 37
+   deleted the playback and kept the bubbles as copy; STEP 38 deleted the
+   bubbles, the panel, the live clock and all fourteen `--cv-*` tokens.
+   There is no JavaScript in this section at all now.
 
-   Two things from STEP 18c survive because they are still right: the
-   compact card, with the badge and the label on one row and the value
-   under them, which is one 42px row saved on each of the three; and the
-   phone's section padding, where `14vh` of an 844px screen was spending
-   118px at the top AND the bottom, more than a quarter of a screen, on
-   nothing.
+   **The availability line survived the chat and moved into the heading
+   block** as `.ct__avail`. It was the one piece of information in the
+   bubbles, so it is not lost with them.
 
-   **The animation is the conversation (STEP 20)**, described in full
-   under Contact in the Content section below. The laptop scene and the
-   line that briefly replaced it are both deleted. The heading and the
-   availability line stay in `.wrap` as ordinary stacked content, and the
-   chat panel sits under them inside the same wrap.
+   **One primary action per screen.** The Book a meeting card is the
+   accent fill, and nothing else in the section wears the accent as a
+   fill. The Call and Video call icon buttons came out of the chat header
+   for the same reason, although both pointed somewhere real.
+
+   The old closing statement with magnetic email and phone links went in
+   STEP 20, and so did the magnetic module itself: it was built for those
+   links, nothing else used it, and `data-magnetic` no longer appears
+   anywhere. The laptop typing scene and the line that briefly replaced
+   it are both gone too.
+
+   **The section is not pinned to one screen**, but it fits in one.
+   STEP 18c reserved `calc(100svh - var(--ct-footer))`; STEP 19 dropped
+   that along with `--ct-footer` and the `display: contents` grid that
+   went with it, and it has not come back. The section is as tall as its
+   content and the footer follows it. What makes it fit at 1280x720 is a
+   height-keyed padding rule, not a reservation. See the one-screen note
+   under Contact below.
+
+   The phone's section padding from STEP 18c survives because it is still
+   right: `14vh` of an 844px screen was spending 118px at the top AND the
+   bottom, more than a quarter of a screen, on nothing.
 
 10. **Footer**. Name, role, location, current year.
 
@@ -1210,24 +1707,103 @@ morph scales the real pill up by the ratio of the two font sizes, and that
 only overlays the wordmark exactly while every em-based measurement matches.
 Change one and you must change the other.
 
-### Pitch band (its own section, between Hero and Work)
-Marketing opens the door. Business development closes the deal.
-**Customer success makes it last.** I've done all three.
-(the middle clause sits on the yellow marker, in dark text)
+### Pitch band (its own section, between Growth and What I Bring)
+**STEP 36 moved it and replaced the copy with the through line.** It used
+to sit between Work and the keywords marquee and carry one line
+("Marketing opens the door..."). It is now the argument the whole site is
+organised around, in three blocks that step DOWN in size and weight,
+because the order is a claim, then the evidence for it, then what follows
+from it, and three paragraphs at one scale do not read as an argument.
+
+1. `.pitch-band__line`, heading scale, weight 400:
+   Most problems that look like product problems
+   [are communication problems].
+2. `.pitch-band__sub`, clamp(1.05rem, 2.1vw, 1.45rem), weight 400,
+   `--body`: A customer who churns usually did not understand what they
+   bought. A deal that stalls usually did not hear the value. A team that
+   misses usually did not know the target.
+3. `.pitch-band__close`, clamp(1rem, 1.7vw, 1.2rem), weight **600**,
+   `--text`: Customer success, sales, team leadership and marketing are
+   the same job done in different places: making what matters clear, and
+   keeping it clear.
+
+`[square brackets]` mark the yellow marker, and it is on **"are
+communication problems" only**. That is the turn in the argument; a
+marker on any more of the sentence is a yellow block rather than an
+emphasis.
+
+Step three goes back UP in weight while going down in size, deliberately:
+it is the smallest of the three and the last thing read, and it is the
+sentence every section below is supposed to echo.
+
+All three share `max-width: min(100%, 46rem)` so the left edges line up
+and the rag stays in one column. The 65ch body rule does not apply: this
+is display text at a reading size, not body copy.
+
 Status pill: Working with the world
-Button: Get in touch → `#contact`
+Button: Get in touch → `#contact` (kept, unchanged)
 
-Stat blocks:
-- `100+` Customers managed
-- `100+` Sales closed
-- `98%` Policy accuracy at scale
-- `15%` Revenue growth in 2 months
+Stat blocks (hero and sidebar, the same four). STEP 36 corrected the
+fourth label and **STEP 39 gave the other three a timeframe**:
+- `100+` Accounts, onboarding to renewal
+- `100+` Sales closed in under 3 months
+- `250+` Posters sold, first 3 months
+- `15%` Company revenue growth in 2 months
 
-### Marquee keywords
-Customer Success · Business Development · Marketing · Sales ·
-Retention · Team Leadership · Account Management · Partnerships
-(Both copies of the strip must stay identical - the track slides exactly
-half its own width, so any difference shows as a jump in the loop.)
+The third is `250+`, NOT "98% Policy accuracy at scale", which is what
+this file used to claim and the page never said.
+
+**The hero's four labels and the sidebar's four must stay
+character-for-character identical.** The morph flies the SIDEBAR stat from
+the hero's position while the hero's own copy fades out, aligned on the
+number chip, so different label text reads as the words changing in
+mid-flight. There is no crossfade for them, and since STEP 40 there is no
+crossfade anywhere in the morph: `.sb__resume`'s two stacked labels are
+deleted, because the button that travels now says the same thing at both
+ends. See the STEP 40 section above.
+
+**These are the SHORTENED forms, and the sidebar is why.** At 1440 the
+sidebar column gives each stat about 127px at a 12px label, which is
+about 19 characters a line. The full phrasings ("Client accounts,
+onboarding to renewal", "Posters sold in my brand's first 3 months")
+would run to three lines there and add 30px to the stat block. The
+shortened forms are 28 to 34 characters, all two lines, and **the longest
+of them is no longer than "Company revenue growth in 2 months" which was
+already there and already fitted.** That is the test to apply to any new
+label: 34 characters is the proven ceiling.
+
+The full phrasings live where there is room: the strengths row, the
+timeline cards and the Help cards.
+
+**What this cost, measured rather than assumed.** Three labels went from
+one line to two, so the stat block grew: **+15px in the sidebar** (both
+grid rows are two lines now, where row one used to be one) and **+11px in
+the hero on a phone**, for the same reason. The sidebar absorbs it because
+`.sb__nav` is `flex: 1` and the column has about 130px of slack at a
+900px viewport. The phone hero's stats are absolutely positioned, so the
+11px extends downward; it is the one place worth eyeballing on a real
+device.
+
+**The timeframe is the part that matters.** If a label ever has to shrink
+again, drop the descriptive words and keep the number of months.
+
+### Marquee keywords: DELETED in STEP 36
+The keyword strip that sat between the pitch band and What I Bring is
+gone, along with the Marquee CTA (see below). Between them they were 62
+words of category names, about 320px of desktop height, and no
+information: every word in them is a heading somewhere else on the page.
+
+**The sidebar ticker stays.** It is the one strip that earns its place,
+because it is the only thing in the sidebar panel that moves and it is
+positioning rather than navigation.
+
+`.marquee` BASE rules are therefore still load-bearing and must not be
+deleted: the ticker reads them, and `marquees` in script.js is
+`querySelectorAll('.marquee')`, which now matches exactly one element.
+The `.marquee--cta` rules (8 blocks) and
+`body.is-migrating .marquee + .section` are now dead CSS, left in place
+rather than swept, because nothing reads them and removing them is not
+this pass.
 
 ### Sidebar ticker
 The scrolling chip strip in the sidebar panel under the nav. Same marquee
@@ -1253,12 +1829,14 @@ Marketing gets them through the door. I do all three.
 #### Strengths row (replaced the counters)
 Four blocks: accent icon, strength name, one line of proof with its number
 on a yellow marker.
-- **Customer Success** - [100+ accounts] managed from onboarding to renewal
-- **Business Development** - [100+ sales] closed and B2B clients like
-  Experience Morocco
+- **Customer Success** - [100+ client accounts] managed from onboarding to
+  renewal
+- **Business Development** - [100+ sales] closed in under 3 months, plus
+  B2B clients like Experience Morocco
 - **Marketing** - Meta ad campaigns and a brand that sold [250+ posters]
   in the first 3 months
-- **Team Leadership** - Team Lead at Majorel with [98% accuracy]
+- **Team Leadership** - Led a team of 12 at Majorel (ByteDance / TikTok
+  account) with [98% accuracy]
 
 #### Colour inside this section
 The accent carries it: the year numbers, the timeline dots and the tool
@@ -1291,11 +1869,14 @@ Agency, which taught me how to present an offer clearly.
   tags: Customer Success · Communication
   what I brought: Patience with difficult customers · Clear visual communication
 
-**'22 / Leading a team** · badges MJ / shield · Majorel · 2022 - 2024
-Short: Content Moderator, then [Team Lead] at Majorel, with [98% accuracy].
+**'22 / Leading a team** · badges MJ / shield ·
+Majorel (ByteDance / TikTok account) · 2022 - 2024
+Short: Content Moderator, then [Team Lead of 12] at Majorel on the
+ByteDance / TikTok account, with [98% accuracy].
 More: Reviewed content at scale against strict policies with 98%
-accuracy, then moved up to Team Lead: training new moderators, mentoring
-the team and keeping quality high.
+accuracy on the ByteDance / TikTok account, then moved up to Team Lead of
+a team of 12: training new moderators, mentoring the team and keeping
+quality high.
   tags: Team Leadership · Quality
   what I brought: Coaching new team members · Consistent quality at scale
 
@@ -1310,14 +1891,29 @@ Arabic, English, French and Spanish.
 
 **'25 / Customer Success & Sales** [current] · badges SA / chart ·
 SafeApps (eGrow) · 2025 - Present
-Short: [100+ accounts], 100+ sales and [+15% revenue] in 2 months at SafeApps.
-More: I own the full client lifecycle for SaaS accounts, from onboarding
-to renewal, and I close new business: 100+ sales so far. I run Meta ad
-campaigns (targeting, creative, conversion optimisation) and set up the
-tracking and messaging flows that keep clients engaged. I also script,
-film and edit UGC videos for the brand.
+Short: SafeApps makes eGrow, one platform a business runs its whole
+operation from. [100+ client accounts] and 100+ sales in under 3 months,
+and [+15% company revenue].
+
+The FACE says what the company does, because a reader should not have to
+open a card to find out what the job was. Still two marks, which is the
+per-card maximum.
+
+More, THREE paragraphs, in this order and for this reason:
+1. What eGrow is. The full description is in the eGrow section near the
+   top of this file. Everything else about the role reads differently once
+   you know, and the job title is unexplained without it.
+2. What technical means here: the product is APIs and integrations, so
+   supporting it means working in them. He built the WhatsApp order
+   confirmation and delivery tracking flows, the transactional email
+   sequences, and the Meta Conversions API integrations that fixed
+   attribution for customers' ad campaigns.
+3. The customer success and sales work: the full client lifecycle,
+   onboarding to renewal, 100+ sales in under 3 months, Meta ad campaigns,
+   UGC video, and the 15% company revenue growth driven mainly by new
+   sales from outreach.
   tags: Customer Success · Business Development · Marketing
-  what I brought: Client retention from day one · New revenue through sales · Ad campaigns that convert
+  what I brought: Integrations built, not just configured · Client retention from day one · New revenue through sales
 
 **'26 / Founded Postry** [current] · badges P / shopping bag · Postry ·
 2026 - Present
@@ -1334,8 +1930,8 @@ artist and creator commissions. Profitable with zero outside funding.
 The old Background section (education, certifications, languages) was
 removed. What survived of it lives in the year it happened.
 
-### What I Bring (02)
-Pill "02 - WHAT I BRING", then a huge centred heading on two lines,
+### What I Bring (03)
+Pill "03 - WHAT I BRING", then a huge centred heading on two lines,
 "What" / "I Bring?", with a vertical gradient from #111111 at the top of
 the letters to #4a463d at the bottom. Under it a small centred pill,
 "CAPABILITIES OVERVIEW".
@@ -1355,37 +1951,99 @@ the Enter which follows lands on an already-open card and closes it, so
 the keyboard would be the one way in that did not work.
 
 Card: panel colour, radius 20px, 340px, big accent icon, bold title, short
-text with a yellow marker on the key fact. It is centred on its own chip,
-nudged back on screen if that would hang it off an edge, and flipped above
-the chip when there is no room below. On a phone it goes full width at the
-bottom of the screen instead.
+text. It is centred on its own chip, nudged back on screen if that would
+hang it off an edge, and flipped above the chip when there is no room
+below. On a phone it goes full width at the bottom of the screen instead.
 
-- SUCCESS / Customer Success - I own the client lifecycle from onboarding
-  to renewal for [100+ SaaS accounts].
-- GROWTH / Business Development - I source partnerships and new accounts,
-  from B2B clients like [Experience Morocco] to creator collaborations.
-- MARKETING / Marketing - I run [Meta ad campaigns]: audience targeting,
-  creative and conversion optimisation. I grew an Instagram account from
-  [0 to 8,000 followers in 3 months], which sold 250+ posters, and I
-  create UGC videos that explain the product and drive sign-ups.
-- RETENTION / Retention - Clear onboarding, fast answers and regular
-  check-ins, so [clients stay] and grow.
-- SALES / Sales - Full-cycle outreach that turned prospects into [100+
-  closed sales] and +15% revenue in 2 months.
-- TEAM / Team Leadership - As Team Lead at Majorel I trained and mentored
-  moderators while keeping [98% accuracy].
-- LANGUAGES / Languages - [Arabic, English, French and Spanish] - I work
-  with clients in their own language.
+#### STEP 36 rewrote all seven cards: method, not results
+The seven cards used to restate the page's four numbers for the third
+time, in different words, behind a hover. **Not one fact in them was new.**
+They now say HOW he works in that area, which is the one thing a
+capability list can add that the Work timeline cannot.
 
-`[square brackets]` mark the yellow marker in each card.
+- SUCCESS / Customer Success - I make the first two weeks concrete. Most
+  churn is decided there, not at renewal.
+- GROWTH / Business Development - I sell what the product actually does,
+  because I am the one who has to keep the account afterwards.
+- MARKETING / Marketing - I read the ad data before I spend more on it. A
+  campaign that cannot be measured is a guess.
+- RETENTION / Retention - I check in before there is a reason to
+  complain. An angry customer is usually a surprised customer.
+- SALES / Sales - Full cycle, from first contact to signature, so nothing
+  gets promised that cannot be delivered.
+- TEAM / Team Leadership - People do not follow a manager, they follow
+  clarity. Goal, reason, and where they stand.
+- LANGUAGES / Languages - Arabic, English, French and Spanish. I meet
+  customers in their own language.
 
-#### The reveal
-The sentence is pinned for one extra viewport height and the words come
-into focus left to right as you scroll through it: opacity 0.15 to 1 and
-blur 4px to 0, each word on its own slice of the run. It is read from
-scrollY every frame rather than played on a timer, so scrolling back up
-runs it exactly backwards. No CSS transition on the words - the scroll and
-a transition would be fighting over the same two numbers.
+**There is not one digit left in this section**, except the `03` in its
+own section marker, and that is checked rather than assumed. The sentence
+still reads "in four languages", which is the word and is part of the
+sentence, not a card.
+
+**And there is no yellow marker in any of the seven cards now, which is a
+change and a deliberate one.** Yellow's documented job on this page is a
+RESULT. These cards carry methods and opinions, and a marker under
+"Most churn is decided there" would be the page putting its result colour
+behind an assertion. The cards keep their icon and their bold title as
+the visual anchor. Do not put the markers back without a number to put
+them under.
+
+#### The reveal, and STEP 36's cut to the pin
+The sentence is pinned and the words come into focus left to right as you
+scroll through it: opacity 0.15 to 1 and blur 4px to 0, each word on its
+own slice of the run. It is read from scrollY every frame rather than
+played on a timer, so scrolling back up runs it exactly backwards. No CSS
+transition on the words - the scroll and a transition would be fighting
+over the same two numbers.
+
+**`.wib` went 200vh to 110vh in STEP 36 and is 150vh now.** The 110vh was
+asked for specifically, to stop the section being 2.6 screens of page
+height to bring 31 words into focus. What it cost was written down at the
+time and then observed on the page: script.js computes the run as
+`box.height - innerHeight`, so the run is whatever is left over after the
+sticky screen, and at 110vh that was **10vh, about 90px at a 900px
+window, for all 31 words**, under 3px of scroll each. The reveal ran and
+reversed correctly and arrived finished. It read as no animation at all.
+
+**150vh is the dial STEP 36 named, so it is the dial that was turned.**
+The run is 50vh, about 450px, roughly 14px of scroll a word, and the
+focus pull is something you scroll through again. `span` stays 0.85 and
+the sticky screen stays a full 100vh: either of those would have bought
+the same run by desynchronising the last word from the pin release, which
+is the one thing that note said not to do. The section still does nothing
+at all below 900px and nothing under `html.rm`, where `.wib` is
+`height: auto`.
+
+**Both gaps around the pin were cut with it**, and the two halves are a
+pair: a 150vh block whose sticky screen centres one sentence in 100vh has
+roughly half a screen of nothing above it and half a screen below.
+
+**Above: `.wib { margin-top: -14vh }` from 900px up**, replacing
+`clamp(2rem, 6vh, 4rem)`. A negative margin and NOT padding inside the
+sticky screen, which was tried first: padding lifts the sentence off
+centre, so it takes space off the top and hands the same space to the
+bottom. The gap moves, it does not go. Pulling the whole block up takes
+126px out of the top gap, leaves the bottom one alone and shortens the
+page by the same 126px.
+
+It cannot collide with the heading: the sentence sits
+`(100vh - its own height) / 2` below the block's top, about 266px at
+1440x900 against 126px of overlap, and the clearance grows with the
+viewport. It cannot touch the reveal either, since the run is measured
+from the block's 150vh.
+
+**`html.rm .wib` and `.no-js .wib` put the positive margin back**, next
+to the `height: auto` they already carried. There is no pinned screen in
+either, so there is no empty half to pull up into, and the negative
+margin would lift the sentence into the kicker.
+
+**Below: `#capabilities { padding-bottom: 0 }` from 900px up.** The pin
+releases with the sentence centred, so the section already ends on half a
+screen of nothing; another 12vh of section padding under it was the
+second half of the gap before How I Can Help. The next section keeps its
+own `padding-top`, which is what separates the two. The phone's
+`padding-bottom: 60px` is in a `max-width: 899px` block and is untouched.
 
 Two traps worth remembering. An opacity below 1 makes each word its own
 stacking context, so a card's z-index cannot reach past the word it lives
@@ -1428,7 +2086,7 @@ sticky wrapper's own bottom padding and about 100px of shared section
 padding, on a section whose content had already finished. The wrapper's
 is now zero and `#capabilities` carries a flat 60px.
 
-### How I Can Help (03)
+### How I Can Help (04)
 Heading, two lines, left aligned: "Where I Make" in `--text`, "The
 Difference" in `--body`.
 
@@ -1437,12 +2095,16 @@ more.
 
 `[square brackets]` mark the yellow marker in each result line.
 
-1. **Customer Success** - [100+ accounts] managed
+1. **Customer Success** - [100+ client accounts], onboarding to renewal
    I take clients from onboarding to renewal, so they get value fast and
    stay.
+   Then, in `.hlp__text--auto`: I built the WhatsApp order confirmation
+   and delivery tracking flows, the transactional email sequences, and
+   the Meta Conversions API integrations that fixed attribution for our
+   customers' campaigns.
    What you get: Smooth onboarding / Proactive check-ins / Fewer churned
    accounts
-2. **Business Development** - [100+ sales] closed
+2. **Business Development** - [100+ sales] closed in under 3 months
    I find the right partners and accounts, then turn conversations into
    signed deals.
    What you get: Qualified leads / Full-cycle outreach / New B2B
@@ -1463,6 +2125,42 @@ more.
 
 Under the panel, centred, one filled accent button: `Let's talk`, linking
 to `#contact`. It is the only place that phrase appears in the section.
+Growth now carries the same pair (see `.gr__cta`), so `Let's talk`
+appears twice on the page, once per section, which is intended: they are
+one offer made in two places, not two offers.
+
+#### STEP 36: the automation claim, evidenced, and why it is NOT a fourth card
+Automation was claimed in the hero copy ("build the automations that let
+both scale") and in a hero trait chip ("Automation-minded"), plus the CTA
+marquee and the old meta description, and **evidenced nowhere on the
+page**. Two of those four claims are gone now (the marquee is deleted and
+the meta description is rewritten); the hero's two stay, and this is what
+backs them up.
+
+**A fourth area was asked for first, and the grid cannot take one.**
+Checked rather than assumed, and both halves matter:
+1. `.hlp` is `grid-template-columns: repeat(3, minmax(0, 1fr))`, a hard
+   three columns. A fourth card wraps to a second row and sits alone
+   beside two empty cells.
+2. `.hlp__glide`, the single highlight that slides between cards, is
+   `top: 16px; bottom: 16px`, so it spans the FULL panel height, and
+   script.js sizes it from `card.offsetWidth` / `card.offsetLeft`. On a
+   two-row grid it would paint as a full-height block behind a
+   half-height card. The highlight is the section's one piece of motion
+   and it would be the visible failure, not the empty cells.
+
+So the line lives in the **Customer Success** card, as
+`.hlp__text--auto`: a step down in size with a hairline above it, so it
+reads as supporting detail under that card's own claim rather than as a
+second claim of equal weight. It keeps `--body` rather than `--muted`,
+because it is the only place the automation work is named and a footnote
+colour would undersell it.
+
+**Only one card carries it, so card one is taller than the other two,
+and that is already handled.** `.hlp__getlab` has `margin-top: auto`, so
+the three "What you get" checklists stay flush on the bottom edge
+whatever the copy above them does. This is the same mechanism that was
+already absorbing the Marketing card's three stacked result lines.
 
 The highlight colour is `#d9d4c5`, a step darker than `--panel`. The
 three card titles do not all wrap to the same number of lines, so each
@@ -1472,10 +2170,33 @@ you get" block carries `margin-top: auto` so the checklists sit flush on
 the bottom of every card whatever the copy above them does.
 The min-height for it has to sit on the title, not on the badge row: an
 em on the row resolves against its inherited 16px, not the title's size.
-### Marquee CTA
-Bring Customers · Keep Them · Grow Revenue · Automate The Rest ·
+### Marquee CTA: deleted in STEP 36, restored in STEP 38
+`Customer Success · Business Development · Growth Marketing ·
+Team Leadership ·`
 
-### Growth (04)
+It sits **between How I Can Help and What People Say**, which is where it
+was before STEP 36 deleted it in relation to the sections around it. The
+Growth band still follows Work directly with no separator, which is what
+STEP 36 was really about.
+
+**Four items per copy now, not three**, and both `.marquee__group` copies
+must stay identical and the same LENGTH. The track slides exactly half
+its own width, so one extra word in one copy shows as a jump every time
+the loop comes round. This is the same rule the keyword strip had and the
+sidebar ticker still has.
+
+**`querySelectorAll('.marquee')` matches two elements again**: this
+section and the sidebar ticker. The observer that pauses a marquee off
+screen iterates the list, so both are driven with no change to script.js.
+That was true before STEP 36 and is true again; nothing in the module is
+written for a single strip.
+
+**Restored from `_baseline-step36/` rather than retyped**, so the markup
+is the original. Its CSS was never swept: the eight `.marquee--cta`
+blocks and `body.is-migrating .marquee + .section` sat in style.css
+through STEP 36 and STEP 37 as documented dead rules, and are live again.
+
+### Growth (02)
 **This is the page's one dark band** - #111111, ink #eae8e3, muted
 #b8b4aa, sharp edges and no gradient into the beige. It runs full width
 and passes UNDER the fixed sidebar, which is what the sidebar's own dark
@@ -1485,7 +2206,7 @@ lightbox and put two case study cards here, and **STEP 30 renamed the
 section from Channels to Growth and rebuilt the cards.** The band, the
 inverted palette and the sidebar switch survived both.
 
-Pill "04 / GROWTH". Heading, two lines, left aligned: "Accounts I Grew"
+Pill "02 / GROWTH". Heading, two lines, left aligned: "Accounts I Grew"
 in #eae8e3 over "From The Ground Up" in #8a8578. To its right (stacked
 under it on mobile): "I don't just make content. I build the strategy,
 film it, edit it and run the posting schedule, then watch the numbers
@@ -1538,20 +2259,27 @@ filled would read as six buttons.
 `--vid-line-3`, the shadow deepens and the logo badge scales to 1.08.
 300ms on every one of them.
 
-#### The copy, unchanged from STEP 29
+#### The copy, as it actually stands
+
+**This file described the STEP 29 prose for a long time after the page
+had stopped using it.** The sentences below are not paragraphs any more:
+"What I did" is a numbered row of step pills (`.gr__steps` / `.gr__step`,
+an `<ol>` because the order IS the content, with the arrows between them
+generated by CSS so only the list order reaches a screen reader), and
+card 1's "The result" is three stat chips (`.gr__stats`) in the same
+shape as the sidebar stats. The old tag rows are gone with the prose.
+Read the markup, not a remembered paragraph.
+
 **Card 1**
 - handle `@postry_art`, one link, Instagram
   `https://www.instagram.com/postry_art`
-- figure `0 to 8,000`, label "followers in 3 months"
-- The challenge: A brand new poster brand with no audience and no budget
-  for reach.
-- What I did: Built the content strategy, filmed and edited every post,
-  set the posting schedule, ran collaborations with influencers and paid
-  ad campaigns.
-- The result: 8,000 followers from zero, feeding a store that sold 250+
-  posters in its first 3 months.
-- tags: Content strategy, Filming, Editing, Influencer collabs, Paid ads,
-  Posting schedule
+- figure `0 to 8,000`, label "followers in 3 months". The markup holds
+  the FINISHED figure and script.js winds it back to zero before counting.
+- The challenge, one line: `New brand. Zero audience. Zero budget.`
+- What I did, five step pills: `Strategy` / `Film` / `Edit` /
+  `Influencer collabs` / `Paid ads`
+- The result, three stat chips: `8K` followers, `250+` posters sold,
+  `3` months
 
 **Card 2**
 - handle `@egrowdotcom`, two links, Instagram
@@ -1563,14 +2291,44 @@ filled would read as six buttons.
   size that fits two words rather than five characters. It is NOT yellow:
   that is a label, and yellow's job on this page is a result. Do not put
   a number here, and do not leave a visible placeholder either.
-- The challenge: A SaaS product that needed short form content people
-  would actually watch.
-- What I did: Filmed and edited UGC videos for the product, defined the
-  content strategy and ran the posting schedule across Instagram and
-  YouTube.
-- The result: A steady stream of product content that explains the tool
-  and drives sign ups.
-- tags: UGC video, Filming, Editing, Content strategy, Posting schedule
+- The challenge, STEP 39 rewrote it so it names the product: `eGrow runs
+  a business's whole operation from one place, on the WhatsApp API.
+  Explaining that in a video people actually watch is the hard part.`
+
+  It used to read "A SaaS product that needed content people actually
+  watch", which told a reader nothing about why the content was hard to
+  make. **The product IS the challenge here**, so the block has to say
+  what the product is. See the eGrow section near the top of this file.
+- What I did, four step pills: `Script` / `Film` / `Edit` /
+  `Post on IG + YouTube`
+- The result, one line with the outcome on the yellow marker: `Steady
+  content that explains the tool and drives [sign-ups].`
+
+**What eGrow is: CLOSED in STEP 39.** This used to be an open issue here,
+noting that the page described the product as "SaaS accounts" and "A SaaS
+product" and never said what it did or who bought it. It says both now,
+in three places at three depths. The full description and the reasoning
+live in the eGrow section near the top of this file; do not keep a second
+copy of it here.
+
+#### STEP 36: the section's call to action
+The band is the strongest evidence on the page and it had nothing to
+click. `.gr__cta` sits under the grid, inside the same `.wrap`: one line,
+`.gr__ctaline` ("Want the same for your product?"), and one
+`.btn--filled` to `#contact` reading `Let's talk`.
+
+**Centred, although every heading in the band is left aligned.** It sits
+under a two-column grid rather than inside a text column, so the button
+belongs to both cards rather than to the left one.
+
+**No colour rule was needed.** `--accent` is already rebound to the
+`--vid-*` set on `.gr`, so `.btn--filled` picks up the band's palette and
+inverts with the theme for free. The arrow opens from 0.5rem to 0.8rem on
+hover, the same 200ms as `.hlp__btn`, so the pair reads as one offer
+rather than two.
+
+Below 600px the line and the button stack and the button goes full width:
+a small centred pill under a full-width line reads as an afterthought.
 
 **Equal heights, and the second card is the one that needs help.** A card
 without the figure block is about 135px shorter than one with it, and the
@@ -1642,6 +2400,14 @@ the two nav lists by index, so they must stay the same length and the
 same order. Re-measured after the rename: worst offset 0.00px across 12
 items.
 
+**STEP 36 moved Growth to second in all three lists**, which is the
+change that index pairing is most exposed to. The order everywhere is now
+Work, Growth, What I Bring, How I Can Help, What People Say, Contact, and
+`data-fly-nav` runs 0 to 5 down that list. Reordering the hero row alone,
+or the sidebar alone, flies every link to the wrong row without throwing
+anything: there is no error to catch, only six labels landing in the
+wrong places. Change both, in the same edit, every time.
+
 #### What was deleted with the videos, and must not come back
 The six embed URLs and their thumbnails, the `[data-video-id]` module,
 the lightbox and its arrows, dots, swipe and focus trap, the
@@ -1674,7 +2440,9 @@ world and half in the other, which reads as a rendering fault.
 30). The page accent is the colour of the PAGE's text, and this band is
 the one place whose background is the other one, so an unmodified accent
 lands charcoal on #111111 in light and off-white on #e3dfd3 in dark: both
-invisible. `.gr`, `.sb__panel.is-dark` and `.sb__resume.is-dark` all
+invisible. `.gr`, `.sb__panel.is-dark`, `.sb__book.is-dark` (added in
+STEP 40, because that is the accent-FILLED button now) and
+`.sb__resume.is-dark` all
 rebind `--accent`, `--accent-hover`, `--accent-text`, `--accent-on`,
 `--accent-soft`, `--accent-fill`, `--accent-fill-hi`, `--on-accent`
 and `--accent-ring` to the `--vid-*` set, so every component keeps
@@ -1745,257 +2513,227 @@ Trail images: every file in `assets/collages/`, listed explicitly, never
 globbed. Two are awkwardly named, one with spaces and one an emoji, so the
 list is percent-encoded; both were checked over HTTP and both serve. Do
 not rename them and do not invent new ones.
-### Contact (06)
-Pill "06 / CONTACT". Heading, two lines, left aligned: "Let's Work" in
-`--text` over "Together" in `--body`, same scale as the other section
-headings.
-
-Line: Based in Morocco. [Working with the world].
-(the bracketed part sits on the yellow marker, in dark text)
-
-**No city anywhere on the site, and no "open to" phrasing.** The location
-is the country, and the availability is that it does not limit anything.
-The Work timeline keeps "Cadi Ayyad University" as it is: that is where a
-degree was taken, not a statement about where he will work.
-
-#### The scene: the conversation (STEP 20)
-A chat panel plays a short exchange, then the three contact methods
-arrive as the actions in the bar beneath it.
-
-It replaces "The Line That Connects" (STEP 19), and the laptop typing
-scene before that. Both are deleted: markup, CSS and JavaScript, plus the
-line's `--tl-stroke` and `--tl-pulse` and the laptop's nine `--ct-*`
-tokens. Do not bring any of it back.
-
-**The copy, chosen deliberately and not to be rewritten casually:**
-
-> Are you open to new work?
->
-> **Yes. Based in Morocco, working with the world. Remote, hybrid or on
-> site.**
-
-Header: the profile picture, `Mohamed Elhayyany`, then a green dot and
-`Usually replies same day`.
-
-**The profile picture is `portrait-avatar.jpg`, laid OVER the initials
-rather than replacing them.** The circle used to be the letters `ME` on
-an accent fill; they are still in the markup, with `.cv__avimg`
-absolutely positioned on top of them. If the file ever goes missing the
-circle is an avatar rather than a hole, and that costs one element and no
-code path. `aria-hidden` on the wrapper covers both, and the accessible
-name is `.cv__name` right beside it.
-
-Sized in per cent, not pixels, so the phone rule that takes the circle to
-40px carries the photo with it: one number to change instead of two that
-can drift apart. `object-position: 50% 18%`, the same crop the pitch
-band's avatar uses, because the source is 184x228 and a square taken from
-its middle cuts the face in half. 184px of source into a 44px circle is
-still sharp at a phone's 3x density, which needs 132.
-
-**Nothing here invents a person.** The grey bubble is a question anyone
-might ask, not a quotation attributed to anybody. That matters because
-What People Say a few sections up carries three REAL things that were
-said to him, and a fabricated fourth sitting two sections below would be
-read as one of the set. Three of the five drafts were rejected for
-exactly this: they put a detailed brief in the mouth of an unnamed
-recruiter.
-
-**The green dot means something true.** It is attached to "usually
-replies same day", which the site owner confirmed, and NOT to live
-presence. A static page cannot know whether anyone is online, and a
-presence light that is always green is the one element in a scene like
-this that actually misleads someone.
-
-**The timestamp is the visitor's own clock**, read with
-`toLocaleTimeString` in their locale and timezone, and re-read on
-`visibilitychange` so a tab left open overnight is not still claiming the
-message arrived at breakfast. A frozen 09:41 is the same small lie as the
-green dot. If anything throws, the `<time>` stays empty and the line
-reads "Delivered", which is why the separator is generated by CSS from
-`:not(:empty)` rather than typed into the markup. Non-breaking spaces in
-that generated content, or it collapses against the text beside it and
-sets as "Delivered ·04:12".
-
-#### STEP 31: it is styled as WhatsApp on iOS
-The sequence, the beats, the typing animation and the three contact rows
-are unchanged. What changed is the surface treatment.
-
-The panel is three bands now, not one padded box: HEADER, WALL, ACTION
-BAR. The padding moved off `.cv__panel` and onto each band, because the
-wall has to run edge to edge the way a chat background does and a padded
-parent would have inset it. `overflow: hidden` clips the wall to the
-radius.
+### Contact (06). STEP 38 removed the chat
+**Three steps, and each one deleted something.** That pattern is the most
+useful thing in this entry:
 
 ```
-              light      dark      what it is
---cv-panel    #efece4    #111b21   header and action bar
---cv-wall     #efe7dd    #0b141a   behind the bubbles
---cv-in       #ffffff    #202c33   incoming bubble
---cv-in-ink   #111b21    #e9edef   17.4:1 light, 12.1:1 dark
---cv-out      #dcf8c6    #005c4b   outgoing bubble
---cv-out-ink  #111b21    #e9edef   15.2:1 light, 6.8:1 dark
---cv-stamp    #55625a    #9fb3ac   timestamp, 4.9:1 on --cv-out
---cv-row      #e0dcd2    #202c33   action rows and header buttons
---cv-tick     #53bdeb              FIXED: the read receipt, both themes
---cv-wa       #25d366              FIXED: the brand green
+  STEP 20  built a WhatsApp scene that played a timed conversation
+  STEP 31  restyled it to the real thing, 13 tokens and a gradient tail
+  STEP 37  deleted the 2.2s playback, kept the two bubbles as copy
+  STEP 38  deleted the bubbles, the panel and every token behind them
 ```
 
-**The tail is a radial-gradient, not a triangle.** The flick WhatsApp
-draws is CONCAVE, and `radial-gradient(circle at <far corner>,
-transparent 13px, <bubble> 13.5px)` takes a quarter-circle bite out of a
-13x15 pseudo-element for one declaration and no extra markup. Each side
-names its own colour rather than inheriting, so a later override on one
-bubble cannot silently retint the other's tail.
+The section read better after every one of those. **That is the signal:
+the scene was never the content.** What is left is the shortest thing
+that does the job.
 
-**The timestamp and ticks sit INSIDE the outgoing bubble**, floated
-right and dropped into the last line, which is how the real thing does
-it: the text wraps around the stamp instead of the stamp taking a line of
-its own and making every bubble a line taller. It is still its own
-`[data-cv-step]`, so it still arrives after the message lands; nesting
-does not disturb the sequencer, which collects `[data-cv-step]` in
-document order and this is still the third of four. The one rule it
-needed is `transform: none` while live, or it would travel a second time
-inside a bubble that had already arrived.
+```
+  .ctc__intro   pill, heading, line, availability line   CENTRED
+  .ctc          four cards, one primary                  full width
+```
 
-**#53bdeb on #dcf8c6 is 1.86:1 and that is allowed.** The ticks are
-decoration: a visually hidden "Read" sits beside them and carries the
-state, the same way the status dot leans on the word next to it.
-Darkening the blue would be inventing a colour the interface being quoted
-does not have. In dark it is 3.74:1 anyway.
+Nothing else. No wrapper is left where the panel was: `.ctc__intro` is
+the first child of `.wrap`.
 
-**The status line still says "usually replies same day", NOT "online".**
-This was asked for as "online" in STEP 31 and is deliberately not that.
-A static page cannot know whether anyone is online, and a presence light
-that is always green is the one element in a scene like this that
-actually misleads someone. It is the same reason the line was written
-this way in STEP 20. The GREEN is WhatsApp's, the claim is not.
+#### The copy
+Pill "06 / CONTACT".
 
-`--cv-live` is #00705c in light and #25d366 in dark. It cannot be
-#25d366 in both: WhatsApp's own green measures **1.62:1** on the light
-panel, and the status line is 0.78rem, which is not large text, so the
-floor is 4.5:1. The DOT beside it is the real #25d366 in both themes,
-because a dot is a graphic whose meaning is spelled out in the word right
-next to it.
+Heading: **Tell me what you're working on.**
 
-**The header's second button is a video call**, per the WhatsApp header,
-and it points at `wa.me` because that is where a video call actually
-happens. A camera glyph over a `mailto:` would be an affordance that
-lies about what it does.
+Line: A role, a team that needs sorting out, or a growth problem you
+cannot name yet. I would like to hear about it.
 
-**Bubbles are 75% on desktop and 82% on a phone.** Not 75% on both: 75%
-of a 326px column is 245px, and the reply is 72 characters, which at
-0.95rem is six lines in a bubble taller than it is wide and stops reading
-as a message.
+Availability, `.ct__avail`, smaller and muted: Open to Customer Success,
+Business Development and Growth roles. Remote, hybrid or on-site.
 
-The rest of the page stays beige, charcoal and yellow. This section is
-quoting an interface, the same way the Growth badges quote a brand logo.
+**The availability line is the one thing rescued from the chat.** It was
+the outgoing bubble's text and it was the only information in the
+bubbles, so it moved here rather than going with the panel. It is
+deliberately quieter than the invitation above it: it qualifies the
+invitation rather than being a second one, and at the invitation's size
+the two competed. `--muted` is 5.6:1 in light and 7.4:1 in dark at
+0.9375rem, so it is quiet without becoming decoration.
 
-**Four surface tokens** were the STEP 20 original, because a chat panel is
-a stack the palette did not have: a sheet, bubbles sitting ON the sheet,
-and a hover state above those. `--surface` and `--panel` are the same
-colour here, so a bubble painted `--panel` on a `--panel` sheet would be
-invisible. That reasoning is why the list above exists at all.
+It names the ROLES first and the arrangement second, because which roles
+is what a recruiter is scanning for.
 
-`--cv-live` is 4.5:1, not 3:1. The status line is 0.78rem, which is not
-large text, so the large-text floor does not apply to it. Measured,
-`#12a150` was 2.85:1 on the sheet and failed; `#0f7a3a` is 4.60:1 and
-still reads as a status light rather than as ink. In dark it goes to
-`#46d07f` (8.08:1), because the light green is 2.6:1 on a dark sheet.
+#### The heading block is CENTRED, which reverses STEP 19
+STEP 19 set `.contact { text-align: left }` and the reasoning was sound
+at the time: the section carried "a heading, a scene and a card column",
+and centring a layout that wide made the eye hunt for the start of each
+line.
 
-**The action bar is not three equal columns.** The address is one
-unbreakable 26 character run and the other two values are about half
-that. An even split gave the email 181px against the 190px it needs and
-broke it over two lines while the phone row sat half empty, so the
-columns are `1.25fr 1fr 1fr`.
+**There is no scene now.** There is a heading block and a symmetric
+four-across row, and a left aligned heading over a symmetric full-width
+row leaves a visible hole on the right. So `.ctc__intro` carries
+`text-align: center` and `.contact` KEEPS `text-align: left`, so exactly
+one block opts out and everything inside the cards stays left aligned,
+which is what a label above a value needs.
 
-#### The sequence
-**The markup is the finished state** and script.js winds it back to play
-it, the same contract every scene in this section has had. `.is-live` is
-written only immediately before the run starts, so no JavaScript, an
-exception before that point, or a browser that never fires the observer
-all leave the whole conversation and all three addresses on screen.
-Those addresses are the point of the section; they are never staked on a
-gesture that may not come.
+Both measures (`.ct__line` at 560px, `.ct__avail` at 52ch) take
+`margin-inline: auto`, or the block would be centred text hanging off a
+left edge.
 
-A chain of timeouts, not one keyframe, because it is separate things
-happening in order at conversation pace. Every handle goes in one array
-so the run can be cancelled in a single pass.
+**The alternative was the split layout**, heading left with the four
+cards stacked right. It was rejected on two counts: a vertical list of
+four reads as a menu and flattens the primary card, which is the one
+thing on this screen that has to dominate; and at 1200px, where the
+sidebar still takes about 370px off the wrap, each column is only ~405px
+and the heading sets in three lines.
 
-The gaps are **message beats, not UI beats**. Each bubble's own entrance
-is 200ms; the 180 / 620 / 1680 / 1960ms marks between them are long on
-purpose, because the thing being animated is a conversation and a
-conversation has pauses. Read the pauses as content. The three actions
-then arrive 70ms apart: enough to see them as three things rather than
-one block, not enough to make anyone wait.
+#### Everything deleted, so nobody hunts for it
+From index.html: `.cv`, `.cv__panel`, `.cv__head`, `.cv__av`,
+`.cv__avimg`, `.cv__who`, `.cv__name`, `.cv__status`, `.cv__live`,
+`.cv__thread`, both `.cv__msg` bubbles, `.cv__meta`, `.cv__time`,
+`.cv__ticks`, and the `visually-hidden` "Read" span.
 
-**The typing dots do double duty.** They appear before the reply, so it
-looks composed rather than pasted, vanish as it lands, then return at the
-end where they read as the OTHER side starting to type. That is an
-invitation, not a promise that he is about to answer.
+From style.css: every rule above, their five phone overrides, and the
+`.cv__av` / `.cv__avimg` entries in the STEP 23 selection, `::selection`
+and `-webkit-user-drag` lists, where they were stopping the avatar being
+selected or dragged.
 
-The dots are the one piece of CSS `animation` here rather than a
-transition: predetermined, repeating, and off the main thread, so they
-stay smooth while the rest of the page is still loading. Everything else
-is a transition on named properties. Never `all`: a transition on `all`
-would also animate the `background-color` the hover rule changes and the
-two would fight over the same 200ms.
+From script.js: `cvTime`, `cvStamp` and the `visibilitychange` listener
+that re-read the clock. **There is no JavaScript in this section at
+all now.**
 
-Entrances are `translateY(8px) scale(0.96)` plus opacity, never
-`scale(0)`. Each bubble also comes from its own side, `-10px` for the
-incoming and `+10px` for the outgoing, which is the one piece of spatial
-information a thread carries: who said it.
+**The whole `--cv-*` token family is deleted from BOTH theme blocks.**
+Fourteen tokens: `--cv-panel`, `--cv-wall`, `--cv-in`, `--cv-in-ink`,
+`--cv-out`, `--cv-out-ink`, `--cv-stamp`, `--cv-row`, `--cv-hover`,
+`--cv-shadow`, `--cv-live`, `--cv-dot`, `--cv-tick`, `--cv-wa`.
 
-**The observer watches the PANEL at 40%, not the section.** The section
-is taller than a phone screen, so a threshold on it could never be met
-and the run would never start. That is the trap the laptop scene hit.
+They existed because a chat panel is a surface STACK the palette did not
+have: a sheet, a wall behind the bubbles, and two bubble colours on top,
+with `--surface` and `--panel` being the same colour here so a bubble
+painted `--panel` on a `--panel` sheet would have been invisible. There
+is no such stack any more. **Do not reintroduce them for a single
+bubble**; the reason they were a family rather than two colours is in
+that sentence and it still holds.
 
-**Reduced motion: fewer and gentler, not none.** The bubbles still arrive
-in order, because the ORDER is the content and removing it leaves the
-panel telling no story. What goes is the travel and the scale, so they
-fade in where they already are, and the dots stop bouncing rather than
-looping forever in the corner of the eye. The timing is identical, so
-there is one sequence to reason about rather than two.
+This also means **the page is back to beige, charcoal and yellow
+throughout.** The chat was the one part that was not, because it was
+quoting an interface. The only quoted colours left are Instagram's
+gradient and YouTube's red in the Growth badges, which are brand marks
+rather than a palette.
 
-Phone: the bar stacks to one column with 56px minimum rows, the header's
-two icon links are dropped, and the bubbles widen to 86%. Three across
-would give each row about 110px on a 390px screen and break the address
-over four lines.
+`.visually-hidden` is now unused in the markup and is kept: it is a
+one-rule generic utility and the next piece of markup may want it.
 
-Measured at 1440x900 and 390x844, both themes: the sequence runs in
-order, the live clock writes, all three rows are real links, the typing
-dots animate in normal motion and do not under reduced motion, and there
-is no horizontal overflow. Contrast, light: incoming text 13.79:1,
-outgoing 5.70:1, status 4.60:1, value 13.79:1, action label 6.56:1. Dark:
-11.33, 7.10, 8.08, 11.33, 5.10.
+#### The four cards, unchanged from STEP 37
+`.ctc` is a grid: two columns by default (tablet), four from 1200px, one
+below 600px. Explicit breakpoints rather than `auto-fit`, because
+auto-fit gives three across plus an orphan somewhere in the range and a
+row of four actions reading 3 + 1 looks like a mistake.
 
-One figure that is deliberately low: a bubble against its sheet is
-1.16:1. That is a grouping, not a control boundary, and it is what every
-messaging app does; the text inside it carries the contrast.
+Every card is `min-height: 72px`, which is both the brief's floor and
+what two lines plus the padding comes to. **That also clears the 56px tap
+target**, so there is no separate mobile minimum.
 
-#### The cards
-Email: mohamedelhayyany@gmail.com (`mailto:`) plus a Copy button that
-reads "Copied" for 1.5s. The copy goes through `navigator.clipboard`
-where there is a secure context and a hidden textarea plus
-`execCommand` where there is not, which is the path that actually runs
-when the page is opened by double-clicking index.html.
-Phone: +212 694 561 949 (`tel:`) plus a WhatsApp link to
-`https://wa.me/212694561949`.
-LinkedIn: the value reads "Mohamed Elhayyany", not the URL. The whole
-card is the click target, reached by stretching the "View profile"
-anchor over it with a transparent `::after` rather than wrapping the
-card in a link, so the label and the name stay plain text and the link
-keeps a name of its own. Only this card does it: the other two each have
-a control that a stretched link would cover. Opens in a new tab.
+1. **Book a meeting** / `15 minutes, no prep needed`
+   `https://cal.com/mohamed-elhayyany-my4ujj/15min`, new tab, real
+   calendar glyph, arrow after the title. **PRIMARY.**
+2. **Email me** / `mohamedelhayyany@gmail.com`
+   `mailto:` with a prefilled subject and body, plus a Copy button that
+   reads "Copied" for 1.5s.
+3. **WhatsApp** / `+212 694 561 949`
+   `https://wa.me/212694561949`, new tab, the real brand glyph.
+4. **LinkedIn** / `Mohamed Elhayyany`
+   `https://linkedin.com/in/mohamed-elhayyany`, new tab, the real brand
+   glyph.
 
-Layout: beside the scene from 1400px, three across from 1200 to 1399,
-two across with the third spanning both from 900 to 1199, stacked below
-900. 1400 and not 1200 for the side column: the sidebar is already gone
-from the row by then, and at 1200 a 330px card column left the laptop
-369px wide.
+Both brand marks are `fill="currentColor"`, per STEP 30, because here the
+mark is an affordance rather than a logo.
 
-Location: Morocco. Open to roles worldwide, remote, hybrid or on-site,
-and to relocation.
-Site line: Based in Morocco. Working with the world.
+**Exactly one primary action.** `.ctc__card--primary` is the accent FILL
+with `--accent-on` text and a deeper shadow in `--accent-glow`. Nothing
+else in the section wears the accent as a fill. Contrast: the title is
+**14.6:1** in both themes; `--ctc-prim-sub` is the card's own ink at
+reduced alpha so it tracks the theme flip, **10.4:1 light** and **8.7:1
+dark**. The badge is `--ctc-prim-well`, a translucent well of the card's
+ink, because a panel-coloured tile on a charcoal fill reads as a hole
+punched in the card.
+
+**The email card is the one that is not an anchor.** A `<button>` inside
+an `<a>` is invalid, so that card is a container with the link stretched
+over it by `.ctc__hit` and the Copy button above it on `z-index`,
+cancelling the event so a copy never also opens the mail app. The icon,
+title and address stay plain text in the accessibility tree.
+
+`.ctc__copy` is deliberately compact and the width is the reason: at four
+columns a card is ~248px at 1440, leaving ~114px for the address, and
+"mohamedelhayyany" alone is ~104px at 0.8125rem. At the usual
+`6px 10px` / `0.6875rem` the button pushed it to three lines; at
+`5px 9px` / `0.65rem` it sets as two, which is what the `<wbr>` at the @
+is for. **Do not grow this button without re-checking the address at
+1440.**
+
+#### The animation is the entrance and nothing else
+The page's shared `[data-reveal]` riser, not a scene. **Six revealables**
+in document order: the heading block and each of the four cards, plus
+whatever precedes them. They rise 24px and fade over 600ms on `--ease`,
+staged 100ms apart by an inline `transition-delay` the observer writes.
+`transform` and `opacity` only.
+
+`[data-reveal]` is on each CARD, not on the `.ctc` list, and that is
+load-bearing: the list would be a revealable too, so its opacity would
+multiply with each card's and the row would fade in twice.
+
+**No JavaScript was written for it.** Reduced motion and the no-JS
+fallback are properties of the shared riser: `html.rm` holds opacity at 1
+and cuts travel to `--rm-shift`, and `.no-js [data-reveal]` leaves
+everything present. **All four cards work with JavaScript disabled**:
+three are plain anchors and the fourth is a stretched anchor. Only the
+Copy button needs script, and the card underneath it is a `mailto:`
+either way.
+
+The hover lift is 3px, gated behind `(hover: hover) and (pointer: fine)`,
+with an `html.rm` rule that removes the lift and the arrow slide.
+
+#### One screen, and it now fits with no special case
+**The short-viewport override is DELETED.** STEP 37 needed one: the chat
+panel was ~245px on its own, which put the section near 750px at
+1280x720 on top of the 202px its own 14vh padding already spends.
+
+With the panel gone the content is about 344px:
+
+```
+  1280x720    202 padding + 344 = 546px
+  1440x900    252 padding + 344 = 596px
+  1920x1080   288 padding + 344 = 632px
+```
+
+All three fit with the DEFAULT padding and no media query. Keeping the
+override would only make a section that already fits look top-heavy on a
+laptop. If a scene is ever added back, that rule is the first to
+reinstate, and `(min-width: 900px) and (max-height: 820px)` is the query
+the rest of style.css already uses for it.
+
+The footer follows as ordinary content. Nothing reserves height against
+it; `--ct-footer` went in STEP 19 and has not come back.
+
+#### OPEN ISSUE, carried over from STEP 37 and still open
+**No desktop screen names the country.** "Based in Morocco" appears
+exactly once in the markup, in `.menu__place`, and the mobile menu is
+`display: none` above 900px. The pitch band pill says "Working with the
+world" with no country, and the footer carries name, role and year but no
+location, although the page section list in this file says it should
+carry one.
+
+The availability line says "Remote, hybrid or on-site", which is the
+arrangement, not the place. This was never asked for and is a side effect
+of replacing the old `.ct__line`, which used to read
+"Based in Morocco. [Working with the world]."
+
+Three ways to close it, none applied: extend `.ct__avail` to
+"... Remote, hybrid or on-site, from Morocco"; add the location to the
+footer, which is what the section list already promises; or restore a
+short line of its own. **The footer is the cheapest and the only one that
+puts it on every screen.**
+
+**No city anywhere on the site, and no "open to roles worldwide"
+phrasing.** The location is the country. The Work timeline keeps "Cadi
+Ayyad University": that is where a degree was taken, not a statement
+about where he will work.
 
 ---
 
