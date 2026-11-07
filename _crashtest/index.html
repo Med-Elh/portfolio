@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crash bisect</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0 auto; padding: 20px 16px 60px;
+    font: 16px/1.55 -apple-system, system-ui, sans-serif;
+    max-width: 640px;
+  }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em;
+       opacity: .6; margin: 28px 0 10px; }
+  p  { margin: 0 0 14px; }
+  .lead { opacity: .7; }
+  ol { padding-left: 20px; margin: 0 0 20px; }
+  li { margin-bottom: 7px; }
+  a.t {
+    display: block; padding: 16px; margin-bottom: 10px;
+    border: 2px solid currentColor; border-radius: 12px;
+    text-decoration: none; color: inherit;
+  }
+  a.t b { display: block; font-size: 17px; margin-bottom: 6px; }
+  a.t span { display: block; font-size: 14px; opacity: .75; }
+  a.t em { display: block; font-size: 14px; margin-top: 6px; font-style: normal;
+           padding: 8px 10px; border-radius: 8px;
+           background: rgba(128,128,128,.16); }
+  .rule { border-left: 3px solid currentColor; opacity: .75;
+          padding-left: 12px; font-size: 14px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+
+<h1>Crash bisect</h1>
+<p class="lead">Each page is the real site with exactly one thing removed.</p>
+
+<h2>How to run it</h2>
+<ol>
+  <li><strong>Close your other tabs first.</strong> With 27 open, every result is random.</li>
+  <li>Open one link. Wait 5 seconds. <strong>Scroll to the bottom and back up.</strong></li>
+  <li>Reload it <strong>three times</strong> before calling it a pass.</li>
+  <li>Go back and do the next one. Write down pass or crash for each number.</li>
+</ol>
+
+<div class="rule">
+  <strong>PASS</strong> = the page renders and you can scroll it, even if it
+  looks broken or ugly.<br>
+  <strong>CRASH</strong> = "Can't open this page", or the tab goes blank and
+  reloads itself.<br>
+  Looking wrong is not failing. Only dying is failing.
+</div>
+
+<div class="rule">
+  All of these will be <strong>dark</strong>, unless you have previously set
+  this site to light. That is normal, dark is the default on a first visit.
+</div>
+
+<h2>Pick the portrait's edges</h2>
+
+<a class="t" href="fade.html" style="border-color:#f5e500">
+  <b>Fade distance &middot; do this one</b>
+  <span>Radius locked at E, the one you picked. Five buttons change how far in the fade starts.</span>
+  <em><strong>1</strong> is E exactly as it is now, the one eating the suit. <strong>2</strong> to
+      <strong>5</strong> push the solid part further out, so more of the jacket stays fully there and
+      the fade is squeezed into a narrower band at the very edge. The outer edge is fully
+      transparent in all five, so only the suit changes, not the edges you already approved.
+      Tell me the number.</em>
+</a>
+
+<a class="t" href="mask.html">
+  <b>Edge radius</b>
+  <span>The earlier one, kept in case you want to re-check the edges.</span>
+  <em><strong>A</strong> original three layers, <strong>B</strong> the hard cut,
+      <strong>C D E</strong> progressively tighter. You picked <strong>E</strong>, and the real
+      site is set to it now.</em>
+</a>
+
+<h2>The tests</h2>
+
+<a class="t" href="00-hello.html">
+  <b>00 &middot; hello</b>
+  <span>Sanity check. One line of text.</span>
+  <em>Pass: you see "00 hello". If this crashes, the problem is your phone or the server, not the site.</em>
+</a>
+
+<a class="t" href="01-no-js.html">
+  <b>01 &middot; no JavaScript</b>
+  <span>Full markup and CSS. script.js removed.</span>
+  <em>Pass: blank for about 1.6 seconds, then the whole page appears at once, fully styled but completely static. No intro, nothing fades in. The timeline has cards but <strong>no curved line</strong> between them. Menu, theme toggle and Read more do nothing. All numbers show their final values.</em>
+</a>
+
+<a class="t" href="02-no-css.html">
+  <b>02 &middot; no CSS</b>
+  <span>Full markup and JavaScript. style.css removed.</span>
+  <em>Pass: a long wall of plain black-on-white text in Times. The portrait is enormous and you can scroll sideways. This looks completely broken and that is <strong>correct</strong>. Only "does it die" matters here.</em>
+</a>
+
+<a class="t" href="03-no-portrait.html">
+  <b>03 &middot; no portrait</b>
+  <span>Everything, minus the hero photo.</span>
+  <em>Pass: the normal site, normal intro, but no photo of you in the hero. Everything else identical.</em>
+</a>
+
+<a class="t" href="04-reduced-motion.html">
+  <b>04 &middot; motion turned down</b>
+  <span>Everything, with the site's own reduced-motion switch on.</span>
+  <em>Pass: the normal site, but calm. The name appears without the letters rising, nothing slides in as you scroll, no parallax on the photo. Numbers still count up. That is by design.</em>
+</a>
+
+<a class="t" href="05-no-canvas.html">
+  <b>05 &middot; no particle canvas</b>
+  <span>Everything, minus the background canvas.</span>
+  <em>Pass: looks <strong>identical</strong> to the real site. The particles are faint and you will not notice they are gone. If you cannot tell the difference, it loaded correctly.</em>
+</a>
+
+<a class="t" href="06-hero-only.html">
+  <b>06 &middot; hero only</b>
+  <span>Everything loads, but only the hero is shown.</span>
+  <em>Pass: one screen. Your name, photo, headline, buttons, stats. Then the page just stops, with nothing below it. Barely any scrolling.</em>
+</a>
+
+<a class="t" href="../index.html">
+  <b>07 &middot; the real page</b>
+  <span>The control. Nothing removed.</span>
+  <em>Pass: the full site, top to bottom. This is the one that has been crashing, so if it now passes with your tabs closed, that itself is the answer.</em>
+</a>
+
+<h2>What the answers mean</h2>
+<p style="font-size:14px;opacity:.8">
+  01 passes and 07 crashes &rarr; JavaScript.
+  02 passes &rarr; CSS, almost certainly compositing.
+  03 passes &rarr; still the portrait.
+  04 passes &rarr; animation rather than static memory.
+  05 passes &rarr; the canvas.
+  06 passes &rarr; the length of the page, not the hero.
+  Everything crashes except 00 &rarr; the sheer weight of the document, and we strip much harder.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+# OS and file-manager cruft. Nothing else in this tree is ignored, and
+# that is deliberate: CNAME is the custom domain setting, assets/ holds
+# every image the page serves, and the _baseline-* folders are the only
+# copies of several source files (see .gitattributes and the archive
+# note in CLAUDE.md).
+.DS_Store
+Thumbs.db
+desktop.ini

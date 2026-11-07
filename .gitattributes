@@ -1,0 +1,22 @@
+# Git for Windows sets core.autocrlf=true, which checks text files out
+# with CRLF line endings. CNAME must stay exactly 21 bytes: the domain
+# and one \n, with no BOM and no trailing content. GitHub Pages reads
+# this file as the source of truth for the custom domain, and a
+# trailing \r makes it reject the name, which drops the site back to
+# the github.io address and breaks every link to
+# mohamedelhayyany.com until it is fixed and DNS settles.
+#
+# index.html, style.css and script.js are CRLF in the working tree.
+# autocrlf round-trips those losslessly, so they are left alone rather
+# than normalised: converting them here would be a 19,000 line
+# whitespace change nobody asked for.
+CNAME text eol=lf
+
+# No line-ending conversion on binaries, whatever git guesses them to
+# be. A stray \r inserted into a PNG or a TTF corrupts the file.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.pdf  binary
+*.ttf  binary
+*.ico  binary
