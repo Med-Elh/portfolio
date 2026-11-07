@@ -163,11 +163,20 @@ five to three makes it shorter and changes nothing else.
 - `assets/docs/cv.pdf`
 - Never invent filenames. Ask if an image is needed that does not exist.
 - **There are no certificate images.** Four `cert-*.png` sat in
-  `assets/images` until STEP 33 with nothing referencing them; the
-  `#certbox` lightbox that would have shown them has no `[data-cert]`
-  trigger anywhere in the markup, so it can never open. The markup, CSS
-  and JS for it are still there and inert. Do not add images back to it
-  without a reason.
+  `assets/images` until STEP 33 with nothing referencing them. Do not
+  add images back for them without a reason.
+
+  **`#certbox` is no longer inert, and that is STEP 47.** For six steps
+  it had no `[data-cert]` trigger anywhere in the markup and therefore
+  could never open. The Systems section's "See the actual flow" link is
+  one now, so the overlay is live, reachable and on screen: it shows
+  `assets/flow-weblane.png`. Three things changed with it, and they were
+  latent bugs rather than new features, which is what six steps of dead
+  code buys you. It gained a caption, a focus trap and `role="dialog"`
+  plus `aria-modal`, and its close button moved off `--muted`, which is
+  3.00:1 on that near-black ground in light mode and was never seen
+  because nothing could open the thing. The new token is `--overlay-ink`,
+  FIXED in both themes for the same reason `--overlay` is.
 
 ## The custom domain and CNAME. DO NOT BREAK THIS
 The site is served from **https://mohamedelhayyany.com** through GitHub
@@ -1019,10 +1028,20 @@ text, and taking coral DARKER on hover drops its contrast against a
 near-black label. `#EE4531` is still a deeper, denser coral than
 `--accent` and carries the label.
 
-`--faint` is corrected but **nothing reads it**: it is declared in both
-theme blocks and `var(--faint)` appears nowhere in the file, so the
-brief's value would not have broken anything visible. It is fixed so the
-next thing to use it does not inherit the failure silently.
+`--faint` was corrected here and then **read by nothing for five
+steps**: it was declared in both theme blocks while `var(--faint)`
+appeared nowhere in the file, so the brief's failing value could not
+have broken anything visible. It was fixed so that the next thing to use
+it would not inherit the failure silently.
+
+**STEP 47 is that next thing, and it vindicates the decision.**
+`.wis__num`, the 01 / 02 / 03 down the left of the What I Solve rows, is
+the first real reader of the token, and `.sy__fnote` is the second. The
+shipped `#6C7278` is 4.54:1 on `--bg`; the brief's `#8A8F94` was 3.04:1
+and would have failed a 14px number outright. Five steps of nothing
+reading a token is exactly how a silently wrong value survives to the
+day something needs it, which is the argument for fixing one when you
+find it rather than when it finally matters.
 
 **`--body` is DERIVED and is not in the brief.** The brief gives three
 inks and the page uses four: body copy is `--body` and small labels are
@@ -1632,13 +1651,21 @@ the sidebar's dark-panel switch finds the band with
    this one absorbed it, and the old Background section before that.
 
    A lead sentence at heading size with the accent word on the tinted
-   marker, a four-line intro (max ~560px), then a **strengths row**: four
-   blocks - Customer Success, Business Development, Marketing, Team
-   Leadership - each a small accent icon, the strength name, and one line
-   of proof carrying its number on a tinted marker. Four across, 2x2 under
-   1200px, one column under 620px. The blocks come up one after another
-   when the row arrives and the numbers count up; deliberately once only,
-   unlike the cards below.
+   marker, a four-line intro (max ~560px), and then straight into the
+   timeline.
+
+   **The strengths row is DELETED, in STEP 47.** Four blocks sat between
+   the intro and the timeline: Customer Success, Business Development,
+   Marketing, Team Leadership, each an accent icon, the strength name and
+   a proof line whose figure counted up on the marker. It was the same
+   four areas in the same order as the four How I Can Help cards and the
+   same four figures as the Results grid, so the reader met all of it
+   three times. Gone with it: `.st`, `.st__item`, `.st__ico`, `.st__name`,
+   `.st__proof`, the nth-child stagger, the 1200px and 620px column steps,
+   the `html.rm` and `.no-js` fallbacks, and the `[data-st-count]`
+   counter module in script.js. **No fact was lost**: the team of 12 and
+   the 98% are in the '22 card, the 100+ accounts and 150+ sales in the
+   '25 card, the 300+ posters in the '26 card.
 
    Then the timeline: five cards alternating right/left down the page,
    centres ~60vh apart, horizontal offsets varied so it wanders rather
@@ -1736,13 +1763,12 @@ the sidebar's dark-panel switch finds the band with
    text, what I brought. One at a time, closed by the button or Escape.
    Below 900px the column is single and the curve straightens into a rail.
 
-5. **What I Bring (03)** - a huge two-line gradient heading, then one
-   sentence with an inline chip on each capability. Hovering, tapping or
-   pressing Enter on a chip opens a card anchored to it. The sentence is
-   pinned for one extra viewport height and its words come into focus
-   left to right on scroll position, so it unwinds on the way back up.
-   See the Content section below for the wording, the cards and the two
-   stacking traps the reveal sets.
+5. **What I Solve (04)**, `#capabilities` - a two-column header over
+   three hairline rows. **STEP 47 replaced "What I Bring"**, which was a
+   huge two-line gradient heading over one sentence with an inline chip
+   on each capability, pinned for an extra viewport height with its words
+   coming into focus left to right on scroll. See the Content section
+   below for what it says now and why the old one went.
 
    The old four-card [data-rail] carousel that lived here is gone, but
    **the rail's JavaScript and its .cardrail chrome were deliberately
@@ -2085,10 +2111,11 @@ is display text at a reading size, not body copy.
 Status pill: Working with the world
 Button: Get in touch → `#contact` (kept, unchanged)
 
-Stat blocks. **The hero has FOUR and the sidebar has SIX since STEP 44**,
-which is the one place the two lists are allowed to differ. STEP 36
-corrected the revenue label, STEP 39 gave three of them a timeframe, and
-STEP 43 raised two of the figures.
+Stat blocks. **The hero has FOUR and the sidebar has THREE since STEP
+47**, which is the one place the two lists are allowed to differ. It was
+four and four, then four and six in STEP 44. STEP 36 corrected the
+revenue label, STEP 39 gave three of them a timeframe, and STEP 43
+raised two of the figures.
 
 The hero's four, in `data-fly-stat` order:
 - `100+` Accounts, onboarding to renewal
@@ -2099,13 +2126,31 @@ The hero's four, in `data-fly-stat` order:
 The third is `300+`, NOT "98% Policy accuracy at scale", which is what
 this file used to claim and the page never said.
 
-The sidebar's six, in reading order down the 2x3 grid:
-- `$50k+` Ad spend managed to date          (no hero twin)
-- `150+` Sales closed in under 3 months     (hero 1)
-- `Zero to a brand` Postry, built and run by me   (no hero twin)
-- `100+` Accounts, onboarding to renewal    (hero 0)
-- `300+` Posters sold, first 3 months       (hero 2)
-- `25%` Company revenue growth in 2 months  (hero 3)
+The sidebar's three, in reading order down a SINGLE column:
+- `$50k+` Ad spend managed to date          (no hero twin, `data-sb-late`)
+- `2% to 5%` Lead conversion, after automation  (no hero twin, `data-sb-late`)
+- `150+` Sales closed in under 3 months     (hero 1, `data-sb-stat="1"`)
+
+**It was six, 2x3, and STEP 47 cut it to three.** The reason is the
+Results grid, which carries the same figures one screen below: a reader
+scrolling past the sidebar met every number twice. These three are the
+ones that are not the grid's own headline, one per discipline:
+marketing, then automation, then sales.
+
+Dropped from here and still on the page: `100+ Accounts` and `25%
+Company revenue` are hero stats, `300+ Posters` is a hero stat and the
+'26 timeline card, and `Zero to a brand` was the odd phrase among the
+figures and is what the '26 card says at length. **`.sb__num--text` and
+the `--sb-num` custom property it needed are therefore read by nothing
+now**, and are kept rather than swept: the trap they exist for is real
+and documented under STEP 44, and the next phrase-shaped stat will want
+them.
+
+**The grid is one column, not two.** Three in a two-column grid leaves
+the third alone on a row beside an empty cell, and a column of three in
+a column-shaped panel reads as a list rather than as a broken grid. It
+also hands each label the full panel width, so "Lead conversion, after
+automation" sets on two lines instead of three.
 
 **STEP 43 raised two figures and STEP 44 a third**: posters `250+` to
 `300+`, revenue `15%` to `25%`, sales `100+` to `150+`. All three are the
@@ -2194,9 +2239,11 @@ Intro (max ~560px):
 Customer success keeps clients. Business development brings new ones.
 Marketing gets them through the door. I do all three.
 
-#### Strengths row (replaced the counters)
-Four blocks: accent icon, strength name, one line of proof with its number
-on a tinted marker.
+#### Strengths row: DELETED in STEP 47
+It replaced the counters, and then it repeated the page. Four blocks,
+each an accent icon, a strength name and one line of proof with its
+number on a tinted marker:
+
 - **Customer Success** - [100+ client accounts] managed from onboarding to
   renewal
 - **Business Development** - [150+ sales] closed in under 3 months, plus
@@ -2205,6 +2252,17 @@ on a tinted marker.
   in the first 3 months
 - **Team Leadership** - Led a team of 12 at Majorel (ByteDance / TikTok
   account) with [98% accuracy]
+
+**Those are the same four areas, in the same order, as the four How I
+Can Help cards, and the same four figures as the Results grid.** Work
+goes from its intro into the timeline now, which is the evidence the row
+was summarising. Every figure above still appears in the timeline card
+for the year it happened in, which is where it means something: a figure
+with a date behind it reads as a fact and the same figure in a grid of
+four reads as a claim.
+
+The copy is kept here because it is the full phrasing of each proof
+line, and the shortened sidebar labels are measured against it.
 
 #### Colour inside this section
 The accent carries it: the year numbers, the timeline dots and the tool
@@ -2308,162 +2366,119 @@ artist and creator commissions. Profitable with zero outside funding.
 The old Background section (education, certifications, languages) was
 removed. What survived of it lives in the year it happened.
 
-### What I Bring (03)
-Pill "03 - WHAT I BRING", then a huge centred heading on two lines,
-"What" / "I Bring?", with a vertical gradient from #111111 at the top of
-the letters to #4a463d at the bottom. Under it a small centred pill,
-"CAPABILITIES OVERVIEW".
+### What I Solve (04). STEP 47 replaced What I Bring
+Pill "04 / WHAT I ACTUALLY SOLVE". Then a two column header and three
+rows, and nothing else. No cards, no icons, no chips, no figures.
 
-Then one sentence carries the section. `[NAME]` is an inline chip:
+```
+  .wis__head    heading left, qualifier right and BOTTOM aligned
+  .wis__rows    three .wis__row, hairline above each, one below the last
+                .wis__num   mono, --faint, 40px column   01 / 02 / 03
+                .wis__prob  heavy, ~34px, max 14ch
+                .wis__ans   --muted, 16px, max 420px
+```
 
-"Customer success [SUCCESS], business development [GROWTH] and marketing
-[MARKETING] combined - keeping every client [RETENTION], winning new ones
-[SALES], and leading the people [TEAM] who make it happen, in four
-languages [LANGUAGES]."
+Heading, max 16ch: **The customer was never the problem.**
 
-**The chips are buttons, not hover targets.** A card reachable only with a
-mouse is a card half the visitors never read. Hover opens it, so does a
-tap, so does Enter or Space; Escape, a tap outside, or moving the mouse
-away closes it. Notably it does NOT open on focus alone - that would mean
-the Enter which follows lands on an already-open card and closes it, so
-the keyboard would be the one way in that did not work.
+Qualifier, `--muted`, 17px, 380px: Three failures I see again and again.
+Every one of them looks like a product problem and turns out to be a
+communication problem.
 
-Card: panel colour, radius 20px, 340px, big accent icon, bold title, short
-text. It is centred on its own chip, nudged back on screen if that would
-hang it off an edge, and flipped above the chip when there is no room
-below. On a phone it goes full width at the bottom of the screen instead.
+1. **Traffic grows. Nobody buys.** I find where the journey breaks,
+   between the ad, the landing page and the first reply, before anyone
+   asks for more budget.
+2. **The lead goes cold after the first reply.** I run the handoff
+   between marketing and sales so every enquiry is actually followed up,
+   not just logged somewhere.
+3. **They churn and nobody saw it coming.** Churn is decided in the
+   first two weeks, not at renewal. I make onboarding concrete and check
+   in before there is a reason to complain.
 
-#### STEP 36 rewrote all seven cards: method, not results
-The seven cards used to restate the page's four numbers for the third
-time, in different words, behind a hover. **Not one fact in them was new.**
-They now say HOW he works in that area, which is the one thing a
-capability list can add that the Work timeline cannot.
+#### Why the old section went, and it is a content argument
+What stood here was one sentence pinned for an extra viewport height,
+its words coming into focus left to right on scroll, with eight inline
+chips and eight hover cards. About 400 lines of CSS and 230 of
+JavaScript. Every part of it worked.
 
-- SUCCESS / Customer Success - I make the first two weeks concrete. Most
-  churn is decided there, not at renewal.
-- GROWTH / Business Development - I sell what the product actually does,
-  because I am the one who has to keep the account afterwards.
-- MARKETING / Marketing - I read the ad data before I spend more on it. A
-  campaign that cannot be measured is a guess.
-- RETENTION / Retention - I check in before there is a reason to
-  complain. An angry customer is usually a surprised customer.
-- SALES / Sales - Full cycle, from first contact to signature, so nothing
-  gets promised that cannot be delivered.
-- TEAM / Team Leadership - People do not follow a manager, they follow
-  clarity. Goal, reason, and where they stand.
-- LANGUAGES / Languages - Arabic, English, French and Spanish. I meet
-  customers in their own language.
+**It said the same thing How I Can Help says one section later, and it
+said it about HIM.** Customer Success, Business Development, Marketing,
+Retention, Sales, Team Leadership, Languages, Automation: the same areas
+as the Help cards and the deleted strengths row, a third telling. STEP
+36 had already rewritten the seven cards from results to method on
+exactly that ground, and that bought one step.
 
-**There is not one digit left in this section**, except the `03` in its
-own section marker, and that is checked rather than assumed. The sentence
-still reads "in four languages", which is the word and is part of the
-sentence, not a card.
+**The deeper fault is that the cards were behind a hover.** They carried
+methods and opinions, which are the most arguable things on the page,
+and an argument behind a hover is an argument most readers never meet.
+STEP 36 wrote that the cards "say HOW he works, which is the one thing a
+capability list can add". True, and it does not answer why that belongs
+in a tooltip.
 
-**And there is no marker in any of the seven cards now, which is a
-change and a deliberate one.** The marker's documented job on this page is a
-RESULT. These cards carry methods and opinions, and a marker under
-"Most churn is decided there" would be the page putting its result colour
-behind an assertion. The cards keep their icon and their bold title as
-the visual anchor. Do not put the markers back without a number to put
-them under.
+**So the section is the reader's problem now and the next one is the
+answer.** That is what lets the two sit next to each other: problem,
+then answer. There is deliberately **not one digit** here apart from the
+row numbers and the section marker. The figures belong to How I Can Help
+and the Results grid, and a number in this section would make it compete
+with them again.
 
-#### The reveal, and STEP 36's cut to the pin
-The sentence is pinned and the words come into focus left to right as you
-scroll through it: opacity 0.15 to 1 and blur 4px to 0, each word on its
-own slice of the run. It is read from scrollY every frame rather than
-played on a timer, so scrolling back up runs it exactly backwards. No CSS
-transition on the words - the scroll and a transition would be fighting
-over the same two numbers.
+**The id is still `capabilities`** and must stay unless four things
+change together: the sidebar link, the hero nav link, the mobile menu
+link and the section observer. The LABEL is "WHAT I ACTUALLY SOLVE" and
+the three nav lists say "What I Solve"; that difference is intended, the
+marker is a statement and a nav item is a name.
 
-**`.wib` went 200vh to 110vh in STEP 36 and is 150vh now.** The 110vh was
-asked for specifically, to stop the section being 2.6 screens of page
-height to bring 31 words into focus. What it cost was written down at the
-time and then observed on the page: script.js computes the run as
-`box.height - innerHeight`, so the run is whatever is left over after the
-sticky screen, and at 110vh that was **10vh, about 90px at a 900px
-window, for all 31 words**, under 3px of scroll each. The reveal ran and
-reversed correctly and arrived finished. It read as no animation at all.
+#### The entrance, and the trap in the shared riser
+Three rows, fade and rise, **80ms apart**. It is the page's own
+`[data-reveal]` riser and there is **no JavaScript for it at all**,
+which is also why `html.rm` and the no-JS fallback needed nothing: both
+are properties of the riser.
 
-**150vh is the dial STEP 36 named, so it is the dial that was turned.**
-The run is 50vh, about 450px, roughly 14px of scroll a word, and the
-focus pull is something you scroll through again. `span` stays 0.85 and
-the sticky screen stays a full 100vh: either of those would have bought
-the same run by desynchronising the last word from the pin release, which
-is the one thing that note said not to do. The section still does nothing
-at all below 900px and nothing under `html.rm`, where `.wib` is
-`height: auto`.
+**The trap, and it will catch the next section too.** The riser has no
+stagger of its own. The shared observer in script.js walks every
+`[data-reveal]` in a section in document order and writes
+`index * 100ms` as an **inline** `transition-delay`. An inline style
+beats any class selector, so a plain `nth-child` delay in CSS is
+silently ignored, which is what happened first: the rows measured
+300 / 400 / 500ms.
 
-**Both gaps around the pin were cut with it**, and the two halves are a
-pair: a 150vh block whose sticky screen centres one sentence in 100vh has
-roughly half a screen of nothing above it and half a screen below.
+The rows are children 3, 4 and 5 of the section, behind the marker, the
+heading and the qualifier. So rows two and three override with
+`!important`, which is the only thing that beats an inline style, and
+**row one deliberately keeps the observer's own 300ms**:
 
-**Above: `.wib { margin-top: -14vh }` from 900px up**, replacing
-`clamp(2rem, 6vh, 4rem)`. A negative margin and NOT padding inside the
-sticky screen, which was tried first: padding lifts the sentence off
-centre, so it takes space off the top and hands the same space to the
-bottom. The gap moves, it does not go. Pulling the whole block up takes
-126px out of the top gap, leaves the bottom one alone and shortens the
-page by the same 126px.
+```
+  .js .wis__row:nth-child(2) { transition-delay: 380ms !important; }
+  .js .wis__row:nth-child(3) { transition-delay: 460ms !important; }
+```
 
-It cannot collide with the heading: the sentence sits
-`(100vh - its own height) / 2` below the block's top, about 266px at
-1440x900 against 126px of overlap, and the clearance grows with the
-viewport. It cannot touch the reveal either, since the run is measured
-from the block's 150vh.
+Measured: 0.3s / 0.38s / 0.46s. The rows still follow the header in the
+section's rhythm and only the gap BETWEEN them changes. **The 300ms
+anchor is the count of revealables ahead of the rows**, so adding a
+fourth element to the header block moves both numbers.
 
-**`html.rm .wib` and `.no-js .wib` put the positive margin back**, next
-to the `height: auto` they already carried. There is no pinned screen in
-either, so there is no empty half to pull up into, and the negative
-margin would lift the sentence into the kicker.
+`!important` is used here the same way `html.rm .hx__portrait` uses it
+on the drop-shadow: to win against something written at a higher
+precedence by code that is right for every other section.
 
-**Below: `#capabilities { padding-bottom: 0 }` from 900px up.** The pin
-releases with the sentence centred, so the section already ends on half a
-screen of nothing; another 12vh of section padding under it was the
-second half of the gap before How I Can Help. The next section keeps its
-own `padding-top`, which is what separates the two. The phone's
-`padding-bottom: 60px` is in a `max-width: 899px` block and is untouched.
+#### What the deletion took with it
+From index.html: `.wib`, `.wib__sticky`, `.wib__line`, `.wib__w`,
+`.wib__slot`, eight `.wib__chip` buttons with their `.wib__sr` labels
+and carets, and eight `.wib__card`.
 
-Two traps worth remembering. An opacity below 1 makes each word its own
-stacking context, so a card's z-index cannot reach past the word it lives
-in and every later word paints over it; the word holding an open card is
-lifted while it is open, and forced to full opacity so the card does not
-inherit the word's dimming. And `filter` or `will-change` on a word makes
-it a containing block for fixed-position descendants - both are scoped to
-900px and up, or the phone's full-width card would position itself against
-a single word.
+From style.css: the whole STEP 5 block, plus `html.rm .wib__w` out of
+the no-blur list and the `.wib__chip` 44px tap-target pad out of the
+touch block.
 
-Below 900px and under reduced motion: no pin, no dimming, everything
-simply readable. The HEADING is smaller there; the sentence is not.
+From script.js: the scroll-position reveal, the card placement maths,
+open and close, focus and Escape, and the resize and font-load
+re-measures.
 
-#### The sentence on a phone (STEP 18c)
-It was `clamp(1.35rem, 6.4vw, 2.25rem)` in a 24px gutter, which put it at
-25px in a 310px column on a 390px screen: a paragraph in the middle of
-the page rather than the thing the section is built around. It is now
-`clamp(26px, 7.2vw, 40px)` at `line-height: 1.2` in a **16px** gutter,
-which is 26px at 360, 28px at 390 and 31px at 430, in a 326px column.
-1.2 rather than 1.15 because at this size the tighter leading put one
-line's descenders into the next line's caps.
-
-The heading above it keeps the size it had. Desktop is untouched.
-
-The chips go to `height: 0.85em`. They are icon-only buttons, their names
-sit in a visually hidden span for the screen reader, so they are about
-39px wide whatever the type does and can never be what pushes a line
-over; they shrink only so they stay part of the sentence rather than
-looking like buttons dropped into it.
-
-**78% average line fill is the ceiling at this size, not a bug.**
-Switching `text-wrap` from `pretty` to greedy was tried and measured no
-different at 360, 390 or 430. The rag is set by the words: the sentence
-carries "development", "combined" and "languages", and at 28px in a 326px
-column any two of those overflow, so a line ends early whatever the
-browser does. A larger font lowers the fill rather than raising it.
-
-133px sat between the last line and the end of the section, 32px of the
-sticky wrapper's own bottom padding and about 100px of shared section
-padding, on a section whose content had already finished. The wrapper's
-is now zero and `#capabilities` carries a flat 60px.
-
+**One finding from it is worth keeping, because the next pinned section
+will hit it.** The run is `box.height - innerHeight`, so a pin's reveal
+distance is whatever is LEFT OVER after the sticky screen, not the
+block's height. At 110vh that was about 90px of scroll for 31 words and
+the reveal arrived already finished, reading as no animation at all. The
+dial is the block height; 150vh is what made it readable.
 ### How I Can Help (04)
 Heading, two lines, left aligned: "Where I Make" in `--text`, "The
 Difference" in `--body`.
@@ -3389,3 +3404,280 @@ correct in both themes.
 - Explain each block in plain language. The owner is not a developer.
 - Never add placeholder copy, fake testimonials, or invented numbers.
 - - Never add placeholder boxes or notes-to-self to the rendered page.
+
+---
+
+## The page stopped repeating itself, and it went into git (STEP 47)
+Four sections said the same four things. What I Bring listed Customer
+Success, Business Development, Marketing and the rest as capabilities;
+How I Can Help listed the same areas as services; the Work strengths row
+listed them a third time with the figures; and the sidebar carried the
+six numbers the Results grid already shows. **Nothing was added in this
+step. Three of those four were deleted or rewritten and the fourth was
+left exactly alone.**
+
+**Measured at 1440x900: 16,878px to 15,370px, 18.75 screens to 17.08.**
+
+```
+  Work           3779 -> 3516   the strengths row
+  Systems        2656 -> 2192   two blocks and the long paragraph
+  #capabilities  1849 -> 1068   the 150vh pin
+                      -1508px
+```
+
+The height is the smaller half of the result. The larger half is that
+the page now makes one argument per section instead of the same
+argument four times.
+
+### What changed, in one list
+- **What I Bring became What I Solve.** Its own entry is in the Content
+  section above, including the inline-delay trap in the shared riser.
+- **The Work strengths row is deleted.** Entry under Work (01).
+- **Systems lost two blocks and gained one line.** Below.
+- **The sidebar went six stats to three, in one column.** Entry under
+  the stat blocks above.
+- **How I Can Help is untouched.** Below.
+- Earlier in the same session: the Systems flow diagram and the live
+  `#certbox`, and the About photos on mobile. Both below.
+
+### How I Can Help was deliberately not touched
+Its four cards, their results, their bodies and their "what you get"
+lists are exactly as they were, and **it keeps its single `Let's talk`
+button**. What I Solve has no call to action, so there is no pair of
+identical CTAs to resolve, and the button belongs under the answer
+rather than under the problem.
+
+**This is now the page's largest remaining duplication and it is a
+known one.** The four Help result lines are `3 months. 8,000 followers.
+300+ posters sold.`, `150+ sales closed in under 3 months`, `100+
+client accounts, onboarding to renewal` and `2% to 5% lead conversion`.
+Every one of those figures also appears in the hero, the Results grid,
+Systems or the sidebar. Measured across the rendered page:
+
+```
+  150+        5 zones   sidebar, hero, Work timeline, Results, Help
+  300+        4         hero, Work, Results, Help
+  100+        3         hero, Work, Help
+  25%         3         hero, Work, Results
+  2% to 5%    3         sidebar, Systems, Help
+  $50k+       2         sidebar, Results
+  8,000       2         Results, Help
+```
+
+Work's share of that is correct and should stay: a figure inside the
+timeline card for the year it happened in is evidence, not repetition.
+**The live question is whether the Help cards need figures at all.**
+Taking them out and leaving the cards as capability statements would
+clear three of the seven rows above at once. Not done, because it was
+explicitly out of scope.
+
+One cosmetic mismatch left on purpose: `.hlp__intro` reads "Four areas,
+one goal" and What I Solve says "Three failures". Both are accurate and
+the two sections sit together, so the counts read as a mismatch at a
+glance.
+
+### Systems, trimmed
+The featured card was title, three labelled blocks, the diagram, the
+result strip, the pills and the link. "The problem" and "The detail
+that matters" are gone outright and the long "What it does" paragraph
+is one line:
+
+> Leads came in from the form and were chased by hand. Most went cold
+> before the meeting. Now none of it is manual.
+
+**The diagram is why.** That paragraph was a prose walk through the
+same eighteen steps the reader was about to see drawn, so it was the
+diagram's caption written before the diagram existed. What is left is
+the before and the after, which is the one thing a flow chart cannot
+show. `.sy__lead` is a step above the old `.sy__blocktx` in size and
+into `--body`, because it is the only prose in the card now: at
+`--muted` and 16px it read as a caption under the title rather than as
+the claim the diagram goes on to prove.
+
+The three supporting cards were already one sentence of body each and
+needed no change.
+
+---
+
+## The flow diagram, and the lightbox dead for six steps (STEP 47a)
+The Wel'blane featured card carries the automation as **HTML and CSS
+boxes, not a picture and not one big SVG**. The text stays sharp at any
+zoom, it can be selected and searched, it costs nothing to decode, and
+it reflows into one column on a phone instead of being scrolled
+sideways.
+
+Seven steps: three in a chain, then a branch at step 3 into a four-step
+"Correct" path and a one-step "Needs fixing" path.
+
+**The connectors are CSS and hang off the step BELOW each join**, on
+its `::before` (a 2px `--border` rail) and `::after` (an
+`--accent-text` chevron). Hanging them off the lower box means the last
+step needs no exception and the number of steps can change without a
+connector having to be added with it.
+
+**The split is a bracket, not two angled lines, and that is a real
+decision.** Each branch draws its own half of the horizontal bar
+outward from its own centre to the middle of the gap, where the two
+meet. The obvious way, one bar spanning 25% to 75% of the split, is
+wrong by a quarter of the gap at each end, because a 1fr column's
+centre is not at 25% of the row once there is a gap between the
+columns. Angled lines were asked for and need a length tied to the
+column width, which drifts; the bracket is exact at any width.
+
+**`--faint` failed its one job here and the check caught it.** The
+"Needs fixing" path was specified in `--faint`, which is 4.333:1 on
+`--surface-strong` in light mode, under the 4.5:1 floor, although it
+clears it in dark at 4.752:1. That path is `--muted` instead, 5.59:1
+and 6.33:1. `--faint` carries the note line below the diagram, where it
+sits on `--surface` and measures 4.87:1 and 5.51:1.
+
+### The lightbox was already there and had never opened
+`#certbox` has been in the markup since STEP 33 with a full handler in
+script.js: open, close button, Escape, backdrop click, focus return.
+**It had no `[data-cert]` trigger anywhere, so it could never open.**
+The "See the actual flow" link is one, and the overlay is live.
+
+Six steps of dead code meant six steps of unnoticed faults, all fixed
+with it:
+
+- **A caption**, `data-cert-cap` on the trigger, and `data-cert-alt`
+  for a text link that has no thumbnail to borrow an alt from.
+- **A focus trap.** It returned focus on close and never trapped it, so
+  Tab walked out of the overlay into the page behind.
+- **`role="dialog"` and `aria-modal`.**
+- **The close button was `--muted`**, which is 3.00:1 on the overlay in
+  light mode and 9.07:1 in dark. `--overlay-ink` (#C9CCD0) is FIXED in
+  both themes for the same reason `--overlay` and `--overlay-btn` are:
+  the surface under it is dark whichever theme the page is in. 10.67:1.
+- **The image sizing was a percentage against an indefinite height.**
+  `max-height: 100%` on the image resolved against a frame whose height
+  came from its content, so it was ignored and the picture rendered
+  full size while the frame scrolled. It is `calc(92vh - 56px)` now: a
+  viewport unit is definite whatever its ancestors are doing.
+
+**The image is lazy by construction.** The handler sets `src` on open,
+so `assets/flow-weblane.png` is never fetched until someone asks for
+it, which is stricter than `loading="lazy"`.
+
+On a phone the image is given `width: 680px` and the frame is left to
+scroll, because a wide diagram fitted to 92vw is 359px of unreadable
+type. The browser's own pinch zoom works on top of that.
+
+---
+
+## The About photos on mobile (STEP 47b)
+They were full width and stacked below 480px. They are the desktop
+block scaled down now, overlapping at **every** width.
+
+**Only the ceiling moves.** `--ab-main` is
+`clamp(150px, 46vw, 200px)` below 900px and every size inside the block
+is a percentage of `--ab-w`, so the small card stays at 54% of the main
+one and the overhang stays at a third of the small card to the right
+and the same distance below, with nothing to keep in step by hand.
+
+Measured, and it is the same three ratios at all three widths:
+
+```
+         main    small   % of main   overhang R / B   gutters L / R
+  360   165.6     89.4     54.0       29.5 / 29.5      55.0 / 55.0
+  390   179.4     96.9     54.0       31.9 / 31.9      61.8 / 61.8
+  430   197.8    106.8     54.0       35.2 / 35.2      71.0 / 71.0
+```
+
+Radius 18px to 12px, ring 4px to 3px, shadow `0 18px 40px` to
+`0 8px 20px`, caption 12px to 11px, and 32px between the block and the
+text.
+
+**The deleted unstack was defended at the time and was the wrong
+answer.** Its note argued that a rotated full-width card could push
+past the right edge of a 360 screen. That cannot arise: `--tilt` is
+`0deg`, and the block's own width already includes the overhang, so the
+small card is inside the box at every size. Document `scrollWidth`
+never exceeds the viewport at 360, 390 or 430.
+
+**One thing the scale-down broke, and the fix is the same two
+percentages.** At 179px the small card sat on top of the end of "Most
+of the work looks like this." On desktop this never arises: the line is
+about 170px at 12px and the small card's edge is past 200px into a
+380px card. The main caption is `max-width: 63.8%` below 900px, which
+is `(100 - 45.85) / 84.9`: the small card's left edge over the main
+card's width. It tracks the overlap at every width like everything else
+here.
+
+**Neither photo is interactive anywhere on the site**, and that was
+asked for explicitly: no wrapper, no lightbox, no zoom, no hover lift,
+no cursor change, `pointer-events: none` on the images,
+`draggable="false"` in the markup. `.ab__card` joined the STEP 23
+`user-select` list **and the `::selection` list with it**, which is the
+established pair in this file: without the second, a selection dragged
+down from the heading paints a bar across both captions on the way
+past. Worth knowing that this makes the two captions unselectable,
+which the STEP 23 note did not anticipate. A one-line label on a
+decorative photograph was judged to be on the same footing as the
+section labels already in that list.
+
+---
+
+## The project is in git now (STEP 47c)
+It was not a repository for forty-six steps. `git init -b main`, two
+commits, no remote at first.
+
+**`.gitignore` is three lines**: `.DS_Store`, `Thumbs.db`,
+`desktop.ini`. Nothing else is ignored, and that reverses a proposal to
+ignore the archives. They are 72MB of the 76MB tree, but
+`_baseline-step33` holds the only high-resolution copy of the hero
+portrait and `_baseline-step18` the only uncropped collages, so
+ignoring them would leave the irreplaceable files out of version
+control. 76MB is unremarkable for git and these files never change
+again.
+
+**`.gitattributes` exists for CNAME and nothing else matters as much.**
+`core.autocrlf` is `true` on this machine, which checks text files out
+with CRLF. **A CNAME checked out with CRLF is 22 bytes and GitHub Pages
+rejects it**, which unsets the custom domain and drops the site to the
+github.io address. `CNAME text eol=lf` pins it. Images, fonts and PDFs
+are marked `binary` so nothing inserts a carriage return into them.
+
+The three site files were CRLF and are **LF** now: the STEP 47 edits
+ran through tools that emit LF and script.js came out mixed, so all
+three were normalised rather than left half and half. They are
+deliberately not pinned: autocrlf stores LF and checks CRLF back out,
+which is lossless, and line endings change nothing about how the page
+renders or how it opens from a double click.
+
+### The GitHub repo has an unrelated history, and that is the open item
+`origin` is `github.com/Med-Elh/portfolio`. Fetched read-only; nothing
+pushed, merged or rebased.
+
+```
+  origin/main   50 commits, 2026-08-08 to 2026-11-05, 434 files
+  local main     2 commits, 2026-11-07,                518 files
+  merge-base    NONE
+```
+
+**All 50 commits on origin were made through github.com's web
+interface.** Every committer is `GitHub <noreply@github.com>`. That is
+why there is no shared history: the local tree was never a repository,
+so the two were always going to be unrelated.
+
+**origin is an older version of the same site.** It has no Systems
+section and no About section, and it still has the `.wib` pinned
+sentence and the strengths row. Nothing on origin is content the local
+tree lacks.
+
+**Exactly one file exists on origin and not locally**, and it is junk:
+a root-level `portrait-avatar.jpg`, byte identical to
+`assets/images/portrait-avatar.jpg` (both `b7268c3`), referenced by
+nothing. origin's own index.html points at the `assets/images/` copy.
+It is a stray upload to the wrong folder.
+
+Checked and absent from origin: any `google*.html` verification file,
+`robots.txt`, `sitemap`, `.well-known`. **origin's CNAME is byte
+identical to the local one**, 21 bytes ending in the domain and one
+newline.
+
+**Reconciling the two is not done and should not be guessed at.** The
+local tree is ahead on content and the remote holds the published
+history. Whatever route is taken, the three rules at the top of the
+CNAME section still apply, and the root `portrait-avatar.jpg` is the
+one thing on origin that can be dropped on sight.
