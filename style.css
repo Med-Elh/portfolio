@@ -5952,7 +5952,8 @@ body.is-locked .dots {
 .jr__item--o2,
 .jr__item--o3,
 .jr__item--o4,
-.jr__item--o5 { padding: 0; }
+.jr__item--o5,
+.jr__item--o6 { padding: 0; }
 
 .jr__item--r { padding-right: 4%; }
 .jr__item--l { padding-left: 4%; }
