@@ -6,10 +6,14 @@
 # the github.io address and breaks every link to
 # mohamedelhayyany.com until it is fixed and DNS settles.
 #
-# index.html, style.css and script.js are CRLF in the working tree.
-# autocrlf round-trips those losslessly, so they are left alone rather
-# than normalised: converting them here would be a 19,000 line
-# whitespace change nobody asked for.
+# index.html, style.css and script.js are LF in the working tree. They
+# were CRLF when this file was written; the STEP 47 edits rewrote them
+# through tools that emit LF, and script.js came out mixed, so all
+# three were normalised to LF rather than left half and half. They are
+# deliberately NOT pinned here: autocrlf stores LF and checks CRLF back
+# out, which is lossless either way and is what a Windows clone
+# expects. Line endings do not affect how the page renders or how it
+# opens from a double click.
 CNAME text eol=lf
 
 # No line-ending conversion on binaries, whatever git guesses them to

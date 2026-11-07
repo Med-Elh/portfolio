@@ -183,7 +183,7 @@
         <li class="menu__item">
           <a class="menu__link" href="#capabilities">
             <span class="menu__num" aria-hidden="true">04</span>
-            <span class="menu__text">What I Bring</span>
+            <span class="menu__text">What I Solve</span>
             <svg class="menu__arrow" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h13M12.5 5.5 19 12l-6.5 6.5"/></svg>
           </a>
         </li>
@@ -291,76 +291,54 @@
     </div>
 
     <div class="sb__panel sb__stats" id="sb-stats">
-      <!-- SIX stats, 2x3, since STEP 44. There were four and not one of
-           them was a marketing number, on a page whose whole argument is
-           that marketing, sales and customer success are one job. Ad spend
-           leads, because it is the only figure here that says what the
-           marketing work actually was.
+      <!-- THREE stats, one column. There were six, 2x3, and the Results
+           grid below carries the same six: a reader scrolling past the
+           sidebar met every figure twice. These three are the ones the
+           grid does not lead with, one per discipline, marketing then
+           automation then sales.
+
+           Gone from here, still on the page: "100+ Accounts" and
+           "25% Company revenue" are hero stats and Results cells,
+           "300+ Posters" is a hero stat, a Results cell and the '26
+           timeline card, and "Zero to a brand" was the odd phrase among
+           the figures and is what the '26 card says at length.
 
            Labels that have a hero twin must stay character-for-character
            identical to it in .hx__stats. The morph flies the SIDEBAR stat
            from the hero's position while the hero's own copy fades out,
            aligned on the number chip, so different label text would read
-           as the words changing in mid-flight.
-
-           They are also the shortened forms. The full phrasings live where
-           there is room for them: the strengths row, the timeline cards and
-           the Help cards. The sidebar column is the tightest space on the
-           page at about 127px per stat, and every label here is two lines
-           at 12px, which is what keeps the stat rows a predictable height
-           and leaves the nav below them its flex room.
+           as the words changing in mid-flight. Only "150+ Sales closed in
+           under 3 months" is paired now, and it is identical.
 
            ---- data-sb-stat and WHY the morph needs it ----
            script.js used to pair hero stat N with sidebar stat N by array
            position. That worked only while the two lists were the same
-           four things in the same order. With six here and four there,
-           position pairs "100+ Accounts" with "$50k+ Ad spend", and the
-           two stats with no hero twin are never faded up at all, because
-           the morph is what makes a sidebar stat visible.
+           four things in the same order, and it is further from true now
+           than it has ever been: three here, four there, one pair between
+           them.
 
-           So the pairing is explicit now: data-sb-stat carries the
+           So the pairing is explicit: data-sb-stat carries the
            data-fly-stat value of the hero box this one flies from, and
-           the two with no twin carry data-sb-late instead and join the
-           late arrivals, fading up over the last 20% of the run like the
-           blurb and the email box.
+           the two with no twin carry data-sb-late and join the late
+           arrivals, fading up over the last 20% of the run like the blurb
+           and the email box. That is not decoration. A sidebar stat
+           starts at opacity 0 and the morph is the only thing that fades
+           one up, so an unpaired stat with neither attribute is not
+           merely unanimated, it is invisible.
 
-           The hero runs Accounts then Sales and this column runs Sales
-           then Accounts, so those two cross paths in flight. That is
-           deliberate rather than overlooked: the order here is the one
-           that was asked for, and swapping the hero's first two blocks is
-           the whole fix if the crossing is ever unwanted. -->
+           The three hero stats with no twin here (0, 2 and 3) need
+           nothing: the hero's own copy fades out with the rest of the
+           hero whether or not anything flies from it. -->
       <div class="sb__stat" data-sb-late><span class="sb__num">$50k+</span><span class="sb__lab">Ad spend managed to date</span></div>
-      <div class="sb__stat" data-sb-stat="1"><span class="sb__num">150+</span><span class="sb__lab">Sales closed in under 3 months</span></div>
-
-      <!-- The odd one out, and it is meant to read as one. It is a phrase
-           where the other five are figures, so it takes 60% of their size
-           and wraps to two lines inside the same chip, which is what keeps
-           it looking chosen rather than broken. --vid-* and the morph do
-           not care: it is still a .sb__num on the same chip. -->
-      <div class="sb__stat" data-sb-late><span class="sb__num sb__num--text">Zero to<br>a brand</span><span class="sb__lab">Postry, built and run by me</span></div>
-      <div class="sb__stat" data-sb-stat="0"><span class="sb__num">100+</span><span class="sb__lab">Accounts, onboarding to renewal</span></div>
-
-      <!-- The automation figure, in place of "300+ posters sold". Two of the
-           six stats were Postry and automation had none, so the column now
-           covers one discipline each: marketing, sales, brand, customer
-           success, automation, revenue. The posters figure is not lost, it
-           is still a hero stat, a strengths row line and a timeline card.
-
-           data-sb-late, NOT data-sb-stat="2". It has no hero twin any more,
-           and position is not what pairs these: flying "300+" into
-           "2% to 5%" would read as the number changing in mid-air. As a
-           late arrival it fades up over the last 20% of the run instead,
-           which is also the only thing that makes an unpaired sidebar stat
-           visible at all. -->
       <div class="sb__stat" data-sb-late><span class="sb__num sb__num--span">2% to 5%</span><span class="sb__lab">Lead conversion, after automation</span></div>
-      <div class="sb__stat" data-sb-stat="3"><span class="sb__num">25%</span><span class="sb__lab">Company revenue growth in 2 months</span></div>
+      <div class="sb__stat" data-sb-stat="1"><span class="sb__num">150+</span><span class="sb__lab">Sales closed in under 3 months</span></div>
     </div>
 
     <nav class="sb__panel sb__nav" id="sb-nav" aria-label="Main">
       <a class="sb__link" href="#work" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h18v12H3zM8 8V5h8v3"/></svg><span class="sb__txt">Work</span></a>
       <a class="sb__link" href="#content" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-5 4 3 6-7M16 8h5v5"/></svg><span class="sb__txt">Results</span></a>
       <a class="sb__link" href="#systems" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg><span class="sb__txt">Systems</span></a>
-      <a class="sb__link" href="#capabilities" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 14l9 5 9-5"/></svg><span class="sb__txt">What I Bring</span></a>
+      <a class="sb__link" href="#capabilities" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 14l9 5 9-5"/></svg><span class="sb__txt">What I Solve</span></a>
       <a class="sb__link" href="#help" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v5M12 16h.01"/></svg><span class="sb__txt">How I Can Help</span></a>
       <a class="sb__link" href="#about" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 21a7 7 0 0 1 14 0"/></svg><span class="sb__txt">About</span></a>
       <a class="sb__link" href="#say" data-sb-link><svg class="sb__ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg><span class="sb__txt">What People Say</span></a>
@@ -485,7 +463,7 @@
           <a class="hx__navlink" href="#content" data-fly-nav="1"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-5 4 3 6-7M16 8h5v5"/></svg>Results</a>
           <span class="hx__div" aria-hidden="true"></span>
           <a class="hx__navlink" href="#systems" data-fly-nav="2"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Systems</a>
-          <a class="hx__navlink" href="#capabilities" data-fly-nav="3"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 14l9 5 9-5"/></svg>What I Bring</a>
+          <a class="hx__navlink" href="#capabilities" data-fly-nav="3"><svg class="hx__navico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 14l9 5 9-5"/></svg>What I Solve</a>
         </nav>
 
         <nav class="hx__nav hx__nav--right" aria-label="More">
@@ -657,51 +635,18 @@
           Marketing gets them through the door. I do all three.
         </p>
 
-        <!-- The four strengths the timeline below is evidence for. Each
-             proof line carries its number on the yellow marker, and the
-             number inside the marker counts up when the row arrives. -->
-        <ul class="st" id="st">
+        <!-- THE STRENGTHS ROW IS DELETED. Four blocks, Customer Success,
+             Business Development, Marketing and Team Leadership, each an
+             icon, a name and a proof line with its figure counting up on
+             the marker. It was the same four areas, in the same order, as
+             the four How I Can Help cards two sections below, and the
+             same four figures as the Results grid. Work goes straight
+             from its intro into the timeline now.
 
-          <li class="st__item" data-st-item>
-            <span class="st__ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11l2 2 4-4"/></svg>
-            </span>
-            <h3 class="st__name">Customer Success</h3>
-            <p class="st__proof"><mark class="jr__hl"><span data-st-count="100">100</span>+ client accounts</mark>
-              managed from onboarding to renewal</p>
-          </li>
-
-          <li class="st__item" data-st-item>
-            <span class="st__ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
-            </span>
-            <h3 class="st__name">Business Development</h3>
-            <p class="st__proof"><mark class="jr__hl"><span data-st-count="150">150</span>+ sales</mark>
-              closed in under 3 months, plus B2B clients like Experience
-              Morocco</p>
-          </li>
-
-          <li class="st__item" data-st-item>
-            <span class="st__ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 8a5 5 0 0 1 0 8"/></svg>
-            </span>
-            <h3 class="st__name">Marketing</h3>
-            <p class="st__proof">Meta ad campaigns and a brand that sold
-              <mark class="jr__hl"><span data-st-count="300">300</span>+ posters</mark>
-              in the first 3 months</p>
-          </li>
-
-          <li class="st__item" data-st-item>
-            <span class="st__ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v2M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a3 3 0 0 0-2.3-2.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
-            </span>
-            <h3 class="st__name">Team Leadership</h3>
-            <p class="st__proof">Led a team of 12 at Majorel (ByteDance / TikTok
-              account) with
-              <mark class="jr__hl"><span data-st-count="98">98</span>% accuracy</mark></p>
-          </li>
-
-        </ul>
+             Nothing in it was lost. The team of 12 and the 98% are both
+             in the '22 card, the 100+ accounts and the 150+ sales in the
+             '25 card, and the 300+ posters in the '26 card, which is
+             where the evidence belongs: in the year it happened. -->
 
       </div>
 
@@ -1432,42 +1377,28 @@
             <h3 class="sy__feattitle">From form fill to booked meeting,
               without anyone touching it</h3>
 
-            <div class="sy__blocks">
-              <div class="sy__block">
-                <p class="sy__blocklab">The problem</p>
-                <p class="sy__blocktx">Leads from the Instagram and Facebook
-                  forms were followed up by hand. Most of them went cold
-                  before the information meeting.</p>
-              </div>
+            <!-- One line where three labelled blocks stood. "The problem"
+                 and "The detail that matters" are gone outright, and the
+                 long "What it does" paragraph is gone because the diagram
+                 below now does that job better than a paragraph can: it
+                 was a prose walk through the same eighteen steps the
+                 reader is about to see drawn.
 
-              <div class="sy__block">
-                <p class="sy__blocklab">What it does</p>
-                <p class="sy__blocktx">A new lead arrives from the form and
-                  lands in the CRM. It sends an instant WhatsApp welcome
-                  showing their details with one tap to confirm or fix, asks
-                  their availability, returns a Zoom date with install
-                  instructions, then sends a reminder at 15:00 and the Zoom
-                  link at 20:50 on the day. It tags the lead and alerts the
-                  team along the way.</p>
-              </div>
-
-              <div class="sy__block">
-                <p class="sy__blocklab">The detail that matters</p>
-                <p class="sy__blocktx">One tap buttons rather than typing,
-                  automatic phone formatting, and a message schedule designed
-                  around Meta's October 2026 WhatsApp pricing so it stays
-                  cheap to run. One number, messages written in natural
-                  Darija, and the whole thing tested with Meta's Lead Ads
-                  Testing Tool before it touched a real lead.</p>
-              </div>
-            </div>
+                 What is left is the before and the after in one line,
+                 which is the only part the diagram cannot show. The card
+                 reads title, this line, the flow, the result, the tools
+                 and the link to the real thing. -->
+            <p class="sy__lead">Leads came in from the form and were chased
+              by hand. Most went cold before the meeting. Now none of it is
+              manual.</p>
 
             <!-- The flow itself, drawn as boxes rather than as a picture or
                  one big SVG: the text stays sharp at every zoom, it is
                  selectable, it reflows at 390px, and it costs no decode. It
-                 sits between "What it does" and the result strip because it
-                 is that paragraph made concrete, and the figure then lands
-                 as the consequence of the whole thing.
+                 sits between the lead line and the result strip, and since that
+                 line went to one sentence the diagram IS the explanation
+                 rather than a picture of one. The figure then lands as
+                 the consequence of the whole thing.
 
                  The connectors are CSS. A 2px --border rail with an
                  --accent-text chevron sits on each step's ::before and
@@ -1668,198 +1599,80 @@
       </div>
     </section>
 
-    <!-- 03 / What I Bring. One sentence that says the whole thing, with a
-         chip on each capability. The chips are buttons, not hover-only
-         decorations: a card that can only be reached with a mouse is a
-         card half the visitors cannot read. -->
-    <section class="section" id="capabilities">
+    <!-- 04 / What I Solve. This was "What I Bring": one pinned sentence,
+         eight inline chips and eight hover cards, which said the same
+         thing How I Can Help says one section later and said it about ME.
+         The chips carried methods and opinions behind a hover, which is
+         the worst place to put an argument.
 
+         It is the reader's problem now, stated three times, and How I Can
+         Help answers it. That is the whole reason the two sections can sit
+         next to each other: problem, then answer. Nothing here is a card,
+         an icon or a figure, and there is deliberately not one digit in
+         the section apart from the row numbers and its own marker. The
+         numbers belong to How I Can Help and the Results grid.
+
+         The id is still "capabilities". Four things point at it, the
+         sidebar link, the hero nav link, the mobile menu and the section
+         observer, and renaming it is a separate edit from renaming the
+         label. -->
+    <section class="section wis" id="capabilities">
       <div class="wrap">
+
         <p class="section__marker" data-reveal>
-          <span class="section__num">04</span> / <span>What I Bring</span>
+          <span class="section__num">04</span> / <span>WHAT I ACTUALLY SOLVE</span>
         </p>
 
-        <h2 class="wib__head" data-reveal>
-          <span class="wib__headln">What</span>
-          <span class="wib__headln">I Bring?</span>
-        </h2>
+        <!-- Two columns, and the right one is bottom aligned so the
+             qualifier sits on the heading's last line rather than
+             floating beside its first. Stacks below 900px. -->
+        <div class="wis__head">
+          <h2 class="wis__title" data-reveal>The customer was never the
+            problem.</h2>
 
-        <p class="wib__kicker" data-reveal>Capabilities overview</p>
-      </div>
+          <p class="wis__sub" data-reveal>Three failures I see again and
+            again. Every one of them looks like a product problem and
+            turns out to be a communication problem.</p>
+        </div>
 
-      <!-- The pin zone. Its extra height IS the reveal: script.js turns how
-           far through it you have scrolled into how many words have come
-           into focus, so scrolling back up puts them out of focus again. -->
-      <div class="wib" id="wib">
-        <div class="wib__sticky">
-          <p class="wib__line" id="wib-line">
+        <!-- Hairlines rather than cards. A row is a number, a problem and
+             an answer, and a border on each row's top with one on the
+             last row's bottom gives a continuous rule between them with
+             no doubled 2px line where two rows meet.
 
-            <span class="wib__w">Customer</span>
-            <span class="wib__w">success<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c1">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11l2 2 4-4"/></svg>
-                <span class="wib__sr">Customer Success</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c1" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M9.5 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M17 11l2 2 4-4"/></svg>
-                </span>
-                <span class="wib__cardtitle">Customer Success</span>
-                <span class="wib__cardtext">I make the first two weeks
-                  concrete. Most churn is decided there, not at
-                  renewal.</span>
-              </span>
-            </span>,</span>
+             Each row is its own [data-reveal], staged 80ms apart in CSS
+             by nth-child. No JavaScript: the riser is a flat fade and
+             rise, every staggered section in this file does its own
+             delays, and doing it in CSS means html.rm and the no-JS
+             fallback come free. -->
+        <div class="wis__rows">
 
-            <span class="wib__w">business</span>
-            <span class="wib__w">development<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c2">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
-                <span class="wib__sr">Business Development</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c2" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>
-                </span>
-                <span class="wib__cardtitle">Business Development</span>
-                <span class="wib__cardtext">I sell what the product actually
-                  does, because I am the one who has to keep the account
-                  afterwards.</span>
-              </span>
-            </span>,</span>
+          <div class="wis__row" data-reveal>
+            <p class="wis__num" aria-hidden="true">01</p>
+            <h3 class="wis__prob">Traffic grows. Nobody buys.</h3>
+            <p class="wis__ans">I find where the journey breaks, between
+              the ad, the landing page and the first reply, before anyone
+              asks for more budget.</p>
+          </div>
 
-            <span class="wib__w">marketing<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c3">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 8a5 5 0 0 1 0 8"/></svg>
-                <span class="wib__sr">Marketing</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c3" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 8a5 5 0 0 1 0 8"/></svg>
-                </span>
-                <span class="wib__cardtitle">Marketing</span>
-                <span class="wib__cardtext">I read the ad data before I spend
-                  more on it. A campaign that cannot be measured is a
-                  guess.</span>
-              </span>
-            </span></span>
+          <div class="wis__row" data-reveal>
+            <p class="wis__num" aria-hidden="true">02</p>
+            <h3 class="wis__prob">The lead goes cold after the first
+              reply.</h3>
+            <p class="wis__ans">I run the handoff between marketing and
+              sales so every enquiry is actually followed up, not just
+              logged somewhere.</p>
+          </div>
 
-            <!-- The fourth area joins the opening list rather than getting a
-                 clause of its own: three words added to a 31 word sentence,
-                 so the pinned reveal gains one more slice and the phone's
-                 line fill is not asked to carry a new sub-clause. The card
-                 says HOW he works, like the other seven, not what it
-                 achieved. -->
-            <span class="wib__w">and</span>
-            <span class="wib__w">automation<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c8">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
-                <span class="wib__sr">Automation</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c8" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
-                </span>
-                <span class="wib__cardtitle">Automation</span>
-                <span class="wib__cardtext">I automate the part that keeps
-                  breaking, which is usually the follow up, not the
-                  product.</span>
-              </span>
-            </span></span>
+          <div class="wis__row" data-reveal>
+            <p class="wis__num" aria-hidden="true">03</p>
+            <h3 class="wis__prob">They churn and nobody saw it
+              coming.</h3>
+            <p class="wis__ans">Churn is decided in the first two weeks,
+              not at renewal. I make onboarding concrete and check in
+              before there is a reason to complain.</p>
+          </div>
 
-            <span class="wib__w">combined,</span>
-            <span class="wib__w">keeping</span>
-            <span class="wib__w">every</span>
-            <span class="wib__w">client<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c4">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
-                <span class="wib__sr">Retention</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c4" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>
-                </span>
-                <span class="wib__cardtitle">Retention</span>
-                <span class="wib__cardtext">I check in before there is a reason
-                  to complain. An angry customer is usually a surprised
-                  customer.</span>
-              </span>
-            </span>,</span>
-
-            <span class="wib__w">winning</span>
-            <span class="wib__w">new</span>
-            <span class="wib__w">ones<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c5">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H6"/></svg>
-                <span class="wib__sr">Sales</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c5" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M17 7H9.5a2.5 2.5 0 0 0 0 5h5a2.5 2.5 0 0 1 0 5H6"/></svg>
-                </span>
-                <span class="wib__cardtitle">Sales</span>
-                <span class="wib__cardtext">Full cycle, from first contact to
-                  signature, so nothing gets promised that cannot be
-                  delivered.</span>
-              </span>
-            </span>,</span>
-
-            <span class="wib__w">and</span>
-            <span class="wib__w">leading</span>
-            <span class="wib__w">the</span>
-            <span class="wib__w">people<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c6">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 20v-2a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v2M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a3 3 0 0 0-2.3-2.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
-                <span class="wib__sr">Team Leadership</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c6" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v2M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M21 20v-2a3 3 0 0 0-2.3-2.9M16 4.1a3 3 0 0 1 0 5.8"/></svg>
-                </span>
-                <span class="wib__cardtitle">Team Leadership</span>
-                <span class="wib__cardtext">People do not follow a manager, they
-                  follow clarity. Goal, reason, and where they stand.</span>
-              </span>
-            </span></span>
-
-            <span class="wib__w">who</span>
-            <span class="wib__w">make</span>
-            <span class="wib__w">it</span>
-            <span class="wib__w">happen,</span>
-            <span class="wib__w">in</span>
-            <span class="wib__w">four</span>
-            <span class="wib__w">languages<span class="wib__slot">
-              <button class="wib__chip" type="button" data-wib-chip
-                      aria-expanded="false" aria-controls="wib-c7">
-                <svg class="wib__chipico" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
-                <span class="wib__sr">Languages</span>
-                <svg class="wib__caret" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-              <span class="wib__card" id="wib-c7" data-wib-card>
-                <span class="wib__cardico" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
-                </span>
-                <span class="wib__cardtitle">Languages</span>
-                <span class="wib__cardtext">Arabic, English, French and Spanish.
-                  I meet customers in their own language.</span>
-              </span>
-            </span>.</span>
-
-          </p>
         </div>
       </div>
     </section>

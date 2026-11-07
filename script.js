@@ -3378,304 +3378,37 @@
 
 
   /* ------------------------------------------------------------------
-     STEP 4 - the strengths row
+     STEP 4 - the strengths row: DELETED
 
-     Four claims with a number each, under the Work intro. The blocks come
-     up one after another when the row arrives, and the figure inside each
-     yellow marker counts up to its value.
-
-     Deliberately once only, unlike the timeline cards below it: this row
-     is read on the way past, not scrolled back and forth over, and a
-     headline number that resets every time you scroll up would read as a
-     glitch rather than as motion.
+     A count-up on four figures under the Work intro, fired once by an
+     IntersectionObserver. The row it animated repeated the four How I
+     Can Help cards and the four Results figures, so the markup and the
+     CSS went with it. Nothing reads [data-st-count] any more.
      ------------------------------------------------------------------ */
-
-  var stRow = document.getElementById('st');
-
-  if (stRow) {
-    var stCounts = [].slice.call(stRow.querySelectorAll('[data-st-count]'));
-
-    function stRun() {
-      stRow.classList.add('is-in');
-
-      /* STEP 11: the strength counters run under reduced motion too, for
-         the same reason as the year count-up: the number changes in
-         place, nothing travels. */
-
-      for (var i = 0; i < stCounts.length; i++) {
-        (function (el, delay) {
-          var target = parseInt(el.getAttribute('data-st-count'), 10);
-
-          if (isNaN(target)) { return; }
-
-          el.textContent = '0';
-
-          window.setTimeout(function () {
-            var start = 0;
-
-            function step(now) {
-              if (start === 0) { start = now; }
-
-              var t = (now - start) / 900;
-
-              if (t > 1) { t = 1; }
-
-              el.textContent = String(Math.round(target * (1 - Math.pow(1 - t, 3))));
-
-              if (t < 1) { requestAnimationFrame(step); }
-            }
-
-            requestAnimationFrame(step);
-          }, delay);
-        }(stCounts[i], i * 90));
-      }
-    }
-
-    if ('IntersectionObserver' in window) {
-      var stSeen = new IntersectionObserver(function (entries) {
-        if (entries[0].isIntersecting) {
-          stRun();
-          stSeen.disconnect();
-        }
-      }, { rootMargin: '0px 0px -15% 0px' });
-
-      stSeen.observe(stRow);
-    } else {
-      stRun();
-    }
-  }
 
 
   /* ------------------------------------------------------------------
-     STEP 5 - What I Bring
+     STEP 5 - What I Bring: DELETED, and it is What I Solve now
 
-     Two things live here.
+     About 230 lines stood here: a scroll-position reveal that read how
+     far through a 150vh pin zone you were and wrote each word's opacity
+     and blur from it, plus the eight chip cards, their placement maths,
+     their open and close handling, the focus and Escape behaviour, and
+     the resize and font-load re-measures.
 
-     The reveal: the sentence is pinned for one extra viewport height, and
-     how far through that you have scrolled decides how many of its words
-     are in focus. Each word gets its own slice of the run, so they come
-     in left to right; because it is read from scrollY every frame rather
-     than played on a timer, scrolling back up runs it exactly backwards.
+     It was replaced by three rows of plain text, and they need no
+     JavaScript at all: they are [data-reveal] elements on the page's
+     own riser with an 80ms nth-child stagger in CSS. That is also why
+     reduced motion and the no-JS fallback needed nothing written for
+     them, since both are already properties of the riser.
 
-     The cards: a chip is a button, so the card opens on hover, on tap,
-     and on Enter or Space. It is centred on its chip and then pushed back
-     inside the viewport if that would hang it off an edge, and flipped
-     above the chip if there is no room below.
+     Worth keeping from it, because the next pinned section will hit the
+     same thing: the run is `box.height - innerHeight`, so a pin's
+     reveal distance is whatever is LEFT OVER after the sticky screen,
+     not the block's height. At 110vh that was about 90px of scroll for
+     31 words and the animation arrived already finished. The dial is
+     the block height, and 150vh was what made it readable.
      ------------------------------------------------------------------ */
-
-  var wib = document.getElementById('wib');
-  var wibLine = document.getElementById('wib-line');
-
-  if (wib && wibLine) {
-    var wibWords = [].slice.call(wibLine.querySelectorAll('.wib__w'));
-    var wibSlots = [].slice.call(wibLine.querySelectorAll('.wib__slot'));
-    var wibWide = window.matchMedia('(min-width: 900px)');
-    var wibTicking = false;
-    var wibOpen = null;
-
-    function wibClamp(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
-
-    function wibDraw() {
-      wibTicking = false;
-
-      /* STEP 11: the word-by-word reveal runs under reduced motion now,
-         as a fade only. The blur is what had to go, not the reveal: a
-         focus pull is one of the strongest triggers on the list, and the
-         opacity ramp on its own still reads the sentence left to right.
-         Below 900px there is no pin and no reveal at all, so the words
-         are simply left alone there. */
-      var wibFade = reducedMotion.matches;
-
-      if (!wibWide.matches) {
-        for (var r = 0; r < wibWords.length; r++) {
-          wibWords[r].style.opacity = '';
-          wibWords[r].style.filter = '';
-        }
-        return;
-      }
-
-      var box = wib.getBoundingClientRect();
-      var run = box.height - (window.innerHeight || 1);
-
-      if (run <= 0) { return; }
-
-      /* box.top counts down from 0 as the zone scrolls past */
-      var p = wibClamp(-box.top / run);
-
-      /* Every word is done by 0.85 so the last one is readable for a beat
-         before the pin lets go, rather than arriving as it releases. */
-      var span = 0.85;
-      var step = span / wibWords.length;
-
-      for (var i = 0; i < wibWords.length; i++) {
-        /* A word holding an open card is shown in full whatever the scroll
-           says: the card is its child, so the word's own opacity would
-           otherwise be multiplied through the card and its text. */
-        if (wibWords[i].classList.contains('is-lift')) {
-          wibWords[i].style.opacity = '1';
-          wibWords[i].style.filter = 'none';
-          continue;
-        }
-
-        var t = wibClamp((p - i * step) / (step * 2.2));
-
-        wibWords[i].style.opacity = (0.15 + 0.85 * t).toFixed(3);
-        /* Fade only under reduced motion. The word still comes into
-           focus, it just does it with opacity instead of a focus pull. */
-        wibWords[i].style.filter = (wibFade || t >= 1)
-          ? 'none'
-          : 'blur(' + (4 * (1 - t)).toFixed(2) + 'px)';
-      }
-    }
-
-    function wibQueue() {
-      if (!wibTicking) { wibTicking = true; requestAnimationFrame(wibDraw); }
-    }
-
-    /* ---- the cards ---- */
-
-    /* Safe to call while the card is open: it works out where the card
-       WOULD sit unshifted, so re-running it on scroll does not accumulate
-       an offset or flicker the flip on and off. */
-    function wibPlace(slot) {
-      var card = slot.querySelector('[data-wib-card]');
-      var btn = slot.querySelector('[data-wib-chip]');
-
-      if (!card || !btn || !wibWide.matches) { return; }
-
-      var chip = btn.getBoundingClientRect();
-      var vw = document.documentElement.clientWidth;
-      var vh = window.innerHeight || 1;
-      var rect = card.getBoundingClientRect();
-      var had = parseFloat(slot.style.getPropertyValue('--wib-shift')) || 0;
-      var pad = 12;
-
-      /* Take the shift already applied back out before measuring */
-      var left = rect.left - had;
-      var right = rect.right - had;
-      var shift = 0;
-
-      if (left < pad) { shift = pad - left; }
-      else if (right > vw - pad) { shift = (vw - pad) - right; }
-
-      slot.style.setProperty('--wib-shift', Math.round(shift) + 'px');
-
-      /* Above the chip when there is no room below it and there is above */
-      var below = vh - chip.bottom;
-      var above = chip.top;
-
-      slot.classList.toggle('is-up',
-        below < rect.height + 20 && above > rect.height + 20);
-    }
-
-    function wibShut(slot) {
-      if (!slot) { return; }
-      slot.classList.remove('is-open');
-
-      if (slot.parentElement) { slot.parentElement.classList.remove('is-lift'); }
-
-      var btn = slot.querySelector('[data-wib-chip]');
-      if (btn) { btn.setAttribute('aria-expanded', 'false'); }
-      if (wibOpen === slot) { wibOpen = null; }
-      wibQueue();
-    }
-
-    function wibShow(slot) {
-      if (wibOpen && wibOpen !== slot) { wibShut(wibOpen); }
-      if (!slot || slot.classList.contains('is-open')) { return; }
-
-      /* Measured while it is laid out but still invisible, so the flip and
-         the nudge are decided before anyone sees it */
-      /* Lifted before it is shown, so the card is never painted behind the
-         words that come after it, even for one frame */
-      if (slot.parentElement) { slot.parentElement.classList.add('is-lift'); }
-
-      wibPlace(slot);
-      slot.classList.add('is-open');
-
-      var btn = slot.querySelector('[data-wib-chip]');
-      if (btn) { btn.setAttribute('aria-expanded', 'true'); }
-
-      wibOpen = slot;
-      wibQueue();
-    }
-
-    for (var s = 0; s < wibSlots.length; s++) {
-      (function (slot) {
-        var btn = slot.querySelector('[data-wib-chip]');
-
-        if (!btn) { return; }
-
-        btn.addEventListener('click', function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-
-          if (slot.classList.contains('is-open')) { wibShut(slot); }
-          else { wibShow(slot); }
-        });
-
-        /* Pointer only, so a tap does not open on hover and immediately
-           close on the click that follows it */
-        slot.addEventListener('pointerenter', function (event) {
-          if (event.pointerType === 'mouse') { wibShow(slot); }
-        });
-
-        slot.addEventListener('pointerleave', function (event) {
-          if (event.pointerType === 'mouse') { wibShut(slot); }
-        });
-
-        /* No open-on-focus. Focus alone opening the card would mean the
-           Enter that follows it lands on an already-open card and closes
-           it again, so the keyboard would be the one way in that does not
-           work. Enter and Space arrive here as a click. Tabbing away does
-           close it. */
-        slot.addEventListener('focusout', function (event) {
-          if (!slot.contains(event.relatedTarget)) { wibShut(slot); }
-        });
-      }(wibSlots[s]));
-    }
-
-    document.addEventListener('click', function (event) {
-      if (wibOpen && !wibOpen.contains(event.target)) { wibShut(wibOpen); }
-    });
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && wibOpen) {
-        var btn = wibOpen.querySelector('[data-wib-chip]');
-        wibShut(wibOpen);
-        if (btn) { btn.focus(); }
-      }
-    });
-
-    var wibResize = null;
-
-    window.addEventListener('scroll', function () {
-      wibQueue();
-
-      /* Follow the chip rather than close. Closing on scroll looked
-         reasonable until you reach a chip with the keyboard: focusing it
-         scrolls it into view, that fires this handler, and the card shut
-         again in the same frame it opened - so it could never be opened
-         without a mouse at all. The card is anchored to the chip, so it
-         moves on its own; only the flip and the nudge need redoing. */
-      if (wibOpen) { wibPlace(wibOpen); }
-    }, { passive: true });
-
-    window.addEventListener('resize', function () {
-      window.clearTimeout(wibResize);
-      if (wibOpen) { wibShut(wibOpen); }
-      wibResize = window.setTimeout(wibDraw, 120);
-    });
-
-    wibDraw();
-
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(wibDraw);
-    }
-
-    if (wibWide.addEventListener) { wibWide.addEventListener('change', wibDraw); }
-  }
-
 
   /* ------------------------------------------------------------------
      STEP 6 - How I Can Help

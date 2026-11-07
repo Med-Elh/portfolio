@@ -3099,8 +3099,7 @@ body.is-locked .dots {
   html.rm .hlp__card,
   html.rm .say__card,
   html.rm .sy__feat,
-  html.rm .sy__card,
-  html.rm .st__item {
+  html.rm .sy__card {
     transform: translateY(var(--rm-shift)) !important;
   }
   html.rm .js [data-reveal].is-revealed,
@@ -3109,8 +3108,7 @@ body.is-locked .dots {
   html.rm .hlp.is-in .hlp__card,
   html.rm .say__card.is-in,
   html.rm .sy__set.is-in .sy__feat,
-  html.rm .sy__set.is-in .sy__card,
-  html.rm .st__item.is-in {
+  html.rm .sy__set.is-in .sy__card {
     transform: none !important;
   }
 
@@ -3123,8 +3121,7 @@ body.is-locked .dots {
   html.rm .hx__stats,
   html.rm .hx__traits,
   html.rm .hx__tag,
-  html.rm .hx__desc,
-  html.rm .wib__w {
+  html.rm .hx__desc {
     filter: none !important;
   }
 
@@ -5300,14 +5297,17 @@ body.is-locked .dots {
 .sb__icon { width: 36px; height: 36px; border-radius: 11px; }
 .sb__blurb { margin-top: 10px; font-size: 14px; line-height: 1.45; }
 
-/* Stats: two columns, every number on its own dark chip with the label
-   beneath. It was 2x2 and is 2x3 since STEP 44, which needs no change
-   here: the columns are fixed at two and the rows are implicit, so the
-   sixth stat makes a third row on its own. */
+/* Stats: ONE column, every number on its own dark chip with the label
+   beneath. It was 2x2, then 2x3 at six, and is a single column now that
+   there are three. Two columns would leave the third stat alone on a
+   row beside an empty cell, and a column of three in a column-shaped
+   panel reads as a list rather than as a broken grid. It also gives
+   each label the full panel width, so "Lead conversion, after
+   automation" sets on two lines instead of three. */
 .sb__stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
   --sb-num: 26px;
 }
 
@@ -6348,69 +6348,23 @@ body.is-locked .dots {
    pointing, yellow is only ever a marker with dark text on it.
    ========================================================================== */
 
-/* ---- the strengths row ---- */
+/* ---- THE STRENGTHS ROW IS DELETED ----
+   Four blocks under the Work intro: an accent icon, a strength name and
+   a proof line whose figure counted up on the marker. Customer Success,
+   Business Development, Marketing, Team Leadership.
 
-.st {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(1.25rem, 2.4vw, 2.25rem);
-  margin: 3rem 0 0;
-  padding: 2rem 0 0;
-  border-top: 1px solid var(--border);
-  list-style: none;
-}
+   It was the same four areas in the same order as the four How I Can
+   Help cards, and the same four figures as the Results grid, so a reader
+   met all of it three times. Work goes from its intro straight into the
+   timeline, which is the evidence the row was summarising.
 
-.st__item {
-  min-width: 0;
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
-}
+   Gone with it: .st, .st__item, .st__ico, .st__name, .st__proof, the
+   nth-child stagger, the 1200px and 620px column steps, and the
+   html.rm / .no-js fallbacks. The counter module in script.js went too.
+   Nothing it said is lost: every figure is in the timeline card for the
+   year it happened in. */
 
-/* One after another, not all at once */
-.st.is-in .st__item { opacity: 1; transform: none; }
-.st.is-in .st__item:nth-child(2) { transition-delay: 90ms; }
-.st.is-in .st__item:nth-child(3) { transition-delay: 180ms; }
-.st.is-in .st__item:nth-child(4) { transition-delay: 270ms; }
 
-.st__ico {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  border: 1.5px solid var(--accent-ring);
-  background-color: var(--panel);
-  color: var(--accent);
-}
-
-.st__name {
-  margin: 0.85rem 0 0;
-  font-size: clamp(1.15rem, 1.5vw, 1.375rem);
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-
-.st__proof {
-  margin: 0.5rem 0 0;
-  font-size: clamp(0.875rem, 1.05vw, 0.9375rem);
-  line-height: 1.55;
-  color: var(--body);
-}
-
-@media (max-width: 1200px) {
-  .st { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .st.is-in .st__item:nth-child(3) { transition-delay: 90ms; }
-  .st.is-in .st__item:nth-child(4) { transition-delay: 180ms; }
-}
-
-@media (max-width: 620px) {
-  .st { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; margin-top: 2.25rem; }
-  .st.is-in .st__item:nth-child(n) { transition-delay: 0ms; }
-}
 
 /* ---- strength tags on each card ----
    They live inside the collapsing summary, so the expanded card keeps the
@@ -6473,413 +6427,178 @@ body.is-locked .dots {
   border-radius: 50%;
   background-color: var(--jr-open-year);
 }
-  html.rm .st__item { opacity: 1; transform: none; }
 
-
-.no-js .st__item { opacity: 1; transform: none; }
 
 /* ==========================================================================
-   STEP 5 - What I Bring
+   STEP 5 - What I Solve
 
-   One sentence carries the whole section. Each capability sits on a chip
-   inside it, and each chip is a real button: a card you can only reach
-   with a mouse is a card half the visitors never read.
+   This was "What I Bring": a pinned 150vh zone holding one sentence whose
+   words came into focus on scroll, with eight inline chips and eight
+   hover cards. About 400 lines of CSS and a scroll module in script.js.
+   It is three rows of plain text now.
 
-   The reveal is scroll position, not a timer. script.js writes each word's
-   opacity and blur from how far through the pin zone you are, so scrolling
-   back up puts the words out of focus again exactly as they came in - no
-   transitions on the words, or the scroll and the transition would be
-   fighting over the same two numbers.
+   Why it went, and it is the content argument rather than the code one:
+   the section said the same thing How I Can Help says one section later,
+   and it said it about HIM. The chips carried methods and opinions behind
+   a hover, which is the worst place on a page to put an argument. This
+   section is the reader's problem; the next one is the answer. That is
+   what lets the two sit next to each other.
+
+   No cards, no icons, no figures, and not one digit outside the row
+   numbers and the section marker. The figures belong to How I Can Help
+   and the Results grid.
    ========================================================================== */
 
-/* ---- heading ---- */
+/* ---- the two column header ---- */
 
-.wib__head {
-  margin: clamp(2rem, 5vh, 3.5rem) 0 0;
-  font-size: clamp(3.25rem, 13vw, 11.25rem);
+/* The qualifier is bottom aligned so it sits on the heading's last line
+   rather than floating beside its first. The heading is the taller of
+   the two at every width above 900px. */
+.wis {
+  --wis-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.wis__head {
+  display: grid;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  margin-top: clamp(1.5rem, 4vh, 2.5rem);
+}
+
+@media (min-width: 900px) {
+  .wis__head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
+/* ~72px at the top of the clamp, which is the same weight and tracking
+   as the hero name and every other section heading, so it belongs to the
+   same voice. 16ch is the brief's measure and it breaks the line after
+   "never", which is the right place: "The customer was never" then "the
+   problem." puts the turn on its own line. */
+.wis__title {
+  margin: 0;
+  max-width: 16ch;
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
   font-weight: 800;
-  line-height: 0.88;
-  letter-spacing: -0.045em;
-  text-align: center;
-  /* #111 at the top of the words to --body at the bottom */
-  background-image: linear-gradient(180deg, var(--text) 0%, var(--body) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  /* background-clip: text paints only inside the background box, and a
-     line-height under 1 lets the glyphs hang outside it - without this the
-     descender of the g in "Bring?" simply is not painted. */
-  padding-block: 0.1em 0.24em;
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  color: var(--text);
 }
 
-.wib__headln { display: block; }
-
-/* Older engines paint nothing through a transparent colour, so they get
-   the flat ink instead of an invisible heading. */
-@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
-  .wib__head { color: var(--text); background-image: none; }
-}
-
-.wib__kicker {
-  width: max-content;
-  max-width: 100%;
-  margin: clamp(1.25rem, 3vh, 2rem) auto 0;
-  padding: 0.55em 1.2em;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background-color: var(--panel);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  text-align: center;
+.wis__sub {
+  margin: 0;
+  max-width: 380px;
+  font-size: 1.0625rem;
+  line-height: 1.6;
   color: var(--muted);
 }
 
-/* --------------------------------------------------------------------------
-   The pin zone. The extra height is the reveal: how far you have scrolled
-   through it is how many words have come into focus.
-   -------------------------------------------------------------------------- */
+/* ---- the rows ---- */
 
-.wib {
-  position: relative;
-  margin-top: clamp(2rem, 6vh, 4rem);
+/* A hairline on each row's top plus one on the last row's bottom. Doing
+   it with a border on every row's top and bottom would double to 2px
+   everywhere two rows meet, which reads as a heavier rule between the
+   rows than above the first one. */
+.wis__rows {
+  margin-top: clamp(2rem, 5vw, 3.5rem);
 }
 
-.wib__sticky { padding-inline: clamp(1rem, 4vw, 3rem); }
+.wis__row {
+  display: grid;
+  gap: 0.5rem;
+  padding-block: 30px;
+  border-top: 1px solid var(--border);
+}
 
-/* min(1100px, 100%) rather than a flat 1100px: the container here is the
-   content area to the RIGHT of the fixed sidebar, which is a few hundred
-   pixels narrower than the viewport, and a flat cap would let the line ask
-   for more room than it has. overflow stays visible so a word's blur halo
-   is never cut off at the edge while it is still out of focus. */
-.wib__line {
-  max-width: min(1100px, 100%);
-  margin: 0 auto;
-  padding-inline: 24px;
-  overflow: visible;
-  font-size: clamp(36px, 4.2vw, 64px);
+.wis__row:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+@media (min-width: 900px) {
+  .wis__row {
+    grid-template-columns: 40px minmax(0, 1fr) minmax(0, 420px);
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+  }
+}
+
+/* --faint finally has a reader. It is 4.54:1 on --bg in light and passes
+   in dark, and this is exactly the job it was declared for: a number
+   that orders the rows and is not meant to compete with them. It is
+   aria-hidden, because "01" read out before the problem is noise. */
+.wis__num {
+  margin: 0;
+  font-family: var(--wis-mono);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.wis__prob {
+  margin: 0;
+  max-width: 14ch;
+  font-size: clamp(1.5rem, 3.4vw, 2.125rem);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  text-align: center;
-  text-wrap: pretty;
-  overflow-wrap: break-word;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 
-/* A chip is an atom, so it must never be the thing that makes a line wider
-   than the box it sits in */
-.wib__slot { max-width: 100%; }
-
-/* Each word is its own unit so the blur can be per-word - filter does not
-   apply to a plain inline box, hence inline-block. */
-/* The out-of-focus starting state belongs only where the reveal actually
-   runs. Below 900px there is no pin to drive it, so the words would simply
-   sit at 15% and 4px of blur for ever. It also matters that neither filter
-   nor will-change reaches the phone: both make the word a containing block
-   for fixed-position descendants, and the card below is fixed there. */
-.wib__w {
-  position: relative;
-  z-index: 0;
-  display: inline-block;
+.wis__ans {
+  margin: 0;
+  max-width: 420px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted);
 }
 
-@media (min-width: 900px) {
-  .wib__w {
-    opacity: 0.15;
-    filter: blur(4px);
-    will-change: opacity, filter;
-  }
-}
+/* The entrance: the page's own [data-reveal] riser, 24px and a fade.
 
-/* An opacity below 1 makes each word its own stacking context, so a card's
-   z-index cannot reach past the word it lives in and every later word
-   paints over it. The word holding an open card is lifted above its
-   neighbours for as long as it is open. */
-.wib__w.is-lift { z-index: 50; }
+   The riser has no stagger of its own. The shared observer in script.js
+   writes `index * 100ms` as an INLINE transition-delay on every
+   [data-reveal] in a section, in document order, so these three rows
+   are its children 3, 4 and 5 and it had already staged them 300, 400
+   and 500ms. The brief asks for 80ms between the rows.
 
-@media (min-width: 900px) {
-  /* STEP 36 took this from 200vh to 110vh, and the note it left said what
-     that cost: script.js computes the reveal's run as
-     `box.height - innerHeight`, so the run is whatever is left after the
-     sticky screen. 110vh leaves 10vh, about 90px at a 900px window, for
-     all 31 words, which is under 3px of scroll each. The reveal ran, but
-     it arrived finished: there was nothing to see.
+   !important is the only thing that beats an inline style, and it is
+   used here the same way html.rm uses it on the portrait's filter: to
+   win against something written at a higher precedence by code that is
+   right for every other section. Row 1 deliberately keeps the
+   observer's own 300ms, so the rows still follow the marker, the
+   heading and the qualifier in the section's rhythm and only the gap
+   BETWEEN them changes.
 
-     150vh is the dial STEP 36 named, so it is the dial that was turned.
-     The run is 50vh now, about 450px, roughly 14px of scroll a word, and
-     the focus pull is something you scroll through again. span stays at
-     0.85 and the sticky screen stays a full 100vh, per the same note:
-     either of those would have bought run by desynchronising the last
-     word from the pin release. */
-  .wib { height: 150vh; }
+   The 300ms anchor is the count of revealables ahead of the rows. Add a
+   fourth element to the header block and these two numbers move with
+   it.
 
-  /* The gap under the kicker was clamp(2rem, 6vh, 4rem) of margin PLUS
-     half a viewport of empty grid above the vertically centred sentence,
-     and at 1440x900 that read as a blank screen between the heading block
-     and the thing the section is about.
-
-     A negative margin, not padding inside the sticky screen. Padding
-     lifts the sentence off centre, which takes the space off the top and
-     hands the same space to the bottom: the gap moves, it does not go.
-     Pulling the whole block up takes 126px out of the top gap, leaves the
-     bottom one alone and shortens the page by the same 126px.
-
-     It cannot collide with the heading. The sentence sits
-     (100vh - its own height) / 2 below the block's top, which is about
-     266px at 1440x900 against 126px of overlap, and the clearance only
-     grows as the viewport does. Nor can it touch the reveal: the run is
-     measured from the 150vh block's own height. */
-  .wib { margin-top: -14vh; }
-
-  .wib__sticky {
-    position: sticky;
-    top: 0;
-    display: grid;
-    place-items: center;
-    height: 100vh;
-  }
-
-  /* The pin releases with the sentence centred, so the section already
-     ends on half a screen of nothing. Another 12vh of section padding
-     under it was the second half of the gap before How I Can Help. The
-     next section keeps its own padding-top, which is what separates the
-     two. */
-  #capabilities { padding-bottom: 0; }
-}
-
-/* --------------------------------------------------------------------------
-   The chips
-   -------------------------------------------------------------------------- */
-
-.wib__slot {
-  position: relative;
-  display: inline-flex;
-  vertical-align: baseline;
-  margin-left: 0.18em;
-}
-
-.wib__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.14em;
-  height: 0.9em;
-  padding: 0 0.3em;
-  border: 1px solid var(--border);
-  border-radius: 0.24em;
-  background-color: var(--panel);
-  color: var(--accent);
-  font: inherit;
-  line-height: 1;
-  cursor: pointer;
-  /* lines it up with the text beside it rather than with its own baseline */
-  vertical-align: middle;
-  transition: background-color 160ms var(--ease-out),
-              border-color 160ms var(--ease-out);
-}
-
-/* Sized in em so the chip stays in proportion at every clamp() step */
-.wib__chipico { width: 0.44em; height: 0.44em; flex-shrink: 0; }
-.wib__caret   { width: 0.3em;  height: 0.3em;  flex-shrink: 0;
-                transition: transform 240ms var(--ease-out); }
-
-.wib__slot.is-open .wib__caret { transform: rotate(180deg); }
-
-.wib__slot.is-open .wib__chip { border-color: var(--accent); }
-
-/* The page's global :focus-visible sets border-radius: var(--radius),
-   which would square off the chip the moment it takes focus. It keeps its
-   own corners, and the ring follows them. */
-.wib__chip:focus-visible {
-  border-color: var(--accent);
-  border-radius: 0.24em;
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .wib__chip:hover { border-color: var(--accent); }
-}
-
-/* The chip's accessible name. Visible to a screen reader, not on screen. */
-.wib__sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  border: 0;
-  clip-path: inset(50%);
-}
-
-/* --------------------------------------------------------------------------
-   The card, anchored to its own chip
-
-   --wib-shift is written by script.js: the card is centred on the chip and
-   then pushed back inside the viewport if that would hang it off an edge.
-   It is a margin rather than a transform so it does not fight the one the
-   entrance uses.
-   -------------------------------------------------------------------------- */
-
-.wib__card {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 50%;
-  z-index: 30;
-  display: block;
-  width: 340px;
-  margin-left: calc(-170px + var(--wib-shift, 0px));
-  padding: 24px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background-color: var(--panel);
-  box-shadow: 0 20px 55px var(--shadow-3), 0 2px 6px var(--shadow-1);
-  text-align: left;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-6px) scale(0.97);
-  transform-origin: 50% 0;
-  transition: opacity 200ms var(--ease-out),
-              transform 200ms var(--ease-out),
-              visibility 200ms;
-}
-
-/* Flipped above the chip when there is no room below */
-.wib__slot.is-up .wib__card {
-  top: auto;
-  bottom: calc(100% + 0.5rem);
-  transform: translateY(6px) scale(0.97);
-  transform-origin: 50% 100%;
-}
-
-.wib__slot.is-open .wib__card {
-  opacity: 1;
-  visibility: visible;
-  transform: none;
-}
-
-.wib__cardico {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 14px;
-  border: 1.5px solid var(--accent-ring);
-  background-color: var(--bg);
-  color: var(--accent);
-}
-
-.wib__cardtitle {
-  display: block;
-  margin-top: 0.85rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.015em;
-  color: var(--text);
-}
-
-.wib__cardtext {
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.9375rem;
-  font-weight: 400;
-  line-height: 1.55;
-  letter-spacing: 0;
-  color: var(--body);
-}
-
-/* --------------------------------------------------------------------------
-   Mobile - no pin, smaller type, and the card goes full width under the
-   sentence rather than trying to point at a chip on a 375px screen.
-   -------------------------------------------------------------------------- */
+   No JavaScript, which is also why html.rm and .no-js need nothing:
+   both are properties of the shared riser, and a delay on an element
+   that is already at opacity 1 does nothing. */
+.js .wis__row:nth-child(2) { transition-delay: 380ms !important; }
+.js .wis__row:nth-child(3) { transition-delay: 460ms !important; }
 
 @media (max-width: 899px) {
-  .wib { height: auto; margin-top: 2rem; }
-  .wib__sticky { position: static; height: auto; padding-block: 1rem 0; }
+  .wis__title { font-size: clamp(2.125rem, 9vw, 3rem); }
+  .wis__sub { max-width: 100%; font-size: 1rem; }
 
-  /* The heading keeps the size it had. Only the sentence grows. */
-  .wib__head { font-size: clamp(2.75rem, 16vw, 5rem); }
+  .wis__row { padding-block: 24px; }
 
-  /* The sentence was set at 6.4vw against 24px of side padding, which put
-     it at 25px in a 310px column on a 390px screen and left it filling
-     81% of the line: a paragraph in the middle of the page rather than
-     the thing the section is built around. 7.2vw in a 16px gutter is
-     28px in a 326px column, and the floor of 26px is what keeps a 360px
-     screen from dropping below readable.
-
-     1.2 rather than 1.15, because at this size the tighter leading made
-     the descenders of one line sit into the caps of the next. */
-  .wib__line {
-    font-size: clamp(26px, 7.2vw, 40px);
-    line-height: 1.2;
-    padding-inline: 16px;
-    /* text-wrap stays `pretty` from the base rule. Switching it to greedy
-       wrapping here was tried and measured no different at 360, 390 or
-       430: the rag is set by the words, not by the wrap strategy. The
-       sentence carries "development", "combined" and "languages", and at
-       28px in a 326px column any two of those overflow, so a line ends
-       early whatever the browser does with the rest. 78% average fill is
-       the ceiling at this size, and a larger font lowers it rather than
-       raising it. */
+  /* The number sits on the same line as the problem rather than above
+     it: a 40px column and a 14ch heading do not both fit at 360px, and
+     stacking the number on its own line spends a whole line on two
+     characters. */
+  .wis__row {
+    grid-template-columns: 34px minmax(0, 1fr);
   }
 
-  /* The chips are icon-only buttons (their names are in a visually hidden
-     span for screen readers), so they are about 39px wide whatever the
-     text does and cannot be what pushes a line over. They still have to
-     shrink slightly against the bigger type or they start to look like
-     buttons dropped into a sentence rather than part of it. */
-  .wib__chip { height: 0.85em; }
-
-  /* 133px sat between the last line and the end of the section: 32px of
-     the sticky wrapper's own bottom padding and about 100px of the shared
-     section padding, on a section whose content had already finished.
-     The wrapper's is now zero and this is the whole gap. */
-  #capabilities { padding-bottom: 60px; }
-
-  .wib__card {
-    position: fixed;
-    top: auto;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
-    width: auto;
-    margin-left: 0;
-    transform: translateY(10px);
-  }
-
-  .wib__slot.is-up .wib__card {
-    top: auto;
-    bottom: 12px;
-    transform: translateY(10px);
-  }
-
-  .wib__slot.is-open .wib__card { transform: none; }
+  .wis__num { grid-row: 1; }
+  .wis__prob { grid-row: 1; max-width: 100%; }
+  .wis__ans { grid-column: 2; max-width: 100%; }
 }
-
-/* --------------------------------------------------------------------------
-   No motion: every word is simply in focus, and nothing pins.
-   -------------------------------------------------------------------------- */
-  /* margin-top with the height: the -14vh above exists to pull the block
-     up into the empty top half of a 100vh pinned screen, and there is no
-     pinned screen here. Left in, it would lift the sentence into the
-     kicker. */
-  html.rm .wib { height: auto; margin-top: clamp(2rem, 6vh, 4rem); }
-  html.rm .wib__sticky { position: static; height: auto; padding-block: 1rem 3rem; }
-  html.rm .wib__w { opacity: 1; filter: none; will-change: auto; }
-  html.rm .wib__card { transition: opacity 120ms linear, visibility 120ms; transform: none; }
-  html.rm .wib__slot.is-up .wib__card { transform: none; }
-
-
-.no-js .wib__w { opacity: 1; filter: none; }
-/* Same reason as the html.rm rule above: no pin, so nothing to pull up
-   into. */
-.no-js .wib { height: auto; margin-top: clamp(2rem, 6vh, 4rem); }
-.no-js .wib__sticky { position: static; height: auto; }
 
 /* ==========================================================================
    STEP 6 - How I Can Help
@@ -9437,21 +9156,6 @@ html:has(.sb.is-live) .tt--hx {
     min-height: 44px;
   }
 
-  /* A chip is too small to grow without redrawing the sentence it sits
-     in, so it gets an invisible pad instead: the ::after covers 44px
-     centred on the chip and takes the tap. */
-  .wib__chip { position: relative; }
-
-  .wib__chip::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: max(100%, 44px);
-    height: 44px;
-    transform: translate(-50%, -50%);
-  }
-
   /* Same treatment for the dash indicator, measured at 34x5 */
   .say__dash { position: relative; }
 
@@ -9473,7 +9177,7 @@ html:has(.sb.is-live) .tt--hx {
   .jr__short,
   .jr__text,
   .jr__brought li,
-  .st__proof,
+
   .hlp__text,
   /* .gr__intro was here. Its markup went with the band's heading in STEP
      46 and the intro card's paragraph takes its place in this list, at
@@ -11240,6 +10944,19 @@ html.rm .js .ab__media.is-revealed .ab__card {
   line-height: 1.12;
   letter-spacing: -0.02em;
   color: var(--text);
+}
+
+/* The one line that replaced the three labelled blocks. It is a step
+   above the old .sy__blocktx in size and in ink, because it is now the
+   only prose in the card and it carries the before and the after: at
+   --muted and 16px it read as a caption under the title rather than as
+   the claim the diagram goes on to prove. */
+.sy__lead {
+  margin: 1rem 0 0;
+  max-width: 62ch;
+  font-size: clamp(16px, 1.3vw, 18px);
+  line-height: 1.65;
+  color: var(--body);
 }
 
 /* The three blocks are separated by hairlines rather than gaps, and the
