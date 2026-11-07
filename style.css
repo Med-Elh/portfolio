@@ -325,6 +325,17 @@
 
   /* FIXED: the hero heading sits on the portrait, not on the page */
   --hx-head:     #F7F7F5;
+  /* FIXED, and it has to be, for the same reason --hx-head is. The
+     headline is near-white because it sits on the portrait. Its halo
+     used to be --bg-blur, which FLIPS: dark in the dark theme, where it
+     worked, and rgba(247,247,245,0.82) in the light one, which is a
+     WHITE glow behind WHITE text and does nothing at all. That left two
+     0.32-alpha shadows holding the headline up, and measured 1.85:1 on
+     the portrait's faded left edge, down to 1.00:1 where it overhangs.
+
+     Same class of bug as the --surface-tint one in STEP 43: a pair
+     where the ink is fixed and the surface behind it flips. */
+  --hx-head-halo: rgba(20, 22, 26, 0.9);
 
   /* The blurred page colour, at three strengths. Tracks --bg. */
   --bg-blur-solid: rgba(247, 247, 245, 0.97);
@@ -4597,8 +4608,8 @@ body.is-locked .dots {
   color: var(--hx-head);
   text-shadow: 0 2px 18px var(--shadow-4),
                0 1px 3px var(--shadow-4),
-               0 0 14px var(--bg-blur),
-               0 0 28px var(--bg-blur);
+               0 0 14px var(--hx-head-halo),
+               0 0 28px var(--hx-head-halo);
 }
 
 .hx__btns { display: flex; flex-wrap: wrap; gap: 0.6rem; }
@@ -4668,6 +4679,29 @@ body.is-locked .dots {
   white-space: nowrap;
   color: var(--body);
   transition: color var(--fast) ease, gap 200ms var(--ease-out);
+}
+
+/* Above 900px these two sit ON the portrait, and their ink was the
+   PAGE's ink, which flips. In dark mode that is light and correct; in
+   light mode it put near-black type on a near-black jacket. Measured
+   there: "Get in touch" 3.43:1 and "View work" 1.66:1.
+
+   --hx-head is the fixed near-white the headline already uses for
+   exactly this reason, and --hx-head-halo carries the boxless link,
+   which has no outline to separate it from the photograph.
+
+   Scoped to 900px up on purpose: below that both sit on the page
+   ground, where the flipping ink is right and light ink would be
+   invisible. The filled Book button needs none of this, because an
+   opaque fill does not care what is behind it. */
+@media (min-width: 900px) {
+  .hx__btn--go { color: var(--hx-head); }
+
+  .hx__worklink {
+    color: var(--hx-head);
+    text-shadow: 0 1px 2px var(--hx-head-halo),
+                 0 0 10px var(--hx-head-halo);
+  }
 }
 
 .hx__btnarrow { flex: 0 0 auto; transition: transform 200ms var(--ease-out); }
@@ -4803,7 +4837,18 @@ body.is-locked .dots {
      would make a second filled button on the screen. */
   .hx__btn--go:hover { box-shadow: inset 0 0 0 1px var(--accent); }
 
-  .hx__worklink:hover { color: var(--ink); gap: 0.65rem; }
+  /* Not --ink: above 900px that is the page ink on a dark jacket, which
+     is the bug this hover would have reintroduced on every pointer. The
+     link is already --hx-head there, so the hover moves the arrow and
+     firms the halo instead of changing the colour. */
+  .hx__worklink:hover { gap: 0.65rem; }
+
+  @media (min-width: 900px) {
+    .hx__worklink:hover {
+      text-shadow: 0 1px 2px var(--hx-head-halo),
+                   0 0 14px var(--hx-head-halo);
+    }
+  }
 
   .hx__btn--cv:hover { background-color: var(--surface-strong); }
 }
@@ -5188,7 +5233,19 @@ body.is-locked .dots {
   .hx__word { order: 1; font-size: 15.5vw; text-align: center; }
   .hx__portrait { order: 2; height: auto; max-width: 82%; margin-top: -10%; }
   .hx__lead { order: 3; align-items: center; }
-  .hx__head { text-align: center; font-size: clamp(1.75rem, 8.5vw, 2.5rem); }
+  /* --text, not --hx-head, and no halo. Below 900px the hero is a flex
+     column and .hx__lead is order 3, so the headline is BELOW the
+     portrait, on the page ground, at every width in this range. A
+     near-white headline there is near-white on --bg: measured about
+     1.05:1, which is the ghost you see on a phone in light mode. The
+     fixed white is correct only while the portrait is behind it, and
+     here it never is. */
+  .hx__head {
+    text-align: center;
+    font-size: clamp(1.75rem, 8.5vw, 2.5rem);
+    color: var(--text);
+    text-shadow: none;
+  }
   /* STEP 40: the filled button takes the full width and the two that step
      down sit in a row beneath it. A column of three equal pills read as a
      list of three equal choices, which is the thing this step exists to
