@@ -11252,6 +11252,9 @@ html.rm .js .ab__media.is-revealed .ab__card {
 .sy__fchain:first-child,
 .sy__fbrlab + .sy__fchain { margin-top: 0; }
 
+/* A second side path in the same column, both leaving step 3 */
+.sy__fchain + .sy__fbrlab { margin-top: 28px; }
+
 /* The "Correct" path is the one the flow is built for, so it carries the
    accent on its borders and its chevrons. The label stays --accent-text:
    --accent is a surface and a graphic colour on this page, 3.11:1, and a

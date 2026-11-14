@@ -1554,7 +1554,9 @@
                       link and install steps, tagged meet_confirmed</li>
                     <li class="sy__fstep"><span class="sy__fnum">6</span>Reminder
                       at 15:00 the next day</li>
-                    <li class="sy__fstep"><span class="sy__fnum">7</span>Meeting
+                    <li class="sy__fstep"><span class="sy__fnum">7</span>Is
+                      the meeting today? If not, wait a day</li>
+                    <li class="sy__fstep"><span class="sy__fnum">8</span>Meeting
                       link at 20:50</li>
                   </ol>
                 </div>
@@ -1569,10 +1571,16 @@
                   <ul class="sy__fchain">
                     <li class="sy__fstep">Tagged fix_info, the team calls</li>
                   </ul>
+                  <p class="sy__fbrlab"><span class="sy__fbrif">Back at step 3:
+                      </span>No reply in 2 hours</p>
+                  <ul class="sy__fchain">
+                    <li class="sy__fstep">Status checked</li>
+                    <li class="sy__fstep">Still silent: reminder to confirm</li>
+                  </ul>
                 </div>
               </div>
 
-              <p class="sy__fnote">18 steps. Template and non template
+              <p class="sy__fnote">27 steps. Template and non template
                 messages chosen per step to keep the WhatsApp cost down at
                 volume.</p>
 
@@ -1582,15 +1590,15 @@
                    opened, because the handler sets src at that point, which
                    is stricter than loading="lazy". -->
               <p class="sy__flowmore">
-                <a class="sy__flowlink" href="assets/flow-weblane.png"
+                <a class="sy__flowlink" href="assets/flow-weblane-v2.png"
                    data-cert
-                   data-cert-cap="The flow as built in eGrow."
-                   data-cert-alt="The Wel'blane lead flow as built in eGrow:
-                     eighteen connected steps running from the Facebook lead
-                     trigger through the CRM contact, the WhatsApp
-                     confirmation and its two button branches, to the
-                     scheduled reminder and the meeting link.">See the actual
-                  flow</a>
+                   data-cert-cap="The flow as built."
+                   data-cert-alt="The Wel'blane lead flow: twenty seven
+                     connected steps running from the Facebook lead trigger
+                     through the CRM contact and the WhatsApp confirmation,
+                     with a reminder for leads who have not replied in two
+                     hours and a check that the meeting is today before the
+                     meeting link goes out.">See the actual flow</a>
               </p>
             </div>
 
